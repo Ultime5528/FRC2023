@@ -6,7 +6,7 @@ Closes #TODO.
 Liste de vérification
 ---------------------
 <!-- Entre les [ ], remplace l'espace par un x lorsque c'est fait. -->
-- [ ] Writing conventions :
+- Writing conventions :
     - [ ] English language
     - [ ] File names use lowercase without spaces
     - [ ] Class names use PascalCase
