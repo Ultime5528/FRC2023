@@ -3,15 +3,15 @@ from networktables.util import ntproperty
 
 persistent = True
 
-"""
-Respect the naming convention : "subsystem" _ "command" _ "precision"
-Example: climber_climb-high_speed
-"""
-
 
 class _Properties:
+    """
+    - Respect the naming convention : "subsystem/command" _ "variable type" _ "precision"
+    - ntproperty strings are the same as their variables
+    """
+
+    # Example: intake_speed_slow = ntproperty("/Properties/intake_speed_slow", 300, writeDefault=False, persistent=persistent)
     pass
-    # Example: shooter_speed = ntproperty("/Properties/shooter_speed", 1500, writeDefault=False, persistent=persistent)
 
 
 values = _Properties()
