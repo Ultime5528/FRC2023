@@ -11,10 +11,10 @@
 * Function and command names start with an action verb (get, set, move, start, stop...)
 * Ports  
     * Must be added to ports.py
-    * Respect the naming convention : "subsystem" _ "component type" ( _ "precision")
+    * Respect the naming convention : "subsystem" _ "component type"  _ "precision"
     * Example : drivetrain_motor_left
 * Properties 
   * Must be added to properties.py 
-  * Must be visible on network tables
-
+  * Respect the naming convention : "subsystem"  _ "command"  _ "precision"
+  * Example : shooter_shootfar_motorspeed
 
