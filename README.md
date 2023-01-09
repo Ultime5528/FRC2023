@@ -1,5 +1,5 @@
-# FRC2023 #
-### Writing Conventions ###
+# FRC2023
+### Writing Conventions 
 * All code must be written in the English language
 * Follow PyCharm style recommendations
 * Commit names must be clear and informative
@@ -20,3 +20,22 @@
   * ntproperty strings are the same as their variables, ex:
     * **shooter_speed** = ntproperty("/Properties/**shooter_speed**", 1500, ...
 
+### Environment setup
+* Download the latest Miniconda version on your computer with the following link (https://docs.conda.io/en/latest/miniconda.html)
+* Open Anaconda Prompt
+* Run the following commands to make sure everything is up to date:
+```commandline
+  conda config --add channels conda-forge
+  conda config --set channel_priority strict
+  conda update conda
+  conda update python
+```
+* Run the following command to create an environment named "frc2023":
+```commandline
+  conda create -n frc2023 python=3.11
+```
+* Add the environment to the interpreter on PyCharm
+* Run the following command on the PyCharm terminal to add the requirements
+```commandline
+  pip install -r requirements.txt
+```
