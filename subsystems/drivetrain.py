@@ -19,20 +19,22 @@ class DriveTrain(SafeSubsystemBase):
     def __init__(self) -> None:
         super().__init__()
         # Motors
-        self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_fr, rev.CANSparkMax.MotorType.kBrushless)
-        configure_leader(self._motor_left, "brake")
+        self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_fl, rev.CANSparkMax.MotorType.kBrushless)
+        # configure_leader(self._motor_left, "brake")
 
-        self._motor_left_follower = rev.CANSparkMax(ports.drivetrain_motor_rr,
+        self._motor_left_follower = rev.CANSparkMax(ports.drivetrain_motor_rl,
                                                     rev.CANSparkMax.MotorType.kBrushless)
-        configure_follower(self._motor_left_follower, self._motor_left, "brake")
+        # configure_follower(self._motor_left_follower, self._motor_left, "brake")
 
-        self._motor_right = rev.CANSparkMax(ports.drivetrain_motor_fl,
+        self._motor_right = rev.CANSparkMax(ports.drivetrain_motor_fr,
                                             rev.CANSparkMax.MotorType.kBrushless)
-        configure_leader(self._motor_right, "brake")
-
-        self._motor_right_follower = rev.CANSparkMax(ports.drivetrain_motor_rl,
+        # configure_leader(self._motor_right, "brake")
+        self._motor_right_follower = rev.CANSparkMax(ports.drivetrain_motor_rr,
                                                      rev.CANSparkMax.MotorType.kBrushless)
-        configure_follower(self._motor_right_follower, self._motor_right, "brake")
+        # configure_follower(self._motor_right_follower, self._motor_right, "brake")
+
+        for motor in [self._motor_left, self._motor_right, self._motor_left_follower, self._motor_right_follower]:
+            motor.restoreFactoryDefaults()
 
         self._drive = wpilib.drive.DifferentialDrive(self._motor_left, self._motor_right)
         self.addChild("DifferentialDrive", self._drive)
@@ -84,6 +86,7 @@ class DriveTrain(SafeSubsystemBase):
         self._odometry.resetPosition(Pose2d(), Rotation2d.fromDegrees(0.0))
 
         if RobotBase.isSimulation():
+            print("sim")
             self._drive_sim.setPose(Pose2d())
         else:
             self._gyro.reset()
