@@ -6,7 +6,8 @@ import wpilib.drive
 from wpilib import RobotBase, RobotController
 from wpilib.simulation import DifferentialDrivetrainSim, SimDeviceSim
 from wpimath.geometry import Pose2d, Rotation2d
-from wpimath.kinematics import DifferentialDriveOdometry
+from wpimath.kinematics import DifferentialDriveOdometry, DifferentialDriveKinematics
+from wpimath.estimator import DifferentialDrivePoseEstimator
 from wpimath.system import LinearSystemId
 from wpimath.system.plant import DCMotor
 from utils.sparkmaxutils import configure_follower, configure_leader
@@ -45,6 +46,8 @@ class DriveTrain(SafeSubsystemBase):
 
         self._gyro = navx.AHRS(wpilib.SerialPort.Port.kMXP)
         self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(5, 5, 0))
+        self._kinematics = DifferentialDriveKinematics(trackWidth=1)
+        self._estimator = DifferentialDrivePoseEstimator(self._kinematics, self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(5, 5, 0))
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
         self._left_encoder_offset = 0
@@ -103,11 +106,16 @@ class DriveTrain(SafeSubsystemBase):
     def getPose(self):
         return self._odometry.getPose()
 
+    def getPoseEstimatiate(self):
+        return self._estimator.getEstimatedPosition()
+
     def getField(self):
         return self._field
 
     def periodic(self):
         self._odometry.update(self._gyro.getRotation2d(), self.getLeftEncoderPosition(), self.getRightEncoderPosition())
+        self._estimator.update()
+        # self._estimator.addVisionMeasurement()
         self._field.setRobotPose(self._odometry.getPose())
         wpilib.SmartDashboard.putNumber("Left Encoder Position", self.getLeftEncoderPosition())
         wpilib.SmartDashboard.putNumber("Right Encoder Position", self.getRightEncoderPosition())
