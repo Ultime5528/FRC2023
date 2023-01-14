@@ -10,7 +10,7 @@ from wpimath.kinematics import DifferentialDriveOdometry
 from wpimath.system import LinearSystemId
 from wpimath.system.plant import DCMotor
 
-from gyro import Navx, ADIS, ADXRS, Empty
+from gyro import NavX, ADIS, ADXRS, Empty
 from utils.sparkmaxutils import configure_follower, configure_leader
 from utils.safesubsystembase import SafeSubsystemBase
 from utils.sparkmaxsim import SparkMaxSim
@@ -48,7 +48,7 @@ class DriveTrain(SafeSubsystemBase):
         self._encoder_right.setPositionConversionFactor(0.0463)
 
         if self.select_gyro == "navx":
-            self._gyro = Navx()
+            self._gyro = NavX()
         elif self.select_gyro == "adis":
             self._gyro = ADIS()
         elif self.select_gyro == "adxrs":

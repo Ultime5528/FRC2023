@@ -25,7 +25,7 @@ class Gyro(ABC):
         return Rotation2d.fromDegrees(self.getAngle())
 
 
-class Navx(Gyro):
+class NavX(Gyro):
     def __init__(self):
         self.gyro = navx.AHRS(wpilib.SerialPort.Port.kMXP)
         gyro_sim_device = SimDeviceSim("navX-Sensor[1]")
