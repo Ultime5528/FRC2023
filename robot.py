@@ -2,7 +2,7 @@
 import commands2
 import wpilib
 
-from subsystems.drivetrain import DriveTrain
+from subsystems.drivetrain import Drivetrain
 
 from commands.drive import Drive
 
@@ -10,7 +10,7 @@ from commands.drive import Drive
 class Robot(commands2.TimedCommandRobot):
     def robotInit(self):
         wpilib.LiveWindow.enableAllTelemetry()
-        self.drivetrain = DriveTrain()
+        self.drivetrain = Drivetrain()
         self.stick = wpilib.Joystick(0)
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
 
