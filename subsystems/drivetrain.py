@@ -9,6 +9,8 @@ from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.kinematics import DifferentialDriveOdometry
 from wpimath.system import LinearSystemId
 from wpimath.system.plant import DCMotor
+
+from gyro import Navx, ADIS, ADXRS, Empty
 from utils.sparkmaxutils import configure_follower, configure_leader
 from utils.safesubsystembase import SafeSubsystemBase
 from utils.sparkmaxsim import SparkMaxSim
@@ -16,6 +18,8 @@ import ports
 
 
 class DriveTrain(SafeSubsystemBase):
+    #Gyros: navx, adis, adxrs, empty
+    select_gyro = "navx"
     def __init__(self) -> None:
         super().__init__()
         # Motors
@@ -43,19 +47,27 @@ class DriveTrain(SafeSubsystemBase):
         self._encoder_left.setPositionConversionFactor(0.0463)
         self._encoder_right.setPositionConversionFactor(0.0463)
 
-        self._gyro = navx.AHRS(wpilib.SerialPort.Port.kMXP)
+        if self.select_gyro == "navx":
+            self._gyro = Navx()
+        elif self.select_gyro == "adis":
+            self._gyro = ADIS()
+        elif self.select_gyro == "adxrs":
+            self._gyro = ADXRS()
+        else:
+            self._gyro = Empty()
+
         self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(5, 5, 0))
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
         self._left_encoder_offset = 0
         self._right_encoder_offset = 0
-        self.addChild("Gyro", self._gyro)
+
+        if hasattr(self._gyro, "gyro"):
+            self.addChild("Gyro", self._gyro.gyro)
 
         if RobotBase.isSimulation():
             self._motor_left_sim = SparkMaxSim(self._motor_left)
             self._motor_right_sim = SparkMaxSim(self._motor_right)
-            gyro_sim_device = SimDeviceSim("navX-Sensor[1]")
-            self._gyro_sim = gyro_sim_device.getDouble("Yaw")
             self._system = LinearSystemId.identifyDrivetrainSystem(1.98, 0.2, 5, 0.3)
             self._drive_sim = DifferentialDrivetrainSim(self._system, 0.64, DCMotor.NEO(4), 1.5, 0.08, [
                 0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005
