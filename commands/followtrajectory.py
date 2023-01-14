@@ -5,11 +5,11 @@ import wpimath.trajectory
 from wpimath.geometry import Pose2d, Transform2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
-import properties
+from properties import values
 
 from utils.safecommandbase import SafeCommandBase
 from utils.trapezoidalmotion import TrapezoidalMotion
-from subsystems.drivetrain import DriveTrain
+from subsystems.drivetrain import Drivetrain
 
 
 class FollowTrajectory(SafeCommandBase):
@@ -22,7 +22,7 @@ class FollowTrajectory(SafeCommandBase):
 
     def __init__(
             self,
-            drivetrain: DriveTrain,
+            drivetrain: Drivetrain,
             waypoints: List[Pose2d],
             speed: float,
             reset: bool = False,
@@ -43,8 +43,8 @@ class FollowTrajectory(SafeCommandBase):
             self.trajectory = TrajectoryGenerator.generateTrajectory(
                 self.waypoints, self.config
             )
-            transformation = wpimath.geometry._geometry.Transform2d(self.drivetrain.getPose().translation(), wpimath.geometry._geometry.Rotation2d(math.radians(self.drivetrain.getAngle())))
-            self.trajectory = self.trajectory.transformBy(transformation)
+            # transformation = wpimath.geometry._geometry.Transform2d(self.drivetrain.getPose().translation(), wpimath.geometry._geometry.Rotation2d(math.radians(self.drivetrain.getAngle())))
+            # self.trajectory = self.trajectory.transformBy(transformation)
 
             self.states = self.trajectory.states()
 
@@ -87,7 +87,7 @@ class FollowTrajectory(SafeCommandBase):
 
         error = currentPose.rotation() - poseDest.rotation()
 
-        correction = properties.values.trajectoire_angle_p * error.degrees()
+        correction = values.trajectory_correction_angle * error.degrees()
         self.drivetrain.tankDrive(speed + correction, speed - correction)
 
     def isFinished(self) -> bool:

@@ -15,7 +15,7 @@ from utils.sparkmaxsim import SparkMaxSim
 import ports
 
 
-class DriveTrain(SafeSubsystemBase):
+class Drivetrain(SafeSubsystemBase):
     def __init__(self) -> None:
         super().__init__()
         # Motors
@@ -46,7 +46,7 @@ class DriveTrain(SafeSubsystemBase):
         self._encoder_right.setPositionConversionFactor(0.0463)
 
         self._gyro = navx.AHRS(wpilib.SerialPort.Port.kMXP)
-        self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(5, 5, 0))
+        self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(0, 0, 0))
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
         self._left_encoder_offset = 0
@@ -86,7 +86,6 @@ class DriveTrain(SafeSubsystemBase):
         self._odometry.resetPosition(Pose2d(), Rotation2d.fromDegrees(0.0))
 
         if RobotBase.isSimulation():
-            print("sim")
             self._drive_sim.setPose(Pose2d())
         else:
             self._gyro.reset()
