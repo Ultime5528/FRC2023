@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import commands2
 from networktables import NetworkTables
 import wpilib
@@ -10,17 +9,17 @@ from subsystems.drivetrain import Drivetrain
 
 from commands.followtrajectory import FollowTrajectory
 
+from commands.drive import Drive
+
 
 class Robot(commands2.TimedCommandRobot):
     def robotInit(self):
-        self.drivetrain = Drivetrain()
-        NetworkTables.initialize()
+        wpilib.LiveWindow.enableAllTelemetry()
+        self.drivetrain = DriveTrain()
+        self.stick = wpilib.Joystick(0)
+        self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
 
     def robotPeriodic(self) -> None:
-        # Tu doit mettre ceci sinon le CommandScheduler ne marche pas pour une raison X
-        commands2.CommandScheduler.getInstance().run()
-
-    def autonomousPeriodic(self):
         pass
 
 
