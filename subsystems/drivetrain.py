@@ -101,7 +101,7 @@ class DriveTrain(SafeSubsystemBase):
             self._gyro.reset()
 
     def getAngle(self):
-        return -math.remainder(self._gyro.getAngle(), 360.0)
+        return self._gyro.getAngle()
 
     def getLeftEncoderPosition(self):
         return self._encoder_left.getPosition() - self._left_encoder_offset
