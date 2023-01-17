@@ -42,10 +42,10 @@ class FollowTrajectory(SafeCommandBase):
         self.config.setReversed(self.path_reversed)
 
         # Experimental but maybe what we want for reversal.
-        # if self.path_reversed:
-        #     for waypoint in waypoints:
-        #         waypoint = Pose2d(waypoint.X() * -1, waypoint.Y() * -1, waypoint.rotation().rotateBy(Rotation2d(math.radians(180))))
-
+        if self.path_reversed:
+            for waypoint in waypoints:
+                waypoint = Pose2d(waypoint.X() * -1, waypoint.Y() * -1, waypoint.rotation().rotateBy(Rotation2d(math.radians(180))))
+            self.speed *= -1
         if not self.add_robot_pose:
             self.trajectory = TrajectoryGenerator.generateTrajectory(
                 self.waypoints, self.config
