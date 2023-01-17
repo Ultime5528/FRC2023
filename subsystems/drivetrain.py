@@ -1,4 +1,6 @@
 import math
+from typing import Literal
+
 import navx
 import rev
 import wpilib
@@ -16,10 +18,11 @@ from utils.safesubsystembase import SafeSubsystemBase
 from utils.sparkmaxsim import SparkMaxSim
 import ports
 
+select_gyro: Literal["navx", "adis", "adxrs", "empty"] = "navx"
 
-class DriveTrain(SafeSubsystemBase):
-    #Gyros: navx, adis, adxrs, empty
-    select_gyro = "navx"
+
+class Drivetrain(SafeSubsystemBase):
+
     def __init__(self) -> None:
         super().__init__()
         # Motors
@@ -47,14 +50,12 @@ class DriveTrain(SafeSubsystemBase):
         self._encoder_left.setPositionConversionFactor(0.0463)
         self._encoder_right.setPositionConversionFactor(0.0463)
 
-        if self.select_gyro == "navx":
-            self._gyro = NavX()
-        elif self.select_gyro == "adis":
-            self._gyro = ADIS()
-        elif self.select_gyro == "adxrs":
-            self._gyro = ADXRS()
-        else:
-            self._gyro = Empty()
+        self._gyro = {
+            "navx": NavX,
+            "adis": ADIS,
+            "adxrs": ADXRS,
+            "empty": Empty,
+        }[select_gyro]()
 
         self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(5, 5, 0))
         self._field = wpilib.Field2d()
