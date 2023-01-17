@@ -23,10 +23,11 @@ class Gyro(ABC):
 
     @abstractmethod
     def reset(self): ...
-    
+
     def getRotation2d(self):
         return Rotation2d.fromDegrees(self.getAngle())
-    
+
+
 class NavX(Gyro):
     def __init__(self):
         self.gyro = navx.AHRS(wpilib.SerialPort.Port.kMXP)
@@ -47,7 +48,8 @@ class NavX(Gyro):
         self._gyro_sim_pitch.set(pitch)
 
     def reset(self):
-        self.gyro.reset()   
+        self.gyro.reset()
+
 
 class ADIS(Gyro):
     def __init__(self):
@@ -71,6 +73,7 @@ class ADIS(Gyro):
     def reset(self):
         self.gyro.reset()
 
+
 class ADXRS(Gyro):
     def __init__(self):
         self.gyro = wpilib.ADXRS450_Gyro()
@@ -92,6 +95,7 @@ class ADXRS(Gyro):
 
     def reset(self):
         self.gyro.reset()
+
 
 class Empty(Gyro):
     def __init__(self):
