@@ -3,28 +3,27 @@ from commands2 import CommandBase
 from wpimath.filter import LinearFilter
 import properties
 from subsystems.drivetrain import Drivetrain
+from utils.safecommandbase import SafeCommandBase
 
 
 def interpolate(value: float):
     curve = properties.values.drive_interpolation_curve
-    deadzoneX = properties.values.drive_deadzone_x
-    deadzoneY = properties.values.drive_deadzone_y
+    deadzone_x = properties.values.drive_deadzone_x
+    deadzone_y = properties.values.drive_deadzone_y
 
-    if value >= deadzoneX:
-        return deadzoneY + (1 - deadzoneY) * (curve * value**3 + (1 - curve) * value)
-    elif value <= -deadzoneX:
-       return -deadzoneY + (1 - deadzoneY) * (curve * value**3 + (1 - curve) * value)
+    if value >= deadzone_x:
+        return deadzone_y + (1 - deadzone_y) * (curve * value**3 + (1 - curve) * value)
+    elif value <= -deadzone_x:
+       return -deadzone_y + (1 - deadzone_y) * (curve * value**3 + (1 - curve) * value)
     else:
-        return 0.0  # interpolate(deadzoneX) / deadzoneX * value;
+        return 0.0  # interpolate(deadzone_x) / deadzone_x * value;
 
 
-class Drive(CommandBase):
+class Drive(SafeCommandBase):
     def __init__(self, drivetrain: Drivetrain, stick: wpilib.Joystick):
         super().__init__()
         self.stick = stick
         self.drivetrain = drivetrain
-        self.addRequirements(drivetrain)
-        self.setName("Drive")
 
     def initialize(self) -> None:
         self.forward_filter = LinearFilter.movingAverage(int(properties.values.drive_smoothing_window))

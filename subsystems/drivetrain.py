@@ -18,20 +18,22 @@ class Drivetrain(SafeSubsystemBase):
     def __init__(self) -> None:
         super().__init__()
         # Motors
-        self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_fr, rev.CANSparkMax.MotorType.kBrushless)
+        self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_front_left, rev.CANSparkMax.MotorType.kBrushless)
         configure_leader(self._motor_left, "brake")
 
-        self._motor_left_follower = rev.CANSparkMax(ports.drivetrain_motor_rr,
+        self._motor_left_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_left,
                                                     rev.CANSparkMax.MotorType.kBrushless)
         configure_follower(self._motor_left_follower, self._motor_left, "brake")
 
-        self._motor_right = rev.CANSparkMax(ports.drivetrain_motor_fl,
+        self._motor_right = rev.CANSparkMax(ports.drivetrain_motor_front_right,
                                             rev.CANSparkMax.MotorType.kBrushless)
         configure_leader(self._motor_right, "brake")
-
-        self._motor_right_follower = rev.CANSparkMax(ports.drivetrain_motor_rl,
+        self._motor_right_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_right,
                                                      rev.CANSparkMax.MotorType.kBrushless)
         configure_follower(self._motor_right_follower, self._motor_right, "brake")
+
+        for motor in [self._motor_left, self._motor_right, self._motor_left_follower, self._motor_right_follower]:
+            motor.restoreFactoryDefaults()
 
         self._drive = wpilib.drive.DifferentialDrive(self._motor_left, self._motor_right)
         self.addChild("DifferentialDrive", self._drive)
@@ -43,7 +45,7 @@ class Drivetrain(SafeSubsystemBase):
         self._encoder_right.setPositionConversionFactor(0.0463)
 
         self._gyro = navx.AHRS(wpilib.SerialPort.Port.kMXP)
-        self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(5, 5, 0))
+        self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(0, 0, 0))
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
         self._left_encoder_offset = 0
