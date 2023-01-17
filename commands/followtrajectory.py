@@ -56,7 +56,7 @@ class FollowTrajectory(SafeCommandBase):
     def initialize(self) -> None:
         if self.add_robot_pose:
             self.trajectory = TrajectoryGenerator.generateTrajectory(
-                [self.drivetrain.get_pose(), *self.waypoints],
+                [self.drivetrain.getPose(), *self.waypoints],
                 self.config
             )
             self.states = self.trajectory.states()
@@ -71,15 +71,15 @@ class FollowTrajectory(SafeCommandBase):
 
         self.index = 0
         self.cumul_dist = 0
-        self.start_dist = self.drivetrain.get_average_encoder_position()
-        self.drivetrain.get_field().getObject("traj").setTrajectory(self.trajectory.transformBy(Transform2d(self.drivetrain.get_pose().translation(), Rotation2d(math.radians(self.drivetrain.get_angle())))))
+        self.start_dist = self.drivetrain.getAverageEncoderPosition()
+        self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory.transformBy(Transform2d(self.drivetrain.getPose().translation(), Rotation2d(math.radians(self.drivetrain.getAngle())))))
 
     def execute(self) -> None:
-        currentPose = self.drivetrain.get_pose()
+        currentPose = self.drivetrain.getPose()
 
         while (
                 self.index < len(self.states) - 1
-                and abs(self.drivetrain.get_average_encoder_position() - self.start_dist) >= self.cumul_dist
+                and abs(self.drivetrain.getAverageEncoderPosition() - self.start_dist) >= self.cumul_dist
         ):
             self.index += 1
             self.cumul_dist += self.states[self.index].pose.translation().distance(
@@ -93,11 +93,11 @@ class FollowTrajectory(SafeCommandBase):
         error = currentPose.rotation() - poseDest.rotation()
 
         correction = values.trajectory_correction_angle * error.degrees()
-        self.drivetrain.tank_drive(speed + correction, speed - correction)
+        self.drivetrain.tankDrive(speed + correction, speed - correction)
 
     def isFinished(self) -> bool:
         return self.index >= len(self.states) - 1 and abs(
-            self.drivetrain.get_average_encoder_position() - self.start_dist) >= self.cumul_dist
+            self.drivetrain.getAverageEncoderPosition() - self.start_dist) >= self.cumul_dist
 
     def end(self, interrupted: bool) -> None:
-        self.drivetrain.tank_drive(0, 0)
+        self.drivetrain.tankDrive(0, 0)

@@ -15,12 +15,10 @@ from commands.drive import Drive
 class Robot(commands2.TimedCommandRobot):
     def robotInit(self):
         wpilib.LiveWindow.enableAllTelemetry()
-        self.drivetrain = DriveTrain()
+        NetworkTables.initialize("127.0.0.1")
+        self.drivetrain = Drivetrain()
         self.stick = wpilib.Joystick(0)
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
-
-    def robotPeriodic(self) -> None:
-        pass
 
 
 if __name__ == "__main__":

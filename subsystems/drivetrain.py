@@ -19,17 +19,17 @@ class Drivetrain(SafeSubsystemBase):
     def __init__(self) -> None:
         super().__init__()
         # Motors
-        self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_fl, rev.CANSparkMax.MotorType.kBrushless)
+        self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_front_left, rev.CANSparkMax.MotorType.kBrushless)
         configure_leader(self._motor_left, "brake")
 
-        self._motor_left_follower = rev.CANSparkMax(ports.drivetrain_motor_rl,
+        self._motor_left_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_left,
                                                     rev.CANSparkMax.MotorType.kBrushless)
         configure_follower(self._motor_left_follower, self._motor_left, "brake")
 
-        self._motor_right = rev.CANSparkMax(ports.drivetrain_motor_fr,
+        self._motor_right = rev.CANSparkMax(ports.drivetrain_motor_front_right,
                                             rev.CANSparkMax.MotorType.kBrushless)
         configure_leader(self._motor_right, "brake")
-        self._motor_right_follower = rev.CANSparkMax(ports.drivetrain_motor_rr,
+        self._motor_right_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_right,
                                                      rev.CANSparkMax.MotorType.kBrushless)
         configure_follower(self._motor_right_follower, self._motor_right, "brake")
 
@@ -63,10 +63,10 @@ class Drivetrain(SafeSubsystemBase):
                 0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005
             ])
 
-    def arcade_drive(self, forward: float, rotation: float) -> None:
+    def arcadeDrive(self, forward: float, rotation: float) -> None:
         self._drive.arcadeDrive(forward, rotation, False)
 
-    def tank_drive(self, left: float, right: float) -> None:
+    def tankDrive(self, left: float, right: float) -> None:
         self._drive.tankDrive(left, right, False)
 
     def simulationPeriodic(self):
@@ -80,7 +80,7 @@ class Drivetrain(SafeSubsystemBase):
         self._motor_right_sim.setVelocity(self._drive_sim.getRightVelocity())
         self._gyro_sim.set(-self._drive_sim.getHeading().degrees())
 
-    def reset_odometry(self) -> None:
+    def resetOdometry(self) -> None:
         self._left_encoder_offset = self._encoder_left.getPosition()
         self._right_encoder_offset = self._encoder_right.getPosition()
         self._odometry.resetPosition(Pose2d(), Rotation2d.fromDegrees(0.0))
@@ -90,28 +90,28 @@ class Drivetrain(SafeSubsystemBase):
         else:
             self._gyro.reset()
 
-    def get_angle(self):
+    def getAngle(self):
         return -math.remainder(self._gyro.getAngle(), 360.0)
 
-    def get_left_encoder_position(self):
+    def getLeftEncoderPosition(self):
         return self._encoder_left.getPosition() - self._left_encoder_offset
 
-    def get_right_encoder_position(self):
+    def getRightEncoderPosition(self):
         return -(self._encoder_right.getPosition() - self._right_encoder_offset)
 
-    def get_average_encoder_position(self):
-        return (self.get_left_encoder_position() + self.get_right_encoder_position()) / 2
+    def getAverageEncoderPosition(self):
+        return (self.getLeftEncoderPosition() + self.getRightEncoderPosition()) / 2
 
-    def get_pose(self):
+    def getPose(self):
         return self._odometry.getPose()
 
-    def get_field(self):
+    def getField(self):
         return self._field
 
     def periodic(self):
-        self._odometry.update(self._gyro.getRotation2d(), self.get_left_encoder_position(), self.get_right_encoder_position())
+        self._odometry.update(self._gyro.getRotation2d(), self.getLeftEncoderPosition(), self.getRightEncoderPosition())
         self._field.setRobotPose(self._odometry.getPose())
-        wpilib.SmartDashboard.putNumber("Left Encoder Position", self.get_left_encoder_position())
-        wpilib.SmartDashboard.putNumber("Right Encoder Position", self.get_right_encoder_position())
+        wpilib.SmartDashboard.putNumber("Left Encoder Position", self.getLeftEncoderPosition())
+        wpilib.SmartDashboard.putNumber("Right Encoder Position", self.getRightEncoderPosition())
         wpilib.SmartDashboard.putNumber("Left Motor", self._motor_left.get())
         wpilib.SmartDashboard.putNumber("Right Motor", self._motor_right.get())
