@@ -7,7 +7,7 @@ from wpimath.geometry import Pose2d
 from wpilib import SmartDashboard
 from subsystems.drivetrain import Drivetrain
 
-from commands.followtrajectory import FollowTrajectory
+from subsystems.drivetrain import Drivetrain
 
 from commands.drive import Drive
 

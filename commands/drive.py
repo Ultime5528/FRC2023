@@ -24,8 +24,6 @@ class Drive(SafeCommandBase):
         super().__init__()
         self.stick = stick
         self.drivetrain = drivetrain
-        self.addRequirements(drivetrain)
-        self.setName("Drive")
 
     def initialize(self) -> None:
         self.forward_filter = LinearFilter.movingAverage(int(properties.values.drive_smoothing_window))

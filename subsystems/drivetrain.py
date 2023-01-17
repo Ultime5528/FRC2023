@@ -14,7 +14,6 @@ from utils.safesubsystembase import SafeSubsystemBase
 from utils.sparkmaxsim import SparkMaxSim
 import ports
 
-
 class Drivetrain(SafeSubsystemBase):
     def __init__(self) -> None:
         super().__init__()
