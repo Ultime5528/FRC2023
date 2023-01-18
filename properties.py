@@ -10,8 +10,10 @@ class _Properties:
     - ntproperty strings are the same as their variables
     """
 
-    # Example: intake_speed_slow = ntproperty("/Properties/intake_speed_slow", 300, writeDefault=False, persistent=persistent)
-    pass
+    drive_smoothing_window = ntproperty("/Properties/drive_smoothing_window", 1, writeDefault=False, persistent=persistent)
+    drive_interpolation_curve = ntproperty("/Properties/drive_interpolation_curve", 0.6, writeDefault=False, persistent=persistent)
+    drive_deadzone_x = ntproperty("/Properties/drive_deadzone_x", 0.05, writeDefault=False, persistent=persistent)
+    drive_deadzone_y = ntproperty("/Properties/drive_deadzone_y", 0.05, writeDefault=False, persistent=persistent)
 
 
 values = _Properties()
