@@ -23,6 +23,7 @@ class Drive(SafeCommandBase):
     def __init__(self, drivetrain: Drivetrain, stick: wpilib.Joystick):
         super().__init__()
         self.stick = stick
+        self.addRequirements(drivetrain)
         self.drivetrain = drivetrain
 
     def initialize(self) -> None:
