@@ -3,12 +3,12 @@
 import commands2
 import wpilib
 
-from subsystems.drivetrain import DriveTrain
+from subsystems.drivetrain import Drivetrain
 
 
 class Robot(commands2.TimedCommandRobot):
     def robotInit(self):
-        self.drivetrain = DriveTrain()
+        self.drivetrain = Drivetrain()
 
     def robotPeriodic(self) -> None:
         pass

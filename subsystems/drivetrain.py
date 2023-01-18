@@ -14,10 +14,12 @@ from utils.sparkmaxutils import configure_follower, configure_leader
 from utils.safesubsystembase import SafeSubsystemBase
 from utils.sparkmaxsim import SparkMaxSim
 from photonvision import PhotonCamera
+from robotpy_apriltag import AprilTagField, AprilTagFieldLayout, loadAprilTagLayoutField
 import ports
+from properties import values
 
 
-class DriveTrain(SafeSubsystemBase):
+class Drivetrain(SafeSubsystemBase):
     def __init__(self) -> None:
         super().__init__()
         # Motors
@@ -40,24 +42,30 @@ class DriveTrain(SafeSubsystemBase):
         self.addChild("DifferentialDrive", self._drive)
 
         # Photon Vision
-        self.cam = PhotonCamera()
+        self.cam = PhotonCamera("cam")
         self.latest = None
 
-        # Odometry
+        # April Tag Field
+        self.april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
+
+        # Encoders
         self._encoder_left = self._motor_left.getEncoder()
         self._encoder_right = self._motor_right.getEncoder()
         self._encoder_left.setPositionConversionFactor(0.0463)
         self._encoder_right.setPositionConversionFactor(0.0463)
+        self._left_encoder_offset = 0
+        self._right_encoder_offset = 0
 
+        # Gyro
         self._gyro = navx.AHRS(wpilib.SerialPort.Port.kMXP)
+        self.addChild("Gyro", self._gyro)
+
+        # Odometry
         self._kinematics = DifferentialDriveKinematics(trackWidth=0.56)
         self._estimator = DifferentialDrivePoseEstimator(self._kinematics, self._gyro.getRotation2d(), 0, 0,
                                                          initialPose=Pose2d(5, 5, 0))
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
-        self._left_encoder_offset = 0
-        self._right_encoder_offset = 0
-        self.addChild("Gyro", self._gyro)
 
         if RobotBase.isSimulation():
             self._motor_left_sim = SparkMaxSim(self._motor_left)
@@ -105,15 +113,20 @@ class DriveTrain(SafeSubsystemBase):
         return self._field
 
     def periodic(self):
-        self._estimator.update(self._gyro.getRotation2d(), self.getLeftEncoderPosition(),
-                               self.getRightEncoderPosition())
-        self._estimator.addVisionMeasurement()
         self.latest = self.cam.getLatestResult()
         if self.latest.hasTargets():
             img_capture_time = self.latest.getTimestamp()
-            cam_to_target_trans = self.latest.getBestTarget().getBestCameraToTarget()
-            cam_pose = self.latest.kF
+            cam_to_target = self.latest.getBestTarget().getBestCameraToTarget()
+            target_to_cam = cam_to_target.inverse()
+            target_on_field = self.april_tag_field.getTagPose(self.latest.getBestTarget())
+            camera_on_field = target_on_field.transformBy(target_to_cam)
+            robot_on_field = camera_on_field.transformBy(values.drivetrain_cam_to_robot_spe)
+
+        self._estimator.update(self._gyro.getRotation2d(), self.getLeftEncoderPosition(),
+                               self.getRightEncoderPosition())
+        self._estimator.addVisionMeasurement(robot_on_field, img_capture_time)
         self._field.setRobotPose(self._estimator.getPose())
+
         wpilib.SmartDashboard.putNumber("Left Encoder Position", self.getLeftEncoderPosition())
         wpilib.SmartDashboard.putNumber("Right Encoder Position", self.getRightEncoderPosition())
         wpilib.SmartDashboard.putNumber("Left Motor", self._motor_left.get())
