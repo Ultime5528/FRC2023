@@ -13,8 +13,8 @@ from wpimath.system.plant import DCMotor
 from utils.sparkmaxutils import configure_follower, configure_leader
 from utils.safesubsystembase import SafeSubsystemBase
 from utils.sparkmaxsim import SparkMaxSim
-from photonvision import PhotonCamera
-from robotpy_apriltag import AprilTagField, AprilTagFieldLayout, loadAprilTagLayoutField
+from photonvision import PhotonCamera, SimVisionSystem, SimVisionTarget
+from robotpy_apriltag import AprilTagField, loadAprilTagLayoutField
 import ports
 from properties import values
 
@@ -74,8 +74,17 @@ class Drivetrain(SafeSubsystemBase):
             self._gyro_sim = gyro_sim_device.getDouble("Yaw")
             self._system = LinearSystemId.identifyDrivetrainSystem(1.98, 0.2, 5, 0.3)
             self._drive_sim = DifferentialDrivetrainSim(self._system, 0.64, DCMotor.NEO(4), 1.5, 0.08, [
-                0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005
-            ])
+                0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005])
+
+            # Cam sim
+            camDiagFOV = 75.0
+            maxLEDRange = 20
+            camResolutionWidth = 640
+            camResolutionHeight = 480
+            minTargetArea = 10
+            self.sim_vision = SimVisionSystem("cam", camDiagFOV, values.drivetrain_cam_to_robot, maxLEDRange,
+                                              camResolutionWidth, camResolutionHeight, minTargetArea)
+            # self.sim_vision.addSimVisionTarget(self.april_tag_field.getTagPose(1))
 
     def arcadeDrive(self, forward: float, rotation: float) -> None:
         self._drive.arcadeDrive(forward, rotation, False)
@@ -93,6 +102,7 @@ class Drivetrain(SafeSubsystemBase):
         self._motor_right_sim.setPosition(-self._drive_sim.getRightPosition() + self._right_encoder_offset)
         self._motor_right_sim.setVelocity(self._drive_sim.getRightVelocity())
         self._gyro_sim.set(-self._drive_sim.getHeading().degrees())
+        self.sim_vision.processFrame(self._drive_sim.getPose())
 
     def getAngle(self):
         return -math.remainder(self._gyro.getAngle(), 360.0)
@@ -120,7 +130,7 @@ class Drivetrain(SafeSubsystemBase):
             target_to_cam = cam_to_target.inverse()
             target_on_field = self.april_tag_field.getTagPose(self.latest.getBestTarget())
             camera_on_field = target_on_field.transformBy(target_to_cam)
-            robot_on_field = camera_on_field.transformBy(values.drivetrain_cam_to_robot_spe)
+            robot_on_field = camera_on_field.transformBy(values.drivetrain_cam_to_robot)
 
         self._estimator.update(self._gyro.getRotation2d(), self.getLeftEncoderPosition(),
                                self.getRightEncoderPosition())
