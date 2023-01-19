@@ -15,6 +15,8 @@ class _Properties:
     drive_deadzone_x = ntproperty("/Properties/drive_deadzone_x", 0.05, writeDefault=False, persistent=persistent)
     drive_deadzone_y = ntproperty("/Properties/drive_deadzone_y", 0.05, writeDefault=False, persistent=persistent)
 
+    drive_to_dock_speed_max = ntproperty("/Propreties/drive_to_dock_speed_max", 0.5, writeDefault=False, persistent=persistent)
+    drive_to_dock_angle_threshold = ntproperty("/Propreties/drive_to_dock_angle_threshold", 0.05, writeDefault=False, persistent=persistent)
 
 values = _Properties()
 
