@@ -2,6 +2,7 @@ import wpilib
 from commands2 import CommandBase
 from wpimath.filter import LinearFilter
 import properties
+from utils.safecommandbase import SafeCommandBase
 from subsystems.drivetrain import Drivetrain
 from utils.safecommandbase import SafeCommandBase
 
