@@ -22,6 +22,7 @@ def interpolate(value: float):
 class Drive(SafeCommandBase):
     def __init__(self, drivetrain: Drivetrain, stick: wpilib.Joystick):
         super().__init__()
+        self.addRequirements(drivetrain)
         self.stick = stick
         self.drivetrain = drivetrain
 

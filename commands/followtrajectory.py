@@ -4,7 +4,8 @@ from typing import List
 import wpimath.trajectory
 from wpimath.geometry import Pose2d, Transform2d, Rotation2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
-from properties import values
+
+import properties
 
 from utils.safecommandbase import SafeCommandBase
 from utils.trapezoidalmotion import TrapezoidalMotion
@@ -27,7 +28,6 @@ class FollowTrajectory(SafeCommandBase):
             drivetrain: Drivetrain,
             waypoints: List[Pose2d],
             speed: float,
-            reset: bool = False,
             add_robot_pose: bool = False,
             path_reversed: bool = False
     ) -> None:
@@ -40,11 +40,6 @@ class FollowTrajectory(SafeCommandBase):
         self.path_reversed = path_reversed
         self.config = TrajectoryConfig(10, 10)
         self.config.setReversed(self.path_reversed)
-
-        # Experimental but maybe what we want for reversal.
-        # if self.path_reversed:
-        #     for waypoint in waypoints:
-        #         waypoint = Pose2d(waypoint.X() * -1, waypoint.Y() * -1, waypoint.rotation().rotateBy(Rotation2d(math.radians(180))))
 
         if not self.add_robot_pose:
             self.trajectory = TrajectoryGenerator.generateTrajectory(
@@ -62,42 +57,42 @@ class FollowTrajectory(SafeCommandBase):
             self.states = self.trajectory.states()
 
         self.motion = TrapezoidalMotion(
-            start_speed=0.1,
+            start_speed=properties.values.trajectory_start_speed,
             end_speed=self.speed,
-            accel=0.08,
+            accel=properties.values.trajectory_acceleration,
             start_position=0,
             displacement=self.states[0].pose.translation().distance(self.states[-1].pose.translation())
         )
 
         self.index = 0
-        self.cumul_dist = 0
+        self.cumulative_dist = 0
         self.start_dist = self.drivetrain.getAverageEncoderPosition()
-        self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory.transformBy(Transform2d(self.drivetrain.getPose().translation(), Rotation2d(math.radians(self.drivetrain.getAngle())))))
+        self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory.transformBy(Transform2d(self.drivetrain.getPose().translation(), Rotation2d().fromDegrees(self.drivetrain.getAngle()))))
 
     def execute(self) -> None:
-        currentPose = self.drivetrain.getPose()
+        current_pose = self.drivetrain.getPose()
 
         while (
                 self.index < len(self.states) - 1
-                and abs(self.drivetrain.getAverageEncoderPosition() - self.start_dist) >= self.cumul_dist
+                and abs(self.drivetrain.getAverageEncoderPosition() - self.start_dist) >= self.cumulative_dist
         ):
             self.index += 1
-            self.cumul_dist += self.states[self.index].pose.translation().distance(
+            self.cumulative_dist += self.states[self.index].pose.translation().distance(
                 self.states[self.index - 1].pose.translation())
 
-        poseDest = self.states[self.index].pose
-        traversed = self.states[0].pose.translation().distance(poseDest.translation())
-        self.motion.set_position(traversed)
-        speed = self.motion.get_speed() * (-1 if self.path_reversed else 1)
+        destination_pose = self.states[self.index].pose
+        distance_traveled = self.states[0].pose.translation().distance(destination_pose.translation())
+        self.motion.setPosition(distance_traveled)
+        speed = self.motion.getSpeed() * (-1 if self.path_reversed else 1)
 
-        error = currentPose.rotation() - poseDest.rotation()
+        error = current_pose.rotation() - destination_pose.rotation()
 
-        correction = values.trajectory_correction_angle * error.degrees()
+        correction = properties.values.trajectory_correction_angle * error.degrees()
         self.drivetrain.tankDrive(speed + correction, speed - correction)
 
     def isFinished(self) -> bool:
         return self.index >= len(self.states) - 1 and abs(
-            self.drivetrain.getAverageEncoderPosition() - self.start_dist) >= self.cumul_dist
+            self.drivetrain.getAverageEncoderPosition() - self.start_dist) >= self.cumulative_dist
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.tankDrive(0, 0)

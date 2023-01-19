@@ -32,8 +32,6 @@ class Drivetrain(SafeSubsystemBase):
                                                      rev.CANSparkMax.MotorType.kBrushless)
         configure_follower(self._motor_right_follower, self._motor_right, "brake")
 
-        for motor in [self._motor_left, self._motor_right, self._motor_left_follower, self._motor_right_follower]:
-            motor.restoreFactoryDefaults()
 
         self._drive = wpilib.drive.DifferentialDrive(self._motor_left, self._motor_right)
         self.addChild("DifferentialDrive", self._drive)
