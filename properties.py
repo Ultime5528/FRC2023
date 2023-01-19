@@ -9,9 +9,9 @@ class _Properties:
     - Respect the naming convention : "subsystem/command" _ "variable type" _ "precision"
     - ntproperty strings are the same as their variables
     """
-    trajectory_correction_angle = ntproperty("/Properties/trajectory_correction_angle", 0.016, writeDefault=False, persistent=persistent)
-    trajectory_start_speed = ntproperty("/Properties/trajectory_start_speed", 0.1, writeDefault=False, persistent=persistent)
-    trajectory_acceleration = ntproperty("/Properties/trajectory_acceleration", 0.08, writeDefault=False, persistent=persistent)
+    follow_trajectory_correction_factor = ntproperty("/Properties/follow_trajectory_correction_factor", 0.016, writeDefault=False, persistent=persistent)
+    follow_trajectory_speed_start = ntproperty("/Properties/follow_trajectory_speed_start", 0.1, writeDefault=False, persistent=persistent)
+    follow_trajectory_acceleration = ntproperty("/Properties/follow_trajectory_acceleration", 0.08, writeDefault=False, persistent=persistent)
 
     drive_smoothing_window = ntproperty("/Properties/drive_smoothing_window", 1, writeDefault=False, persistent=persistent)
     drive_interpolation_curve = ntproperty("/Properties/drive_interpolation_curve", 0.6, writeDefault=False, persistent=persistent)

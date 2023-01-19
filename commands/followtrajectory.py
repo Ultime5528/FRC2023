@@ -57,9 +57,9 @@ class FollowTrajectory(SafeCommandBase):
             self.states = self.trajectory.states()
 
         self.motion = TrapezoidalMotion(
-            start_speed=properties.values.trajectory_start_speed,
+            start_speed=properties.values.follow_trajectory_speed_start,
             end_speed=self.speed,
-            accel=properties.values.trajectory_acceleration,
+            accel=properties.values.follow_trajectory_acceleration,
             start_position=0,
             displacement=self.states[0].pose.translation().distance(self.states[-1].pose.translation())
         )
@@ -87,7 +87,7 @@ class FollowTrajectory(SafeCommandBase):
 
         error = current_pose.rotation() - destination_pose.rotation()
 
-        correction = properties.values.trajectory_correction_angle * error.degrees()
+        correction = properties.values.follow_trajectory_correction_factor * error.degrees()
         self.drivetrain.tankDrive(speed + correction, speed - correction)
 
     def isFinished(self) -> bool:
