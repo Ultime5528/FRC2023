@@ -8,7 +8,7 @@ from wpilib import SmartDashboard
 from subsystems.drivetrain import Drivetrain
 
 from subsystems.drivetrain import Drivetrain
-
+from commands.followtrajectory import FollowTrajectory
 from commands.drive import Drive
 
 
@@ -19,7 +19,8 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain = Drivetrain()
         self.stick = wpilib.Joystick(0)
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
-
+        wpilib.SmartDashboard.putData("Folow trag", FollowTrajectory(self.drivetrain, [Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5))
+        wpilib.SmartDashboard.putData("Folow trag backwart", FollowTrajectory(self.drivetrain, [Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5, path_reversed=True))
 
 if __name__ == "__main__":
     wpilib.run(Robot)
