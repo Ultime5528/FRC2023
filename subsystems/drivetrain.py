@@ -1,4 +1,6 @@
 import math
+from typing import Literal
+
 import navx
 import rev
 import wpilib
@@ -10,6 +12,8 @@ from wpimath.kinematics import DifferentialDriveKinematics
 from wpimath.estimator import DifferentialDrivePoseEstimator
 from wpimath.system import LinearSystemId
 from wpimath.system.plant import DCMotor
+
+from gyro import NavX, ADIS, ADXRS, Empty
 from utils.sparkmaxutils import configure_follower, configure_leader
 from utils.safesubsystembase import SafeSubsystemBase
 from utils.sparkmaxsim import SparkMaxSim
@@ -18,25 +22,26 @@ from robotpy_apriltag import AprilTagField, loadAprilTagLayoutField
 import ports
 from properties import values
 
+select_gyro: Literal["navx", "adis", "adxrs", "empty"] = "navx"
 
 class Drivetrain(SafeSubsystemBase):
     def __init__(self) -> None:
         super().__init__()
         # Motors
-        self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_fr, rev.CANSparkMax.MotorType.kBrushless)
+        self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_front_left, rev.CANSparkMax.MotorType.kBrushless)
         configure_leader(self._motor_left, "brake")
 
-        self._motor_left_follower = rev.CANSparkMax(ports.drivetrain_motor_rr,
+        self._motor_left_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_left,
                                                     rev.CANSparkMax.MotorType.kBrushless)
         configure_follower(self._motor_left_follower, self._motor_left, "brake")
 
-        self._motor_right = rev.CANSparkMax(ports.drivetrain_motor_fl,
+        self._motor_right = rev.CANSparkMax(ports.drivetrain_motor_front_right,
                                             rev.CANSparkMax.MotorType.kBrushless)
         configure_leader(self._motor_right, "brake")
-
-        self._motor_right_follower = rev.CANSparkMax(ports.drivetrain_motor_rl,
+        self._motor_right_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_right,
                                                      rev.CANSparkMax.MotorType.kBrushless)
         configure_follower(self._motor_right_follower, self._motor_right, "brake")
+
 
         self._drive = wpilib.drive.DifferentialDrive(self._motor_left, self._motor_right)
         self.addChild("DifferentialDrive", self._drive)
@@ -56,22 +61,25 @@ class Drivetrain(SafeSubsystemBase):
         self._left_encoder_offset = 0
         self._right_encoder_offset = 0
 
-        # Gyro
-        self._gyro = navx.AHRS(wpilib.SerialPort.Port.kMXP)
-        self.addChild("Gyro", self._gyro)
-
-        # Odometry
-        self._kinematics = DifferentialDriveKinematics(trackWidth=0.56)
-        self._estimator = DifferentialDrivePoseEstimator(self._kinematics, self._gyro.getRotation2d(), 0, 0,
-                                                         initialPose=Pose2d(5, 5, 0))
+        self._gyro = {
+            "navx": NavX,
+            "adis": ADIS,
+            "adxrs": ADXRS,
+            "empty": Empty,
+        }[select_gyro]()
+        self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(5, 5, 0))
+        
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
+        self._left_encoder_offset = 0
+        self._right_encoder_offset = 0
+
+        if hasattr(self._gyro, "gyro"):
+            self.addChild("Gyro", self._gyro.gyro)
 
         if RobotBase.isSimulation():
             self._motor_left_sim = SparkMaxSim(self._motor_left)
             self._motor_right_sim = SparkMaxSim(self._motor_right)
-            gyro_sim_device = SimDeviceSim("navX-Sensor[1]")
-            self._gyro_sim = gyro_sim_device.getDouble("Yaw")
             self._system = LinearSystemId.identifyDrivetrainSystem(1.98, 0.2, 5, 0.3)
             self._drive_sim = DifferentialDrivetrainSim(self._system, 0.64, DCMotor.NEO(4), 1.5, 0.08, [
                 0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005])
@@ -105,7 +113,7 @@ class Drivetrain(SafeSubsystemBase):
         self.sim_vision.processFrame(self._drive_sim.getPose())
 
     def getAngle(self):
-        return -math.remainder(self._gyro.getAngle(), 360.0)
+        return self._gyro.getAngle()
 
     def getLeftEncoderPosition(self):
         return self._encoder_left.getPosition() - self._left_encoder_offset
