@@ -84,7 +84,7 @@ class Drivetrain(SafeSubsystemBase):
             minTargetArea = 10
             self.sim_vision = SimVisionSystem("cam", camDiagFOV, values.drivetrain_cam_to_robot, maxLEDRange,
                                               camResolutionWidth, camResolutionHeight, minTargetArea)
-            # self.sim_vision.addSimVisionTarget(self.april_tag_field.getTagPose(1))
+            self.sim_vision.addSimVisionTarget(SimVisionTarget(self.april_tag_field.getTagPose(1), 8, 8, 1))
 
     def arcadeDrive(self, forward: float, rotation: float) -> None:
         self._drive.arcadeDrive(forward, rotation, False)
