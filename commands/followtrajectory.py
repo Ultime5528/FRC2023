@@ -19,7 +19,7 @@ class FollowTrajectory(SafeCommandBase):
     - Les coordonnées doivent être multipliées par -1 : (3, -1) devient (-3, 1)
 
     Example of a command:
-    FollowTrajectory(self.drivetrain, [self.drivetrain.get_pose(), Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5)
+    FollowTrajectory(self.drivetrain, [self.drivetrain.getPose(), Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5)
     """
 
     def __init__(
