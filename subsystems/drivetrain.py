@@ -24,7 +24,6 @@ from properties import values
 
 select_gyro: Literal["navx", "adis", "adxrs", "empty"] = "navx"
 
-
 class Drivetrain(SafeSubsystemBase):
     def __init__(self) -> None:
         super().__init__()
