@@ -1,6 +1,5 @@
-from networktables import NetworkTables
-from networktables.util import ntproperty
-
+from ntcore import NetworkTable
+from ntcore.util import ntproperty
 persistent = True
 
 
@@ -22,7 +21,7 @@ values = _Properties()
 
 
 def clear_properties():
-    for entry in NetworkTables.getEntries("/Properties", 0):
+    for entry in NetworkTable.getEntry("/Properties/"):
         name: str = entry.getName()
         assert name.startswith("/Properties/")
         name = name.replace("/Properties/", "")

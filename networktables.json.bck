@@ -1,0 +1,58 @@
+[
+  {
+    "name": "/Properties/follow_trajectory_correction_factor",
+    "type": "double",
+    "value": 0.016,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/follow_trajectory_speed_start",
+    "type": "double",
+    "value": 0.1,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/follow_trajectory_acceleration",
+    "type": "double",
+    "value": 0.08,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/drive_smoothing_window",
+    "type": "int",
+    "value": 1,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/drive_interpolation_curve",
+    "type": "double",
+    "value": 0.6,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/drive_deadzone_x",
+    "type": "double",
+    "value": 0.05,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/drive_deadzone_y",
+    "type": "double",
+    "value": 0.05,
+    "properties": {
+      "persistent": true
+    }
+  }
+]
