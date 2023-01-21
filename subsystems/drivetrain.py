@@ -14,14 +14,14 @@ from wpimath.system.plant import DCMotor
 
 from gyro import NavX, ADIS, ADXRS, Empty
 from utils.sparkmaxutils import configure_follower, configure_leader
-from utils.safesubsystembase import SafeSubsystemBase
+from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
 import ports
 
 select_gyro: Literal["navx", "adis", "adxrs", "empty"] = "navx"
 
 
-class Drivetrain(SafeSubsystemBase):
+class Drivetrain(SafeSubsystem):
 
     def __init__(self) -> None:
         super().__init__()

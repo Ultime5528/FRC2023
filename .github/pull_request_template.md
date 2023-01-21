@@ -15,4 +15,8 @@ Liste de vérification
     - [ ] Ports respect the naming convention "subsystem" _ "component type" _ "precision"
     - [ ] Properties respect the naming convention
     - [ ] ntproperty strings are the same as their variables
+- Command and subsytem safety :
+    - [ ] Commands and subsystems inherit from SafeCommand and SafeSubsystem
+    - [ ] No commands or subsytems have a `setName()` method, unless necessary, because Safe classes automatically set the name
+    - [ ] Commands have a `addRequirements()` method that includes all the subsystems they use
 - [ ] J'ai exécuté tout mon code en simulation.

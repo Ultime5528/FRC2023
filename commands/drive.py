@@ -2,7 +2,7 @@ import wpilib
 from commands2 import CommandBase
 from wpimath.filter import LinearFilter
 import properties
-from utils.safecommandbase import SafeCommandBase
+from utils.safecommand import SafeCommand
 from subsystems.drivetrain import Drivetrain
 from utils.safecommandbase import SafeCommandBase
 
@@ -20,7 +20,7 @@ def interpolate(value: float):
         return 0.0  # interpolate(deadzone_x) / deadzone_x * value;
 
 
-class Drive(SafeCommandBase):
+class Drive(SafeCommand):
     def __init__(self, drivetrain: Drivetrain, stick: wpilib.Joystick):
         super().__init__()
         self.addRequirements(drivetrain)
