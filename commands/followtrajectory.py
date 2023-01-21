@@ -7,12 +7,12 @@ from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
 import properties
 
-from utils.safecommandbase import SafeCommandBase
+from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
 from subsystems.drivetrain import Drivetrain
 
 
-class FollowTrajectory(SafeCommandBase):
+class FollowTrajectory(SafeCommand):
     """
     Pour une trajectoire inversée, il faut :
     - path_reversed=True
@@ -22,6 +22,10 @@ class FollowTrajectory(SafeCommandBase):
     Example of a command:
     FollowTrajectory(self.drivetrain, [self.drivetrain.getPose(), Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5)
     """
+    @classmethod
+    def drive_straight_distance(cls, drivetrain: Drivetrain, distance: float, speed: float, path_reversed: bool = False):
+        cmd = cls(drivetrain, [Pose2d(0, drivetrain, 0)], speed, path_reversed=path_reversed)
+        return cmd
 
     def __init__(
             self,
