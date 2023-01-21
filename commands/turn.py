@@ -1,12 +1,9 @@
-import wpilib
-from wpimath.geometry import Rotation2d
-
 from subsystems.drivetrain import Drivetrain
-from utils.safecommandbase import SafeCommandBase
+from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
 
 
-class Turn(SafeCommandBase):
+class Turn(SafeCommand):
     def __init__(self, drivetrain: Drivetrain, angle: float, speed: float):
         """
         Parameters
@@ -27,6 +24,8 @@ class Turn(SafeCommandBase):
         self.drivetrain = drivetrain
         self.addRequirements(drivetrain)
         self.angle = angle
+        self.cumul = 0
+        self.previous_rotation = self.drivetrain.getRotation()
 
     def initialize(self) -> None:
         self.cumul = 0
@@ -36,12 +35,12 @@ class Turn(SafeCommandBase):
         current_rotation = self.drivetrain.getRotation()
         moved_rotation = current_rotation - self.previous_rotation
         self.cumul += moved_rotation.degrees()
-        self.motion.set_position(self.cumul)
-        self.drivetrain.arcadeDrive(0, self.motion.get_speed())
+        self.motion.setPosition(self.cumul)
+        self.drivetrain.arcadeDrive(0, self.motion.getSpeed())
         self.previous_rotation = current_rotation
 
     def isFinished(self) -> bool:
-        return self.motion.is_finished()
+        return self.motion.isFinished()
 
     def end(self, interrupted: bool) -> None:
         pass

@@ -7,12 +7,12 @@ from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
 import properties
 
-from utils.safecommandbase import SafeCommandBase
+from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
 from subsystems.drivetrain import Drivetrain
 
 
-class FollowTrajectory(SafeCommandBase):
+class FollowTrajectory(SafeCommand):
     """
     Pour une trajectoire inversée, il faut :
     - path_reversed=True
