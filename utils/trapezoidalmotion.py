@@ -100,13 +100,13 @@ class TrapezoidalMotion:
         if 2 * self._accel_window > self._real_config.displacement:
             self._accel_window = self._real_config.displacement / 2
 
-    def set_position(self, position: float):
+    def setPosition(self, position: float):
         assert (
             self._real_config
         ), "Motion is not yet computed. 'start_position' and ('end_position' or 'displacement') must be set."
         self._position = position
 
-    def get_speed(self) -> float:
+    def getSpeed(self) -> float:
         assert self._position is not None, "Position has not been set."
 
         if self._inverted:
@@ -139,7 +139,7 @@ class TrapezoidalMotion:
 
         return v
 
-    def is_finished(self):
+    def isFinished(self):
         if self._inverted:
             return self._position <= self._real_config.end_position
         else:

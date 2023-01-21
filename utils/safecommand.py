@@ -2,7 +2,7 @@ from functools import wraps
 
 import commands2
 
-__all__ = ["SafeCommandBase"]
+__all__ = ["SafeCommand"]
 
 fms = True
 exception_threshold = 3
@@ -44,7 +44,7 @@ class SafeCommandMetaclass(commands2.CommandBase.__class__):
         return cls
 
 
-class SafeCommandBase(commands2.CommandBase, metaclass=SafeCommandMetaclass):
+class SafeCommand(commands2.CommandBase, metaclass=SafeCommandMetaclass):
     def __init__(self):
         super().__init__()
         self.setName(self.__class__.__name__)

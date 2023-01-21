@@ -14,32 +14,32 @@ from wpimath.system.plant import DCMotor
 
 from gyro import NavX, ADIS, ADXRS, Empty
 from utils.sparkmaxutils import configure_follower, configure_leader
-from utils.safesubsystembase import SafeSubsystemBase
+from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
 import ports
 
 select_gyro: Literal["navx", "adis", "adxrs", "empty"] = "navx"
 
 
-class Drivetrain(SafeSubsystemBase):
+class Drivetrain(SafeSubsystem):
 
     def __init__(self) -> None:
         super().__init__()
         # Motors
-        self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_fr, rev.CANSparkMax.MotorType.kBrushless)
+        self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_front_left, rev.CANSparkMax.MotorType.kBrushless)
         configure_leader(self._motor_left, "brake")
 
-        self._motor_left_follower = rev.CANSparkMax(ports.drivetrain_motor_rr,
+        self._motor_left_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_left,
                                                     rev.CANSparkMax.MotorType.kBrushless)
         configure_follower(self._motor_left_follower, self._motor_left, "brake")
 
-        self._motor_right = rev.CANSparkMax(ports.drivetrain_motor_fl,
+        self._motor_right = rev.CANSparkMax(ports.drivetrain_motor_front_right,
                                             rev.CANSparkMax.MotorType.kBrushless)
         configure_leader(self._motor_right, "brake")
-
-        self._motor_right_follower = rev.CANSparkMax(ports.drivetrain_motor_rl,
+        self._motor_right_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_right,
                                                      rev.CANSparkMax.MotorType.kBrushless)
         configure_follower(self._motor_right_follower, self._motor_right, "brake")
+
 
         self._drive = wpilib.drive.DifferentialDrive(self._motor_left, self._motor_right)
         self.addChild("DifferentialDrive", self._drive)
@@ -56,8 +56,8 @@ class Drivetrain(SafeSubsystemBase):
             "adxrs": ADXRS,
             "empty": Empty,
         }[select_gyro]()
-
         self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(5, 5, 0))
+        
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
         self._left_encoder_offset = 0
