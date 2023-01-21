@@ -6,8 +6,8 @@ import rev
 import wpilib
 import wpilib.drive
 from wpilib import RobotBase, RobotController
-from wpilib.simulation import DifferentialDrivetrainSim, SimDeviceSim
-from wpimath.geometry import Pose2d, Rotation2d
+from wpilib.simulation import DifferentialDrivetrainSim
+from wpimath.geometry import Pose2d
 from wpimath.kinematics import DifferentialDriveKinematics
 from wpimath.estimator import DifferentialDrivePoseEstimator
 from wpimath.system import LinearSystemId
@@ -23,6 +23,7 @@ import ports
 from properties import values
 
 select_gyro: Literal["navx", "adis", "adxrs", "empty"] = "navx"
+
 
 class Drivetrain(SafeSubsystemBase):
     def __init__(self) -> None:
@@ -42,7 +43,6 @@ class Drivetrain(SafeSubsystemBase):
                                                      rev.CANSparkMax.MotorType.kBrushless)
         configure_follower(self._motor_right_follower, self._motor_right, "brake")
 
-
         self._drive = wpilib.drive.DifferentialDrive(self._motor_left, self._motor_right)
         self.addChild("DifferentialDrive", self._drive)
 
@@ -60,27 +60,22 @@ class Drivetrain(SafeSubsystemBase):
         self._encoder_right.setPositionConversionFactor(0.0463)
         self._left_encoder_offset = 0
         self._right_encoder_offset = 0
-        
+
         # Gyro
-        self._gyro = {
         self._gyro = {
             "navx": NavX,
             "adis": ADIS,
             "adxrs": ADXRS,
             "empty": Empty,
         }[select_gyro]()
-        self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(5, 5, 0))
-        
+
         # Odometry
         self._kinematics = DifferentialDriveKinematics(trackWidth=0.56)
         self._estimator = DifferentialDrivePoseEstimator(self._kinematics, self._gyro.getRotation2d(), 0, 0,
                                                          initialPose=Pose2d(5, 5, 0))
-                                                         initialPose=Pose2d(5, 5, 0))
+
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
-        self._left_encoder_offset = 0
-        self._right_encoder_offset = 0
-        self.addChild("Gyro", self._gyro)
 
         if hasattr(self._gyro, "gyro"):
             self.addChild("Gyro", self._gyro.gyro)
@@ -117,7 +112,7 @@ class Drivetrain(SafeSubsystemBase):
         self._motor_left_sim.setVelocity(self._drive_sim.getLeftVelocity())
         self._motor_right_sim.setPosition(-self._drive_sim.getRightPosition() + self._right_encoder_offset)
         self._motor_right_sim.setVelocity(self._drive_sim.getRightVelocity())
-        self._gyro_sim.set(-self._drive_sim.getHeading().degrees())
+        self._gyro.setSimAngle(-self._drive_sim.getHeading().degrees())
         self.sim_vision.processFrame(self._drive_sim.getPose())
 
     def getAngle(self):
@@ -144,14 +139,14 @@ class Drivetrain(SafeSubsystemBase):
             img_capture_time = self.latest.getTimestamp()
             cam_to_target = self.latest.getBestTarget().getBestCameraToTarget()
             target_to_cam = cam_to_target.inverse()
-            target_on_field = self.april_tag_field.getTagPose(self.latest.getBestTarget())
+            target_on_field = self.april_tag_field.getTagPose(self.latest.getBestTarget().getFiducialId())
             camera_on_field = target_on_field.transformBy(target_to_cam)
-            robot_on_field = camera_on_field.transformBy(values.drivetrain_cam_to_robot)
+            robot_on_field = camera_on_field.transformBy(values.drivetrain_cam_to_robot).toPose2d()
+            self._estimator.addVisionMeasurement(robot_on_field, img_capture_time)
 
         self._estimator.update(self._gyro.getRotation2d(), self.getLeftEncoderPosition(),
                                self.getRightEncoderPosition())
-        self._estimator.addVisionMeasurement(robot_on_field, img_capture_time)
-        self._field.setRobotPose(self._estimator.getPose())
+        self._field.setRobotPose(self._estimator.getEstimatedPosition())
 
         wpilib.SmartDashboard.putNumber("Left Encoder Position", self.getLeftEncoderPosition())
         wpilib.SmartDashboard.putNumber("Right Encoder Position", self.getRightEncoderPosition())
