@@ -4,6 +4,7 @@ from wpimath.filter import LinearFilter
 import properties
 from utils.safecommandbase import SafeCommandBase
 from subsystems.drivetrain import Drivetrain
+from utils.safecommandbase import SafeCommandBase
 
 
 def interpolate(value: float):
@@ -22,10 +23,9 @@ def interpolate(value: float):
 class Drive(SafeCommandBase):
     def __init__(self, drivetrain: Drivetrain, stick: wpilib.Joystick):
         super().__init__()
+        self.addRequirements(drivetrain)
         self.stick = stick
         self.drivetrain = drivetrain
-        self.addRequirements(drivetrain)
-        self.setName("Drive")
 
     def initialize(self) -> None:
         self.forward_filter = LinearFilter.movingAverage(int(properties.values.drive_smoothing_window))
