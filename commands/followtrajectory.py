@@ -1,4 +1,5 @@
 import math
+from collections.abc import Iterable
 from typing import List
 
 import wpimath.trajectory
@@ -32,7 +33,7 @@ class FollowTrajectory(SafeCommandBase):
             path_reversed: bool = False
     ) -> None:
         super().__init__()
-        self.waypoints = waypoints
+        self.waypoints = waypoints if isinstance(waypoints, Iterable) else [waypoints]
         self.drivetrain = drivetrain
         self.addRequirements(drivetrain)
         self.speed = speed

@@ -71,7 +71,7 @@ class Drivetrain(SafeSubsystemBase):
         # Odometry
         self._kinematics = DifferentialDriveKinematics(trackWidth=0.56)
         self._estimator = DifferentialDrivePoseEstimator(self._kinematics, self._gyro.getRotation2d(), 0, 0,
-                                                         initialPose=Pose2d(5, 5, 0))
+                                                         initialPose=Pose2d(0, 0, 0))
 
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
@@ -133,6 +133,9 @@ class Drivetrain(SafeSubsystemBase):
         return self._field
 
     def periodic(self):
+        self._estimator.update(self._gyro.getRotation2d(), self.getLeftEncoderPosition(),
+                               self.getRightEncoderPosition())
+
         self.latest = self.cam.getLatestResult()
         if self.latest.hasTargets():
             img_capture_time = self.latest.getTimestamp()
@@ -143,8 +146,6 @@ class Drivetrain(SafeSubsystemBase):
             robot_on_field = camera_on_field.transformBy(values.drivetrain_cam_to_robot).toPose2d()
             self._estimator.addVisionMeasurement(robot_on_field, img_capture_time)
 
-        self._estimator.update(self._gyro.getRotation2d(), self.getLeftEncoderPosition(),
-                               self.getRightEncoderPosition())
         self._field.setRobotPose(self._estimator.getEstimatedPosition())
 
         wpilib.SmartDashboard.putNumber("Left Encoder Position", self.getLeftEncoderPosition())
