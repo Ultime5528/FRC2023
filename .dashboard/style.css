@@ -1,0 +1,97 @@
+body {
+    --lumo-base-color: hsl(120, 0%, 7%);
+    --lumo-primary-color-10pct: hsla(356, 100%, 63%, 0.1);
+    --lumo-primary-color-50pct: hsla(356, 86%, 55%, 0.5);
+    --lumo-primary-color: hsl(356, 86%, 55%);
+    --lumo-primary-contrast-color: #FFF;
+    --lumo-tint-5pct: hsla(356, 65%, 85%, 0.06);
+    --lumo-tint-10pct: hsla(356, 60%, 80%, 0.14);
+    --lumo-tint-20pct: hsla(356, 64%, 82%, 0.23);
+    --lumo-tint-30pct: hsla(356, 69%, 84%, 0.32);
+    --lumo-tint-40pct: hsla(356, 73%, 86%, 0.41);
+    --lumo-tint-50pct: hsla(356, 78%, 88%, 0.5);
+    --lumo-tint-60pct: hsla(356, 82%, 90%, 0.6);
+    --lumo-tint-70pct: hsla(356, 87%, 92%, 0.7);
+    --lumo-tint-80pct: hsla(356, 91%, 94%, 0.8);
+    --lumo-tint-90pct: hsla(356, 96%, 96%, 0.9);
+    --lumo-tint: hsl(356, 100%, 98%);
+    --lumo-shade-5pct: hsla(356, 0%, 0%, 0.07);
+    --lumo-shade-10pct: hsla(356, 4%, 2%, 0.15);
+    --lumo-shade-20pct: hsla(356, 8%, 4%, 0.23);
+    --lumo-shade-30pct: hsla(356, 12%, 6%, 0.32);
+    --lumo-shade-40pct: hsla(356, 16%, 8%, 0.41);
+    --lumo-shade-50pct: hsla(356, 20%, 10%, 0.5);
+    --lumo-shade-60pct: hsla(356, 24%, 12%, 0.6);
+    --lumo-shade-70pct: hsla(356, 28%, 13%, 0.7);
+    --lumo-shade-80pct: hsla(356, 32%, 13%, 0.8);
+    --lumo-shade-90pct: hsla(356, 33%, 13%, 0.9);
+    --lumo-shade: hsl(356, 33%, 13%);
+    --lumo-contrast-5pct: hsla(356, 65%, 85%, 0.06);
+    --lumo-contrast-10pct: hsla(356, 60%, 80%, 0.14);
+    --lumo-contrast-20pct: hsla(356, 64%, 82%, 0.23);
+    --lumo-contrast-30pct: hsla(356, 69%, 84%, 0.32);
+    --lumo-contrast-40pct: hsla(356, 73%, 86%, 0.41);
+    --lumo-contrast-50pct: hsla(356, 78%, 88%, 0.5);
+    --lumo-contrast-60pct: hsla(356, 82%, 90%, 0.6);
+    --lumo-contrast-70pct: hsla(356, 87%, 92%, 0.7);
+    --lumo-contrast-80pct: hsla(356, 91%, 94%, 0.8);
+    --lumo-contrast-90pct: hsla(356, 96%, 96%, 0.9);
+    --lumo-contrast: hsl(356, 100%, 98%);
+    --lumo-error-color-10pct: hsla(3, 90%, 63%, 0.1);
+    --lumo-error-color-50pct: hsla(3, 90%, 63%, 0.5);
+    --lumo-error-color: hsl(3, 90%, 63%);
+    --lumo-error-contrast-color: #FFF;
+    --lumo-success-color-10pct: hsla(145, 65%, 42%, 0.1);
+    --lumo-success-color-50pct: hsla(145, 65%, 42%, 0.5);
+    --lumo-success-color: hsl(145, 65%, 42%);
+    --lumo-success-contrast-color: #FFF;
+    --lumo-header-text-color: hsl(356, 100%, 98%);
+    --lumo-body-text-color: hsla(356, 96%, 96%, 0.9);
+    --lumo-secondary-text-color: hsla(215, 85%, 85%, 0.7);
+    --lumo-tertiary-text-color: hsla(356, 78%, 88%, 0.5);
+    --lumo-disabled-text-color: hsla(356, 69%, 84%, 0.32);
+    --lumo-primary-text-color: hsl(356, 81%, 53%);
+    --lumo-error-text-color: hsl(3, 100%, 67%);
+    --lumo-success-text-color: hsl(145, 85%, 47%);
+    --lumo-link-color: var(--lumo-primary-text-color);
+}
+
+body {
+    background-color: var(--lumo-base-color);
+    font-family: var(--lumo-font-family);
+    color: var(--lumo-primary-text-color);
+}
+
+body /deep/ vaadin-number-field::part(decrease-button)::before {
+    content: "-";
+}
+
+body /deep/ .vaadin-text-field-container {
+    border: 10px solid red !important;
+}
+
+body /deep/ #slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 15px;
+    border-radius: 5px;
+    background-color: red;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity .2s;
+}
+
+.boolean-box-title {
+    display: flex;
+    align-items: center;
+}
+
+.boolean-box-title frc-boolean-box {
+    margin-left: 0.5em;
+    width: 2em;
+    height: 2em;
+}
+
+frc-boolean-box {
+    border: 4px solid var(--lumo-primary-color);
+}

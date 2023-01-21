@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>KRAKEN DASHBOARD</title>
+    <script src="jquery-2.2.2.min.js"></script>
+    <script src="/networktables/camera.js"></script>
+	<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <frc-dashboard onload="ntLoaded()">
+        <div style="display: flex;align-items: center;justify-content: center;">
+            <img src="kraken.svg" height="100px"/>
+            <br>
+            <div style="display: inline-block; margin-right: 36px;">
+                NetworkTables websocket: <span id="connectstate">Unknown state</span><br/>
+                Robot: <span id="robotstate">Unknown state</span> @ <span id="robotAddress">disconnected</span>
+            </div>
+            <frc-basic-fms-info></frc-basic-fms-info>
+            <img src="Ultime-5528-Monochrome-Rouge.svg" width="100px" height="100px"/>
+        </div>
+        <hr/>
+
+        <div style="display: flex; flex-wrap: wrap;justify-content: center;">
+            <div style="width: min(100%, 640px); margin-right: 3%;">
+                <h2 class="secondary-text">Vision Hub</h2>
+                <div id="hub_output" style="width: 100%"></div>
+            </div>
+            <div style="width: min(100%, 640px)">
+                <h2 class="secondary-text">Vision Cargo</h2>
+                <div id="cargo_output" style="width: 100%"></div>
+            </div>
+        </div>
+
+        <div style="display: flex;">
+            <div style="margin-right:5%;">
+                <h2 class="secondary-text">Mode autonome</h2>
+                <frc-combo-box name="Mode Auto" default="Rien" options='["Rien","2 Ballons", "4 Ballons"]' source-key="/SmartDashboard/ModeAutonome"></frc-combo-box>
+
+                <h2 class="secondary-text">Vitesse de tir (%)</h2>
+                <frc-custom-slider min="-100" max="100" block-increment="1" source-key="/Properties/shooter_speed_multiplier"></frc-custom-slider>
+
+                <div class="boolean-box-title">
+                    <h2 class="secondary-text">Aide au pilotage</h2>
+                    <frc-boolean-box true-color="var(--lumo-primary-color)" false-color="var(--lumo-primary-color-10pct)" source-key="/SmartDashboard/Vision/PiloterAide/running"></frc-boolean-box>
+                    <div></div>
+                </div>
+
+                <h3 class="secondary-text">Influence</h3>
+                <frc-custom-slider min="0" max="1" block-increment="0.01" source-key="/Properties/aide_pilotage_orientation_influence"></frc-custom-slider>
+
+                <h3 class="secondary-text">Vitesse de ralentissement</h3>
+                <frc-custom-slider min="0" max="1" block-increment="0.01" source-key="/Properties/aide_pilotage_slow_factor"></frc-custom-slider>
+            </div>
+
+            <div>
+                <h2 class="secondary-text">Commandes</h2>
+                <h3 class="secondary-text">Intake</h3>
+                <frc-robot-command label="Balayer" source-key="/SmartDashboard/Intake/BalayerBallon"></frc-robot-command>
+                <frc-robot-command label="Descendre" source-key="/SmartDashboard/Intake/DescendreIntake"></frc-robot-command>
+                <frc-robot-command label="Monter" source-key="/SmartDashboard/Intake/Monter Intake"></frc-robot-command>
+                <frc-robot-command label="Prendre" source-key="/SmartDashboard/Intake/Prendre Ballon"></frc-robot-command>
+                <frc-robot-command label="Séquence Balayer" source-key="/SmartDashboard/Intake/SequenceBalayer"></frc-robot-command>
+                <frc-robot-command label="Séquence Prendre" source-key="/SmartDashboard/Intake/SequencePrendre"></frc-robot-command>
+            
+                <h3 class="secondary-text">Shooter</h3>
+                <frc-robot-command label="Manual shoot" source-key="/SmartDashboard/Intake/ManualShoot"></frc-robot-command>
+                <frc-robot-command label="Dashboard shoot" source-key="/SmartDashboard/Intake/DashboardShoot"></frc-robot-command>
+                <frc-robot-command label="Interpolated shoot" source-key="/SmartDashboard/Intake/InterpolatedShoot"></frc-robot-command>
+                <frc-robot-command label="Éjecter" source-key="/SmartDashboard/Intake/EjecterShooter"></frc-robot-command>
+            
+                <h3 class="secondary-text">Grimpeurs</h3>
+                <frc-robot-command label="Grimper niveau 2" source-key="/SmartDashboard/Grimper/GrimperNiveau2"></frc-robot-command>
+                <frc-robot-command label="Grimper niveau 3" source-key="/SmartDashboard/Grimper/GrimperNiveau3"></frc-robot-command>
+                <frc-robot-command label="Grimper niveau 4" source-key="/SmartDashboard/Grimper/GrimperNiveau4"></frc-robot-command>
+                <frc-robot-command label="Préparer grimper" source-key="/SmartDashboard/Grimper/PreparerGrimper"></frc-robot-command>
+                <frc-robot-command label="Reset grimpeurs" source-key="/SmartDashboard/Grimper/ResetGrimpeurs"></frc-robot-command>
+                <h4 class="secondary-text">Grimpeur primaire</h4>
+                <frc-robot-command label="Clip" source-key="/SmartDashboard/GrimpeurPrimaire/BougerPrimaire clip"></frc-robot-command>
+                <frc-robot-command label="Max" source-key="/SmartDashboard/GrimpeurPrimaire/BougerPrimaire max"></frc-robot-command>
+                <frc-robot-command label="Milieu" source-key="/SmartDashboard/GrimpeurPrimaire/BougerPrimaire middle"></frc-robot-command>
+                <frc-robot-command label="Descendre complet" source-key="/SmartDashboard/GrimpeurPrimaire/DescendreCompletPrimaire"></frc-robot-command>
+                <h4 class="secondary-text">Grimpeur secondaire</h4>
+                <frc-robot-command label="Aligner" source-key="/SmartDashboard/GrimpeurSecondaire/BougerSecondaire aligner"></frc-robot-command>
+                <frc-robot-command label="Niveau 3" source-key="/SmartDashboard/GrimpeurSecondaire/BougerSecondaire level 3"></frc-robot-command>
+                <frc-robot-command label="Monter complet" source-key="/SmartDashboard/GrimpeurSecondaire/MonterCompletSecondaire"></frc-robot-command>
+                <frc-robot-command label="Descendre complet" source-key="/SmartDashboard/GrimpeurSecondaire/DescendreCompletSecondaire"></frc-robot-command>
+                
+                <h3 class="secondary-text">Vision</h3>
+                <frc-robot-command label="Pilotage Assisté" source-key="/SmartDashboard/Grimper/PiloterAide"></frc-robot-command>
+                <frc-robot-command label="Viser Cargo" source-key="/SmartDashboard/Grimper/Viser Cargo"></frc-robot-command>
+                <frc-robot-command label="Viser Cargo Avancer" source-key="/SmartDashboard/Grimper/ViserCargoAvancer"></frc-robot-command>
+                <frc-robot-command label="Viser Hub" source-key="/SmartDashboard/Grimper/Viser Hub"></frc-robot-command>
+            </div>
+        </div>
+        <script>
+            function onRobotConnection(connected) {
+                document.getElementById("robotstate").innerHTML = connected ? "Connected!" : "Disconnected";
+                document.getElementById("robotAddress").innerHTML = connected ? NetworkTables.getRobotAddress() : "disconnected";
+            }
+
+            function onNetworkTablesConnection(connected) {
+                document.getElementById("connectstate").innerHTML = connected ? "Connected!" : "Disconnected";
+            }
+
+            function ntLoaded() {
+                console.log("NT Loaded");
+                NetworkTables.addWsConnectionListener(onNetworkTablesConnection, true);
+                NetworkTables.addRobotConnectionListener(onRobotConnection, true);
+
+                loadCameraOnConnect({
+                    container: '#hub_output', // where to put the img tag
+                    proto: null,                    // optional, defaults to http://
+                    host: "10.55.28.6",                     // optional, if null will use robot's autodetected IP address
+                    port: 1182,                     // webserver port
+                    image_url: '/stream.mjpg',   // mjpg stream of camera
+                    data_url: '/settings.json',      // used to test if connection is up
+                    wait_img: null,                 // optional img to show when not connected, can use SVG instead
+                    error_img: null,                // optional img to show when error connecting, can use SVG instead
+                    attrs: {                        // optional: attributes set on svg or img element
+                        width: 640,                     // optional, stretches image to this width
+                        height: 480,                    // optional, stretches image to this width
+                    }
+                });
+
+                loadCameraOnConnect({
+                    container: '#cargo_output', // where to put the img tag
+                    proto: null,                    // optional, defaults to http://
+                    host: "10.55.28.6",                     // optional, if null will use robot's autodetected IP address
+                    port: 1184,                     // webserver port
+                    image_url: '/stream.mjpg',   // mjpg stream of camera
+                    data_url: '/settings.json',      // used to test if connection is up
+                    wait_img: null,                 // optional img to show when not connected, can use SVG instead
+                    error_img: null,                // optional img to show when error connecting, can use SVG instead
+                    attrs: {                        // optional: attributes set on svg or img element
+                        width: 640,                     // optional, stretches image to this width
+                        height: 480,                    // optional, stretches image to this width
+                    }
+                });
+            }
+
+        </script>
+
+        <script src="./frc-web-components.js"></script>
+        <script src="/components/customslider.js"></script>
+</body>
+
+</html>
