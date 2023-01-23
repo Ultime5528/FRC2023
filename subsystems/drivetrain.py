@@ -46,7 +46,6 @@ class Drivetrain(SafeSubsystemBase):
         self.addChild("DifferentialDrive", self._drive)
 
         # Photon Vision
-        self.cam = PhotonCamera("cam")
         self.latest = None
 
         # April Tag Field
@@ -94,7 +93,12 @@ class Drivetrain(SafeSubsystemBase):
             minTargetArea = 10
             self.sim_vision = SimVisionSystem("cam", camDiagFOV, values.drivetrain_cam_to_robot, maxLEDRange,
                                               camResolutionWidth, camResolutionHeight, minTargetArea)
-            self.sim_vision.addSimVisionTarget(SimVisionTarget(self.april_tag_field.getTagPose(1), 8, 8, 1))
+            for i in range(1, 9):
+                self.sim_vision.addSimVisionTarget(SimVisionTarget(self.april_tag_field.getTagPose(i), 8, 8, i))
+            self.cam = self.sim_vision.cam
+
+        if RobotBase.isReal():
+            self.cam = PhotonCamera("photonvision")
 
     def arcadeDrive(self, forward: float, rotation: float) -> None:
         self._drive.arcadeDrive(forward, rotation, False)
