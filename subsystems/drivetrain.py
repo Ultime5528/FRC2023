@@ -56,7 +56,7 @@ class Drivetrain(SafeSubsystem):
             "adxrs": ADXRS,
             "empty": Empty,
         }[select_gyro]()
-        self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(5, 5, 0))
+        self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(0, 0, 0))
         
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
