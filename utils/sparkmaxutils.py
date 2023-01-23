@@ -9,13 +9,13 @@ __all__ = ["configure_leader", "configure_follower"]
 
 
 def configure_leader(motor: rev.CANSparkMax, mode: IdleMode, inverted: bool = False):
-    _handle_can_error(motor.restoreFactoryDefaults(), "restoryFactoryDefaults", motor)
+    _handle_can_error(motor.restoreFactoryDefaults(), "restoreFactoryDefaults", motor)
     motor.setInverted(inverted)
     _configure_motor(motor, mode)
 
 
 def configure_follower(follower: rev.CANSparkMax, leader: rev.CANSparkMax, mode: IdleMode, inverted: bool = False):
-    _handle_can_error(follower.restoreFactoryDefaults(), "restoryFactoryDefaults", follower)
+    _handle_can_error(follower.restoreFactoryDefaults(), "restoreFactoryDefaults", follower)
     _handle_can_error(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus0, 1000), "set status0 rate", follower)
     _handle_can_error(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus1, 1000), "set status1 rate", follower)
     _handle_can_error(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus2, 1000), "set status2 rate", follower)

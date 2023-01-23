@@ -9,6 +9,7 @@
 * Class names use PascalCase
 * Function and variable names use snake_case
 * Function and command names start with an action verb (get, set, move, start, stop...)
+* Commands and subsystems inherit from SafeCommand and SafeSubsystem
 * Ports  
     * Must be added to ports.py
     * Respect the naming convention : "subsystem" _ "component type"  _ "precision"

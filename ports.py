@@ -12,10 +12,10 @@ Order port numbers, ex:
 """
 
 # CAN
-drivetrain_motor_fr = 1
-drivetrain_motor_rr = 2
-drivetrain_motor_fl = 3
-drivetrain_motor_rl = 4
+drivetrain_motor_front_right = 1
+drivetrain_motor_rear_right = 2
+drivetrain_motor_front_left = 3
+drivetrain_motor_rear_left = 4
 
 
 # PWM
