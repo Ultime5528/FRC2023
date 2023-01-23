@@ -9,7 +9,6 @@ class DriveToDock(CommandBase):
         super().__init__()
         self.drivetrain = drivetrain
         self.addRequirements(drivetrain)
-        self.setName("DriveToDock")
         self.moving_average = 1
 
     def execute(self) -> None:
