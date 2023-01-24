@@ -1,10 +1,9 @@
 import wpilib
-from commands2 import CommandBase
+
 from wpimath.filter import LinearFilter
 import properties
 from utils.safecommand import SafeCommand
 from subsystems.drivetrain import Drivetrain
-from utils.safecommandbase import SafeCommandBase
 
 
 def interpolate(value: float):

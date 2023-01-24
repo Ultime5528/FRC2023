@@ -1,5 +1,4 @@
-from networktables import NetworkTables
-from networktables.util import ntproperty
+from ntcore.util import ntproperty
 
 persistent = True
 
