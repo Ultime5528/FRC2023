@@ -1,5 +1,5 @@
 import math
-from typing import List
+from typing import List, Literal
 
 import wpimath.trajectory
 from wpimath.geometry import Pose2d, Transform2d, Rotation2d
@@ -32,33 +32,30 @@ class FollowTrajectory(SafeCommand):
             drivetrain: Drivetrain,
             waypoints: List[Pose2d],
             speed: float,
-            add_robot_pose: bool = False,
-            path_reversed: bool = False
+            origin: Literal["Absolute", "Relative"] = "Absolute",
+            direction: Literal["Forward", "Backward"] = "Forward"
     ) -> None:
         super().__init__()
         self.waypoints = waypoints
         self.drivetrain = drivetrain
         self.addRequirements(drivetrain)
         self.speed = speed
-        self.add_robot_pose = add_robot_pose
-        self.path_reversed = path_reversed
+        self.path_reversed = (direction == "Backward")
         self.config = TrajectoryConfig(10, 10)
         self.config.setReversed(self.path_reversed)
+        self.origin = origin
 
-        if not self.add_robot_pose:
-            self.trajectory = TrajectoryGenerator.generateTrajectory(
-                self.waypoints, self.config
-            )
+        self.waypoints = [self.drivetrain.getPose(), *self.waypoints]
 
-            self.states = self.trajectory.states()
+        if self.origin == "Relative":
+            self.waypoints = [waypoint.transformBy(Transform2d(self.drivetrain.getPose().translation(), Rotation2d.fromDegrees(self.drivetrain.getAngle()))) for waypoint in self.waypoints]
 
     def initialize(self) -> None:
-        if self.add_robot_pose:
-            self.trajectory = TrajectoryGenerator.generateTrajectory(
-                [self.drivetrain.getPose(), *self.waypoints],
-                self.config
-            )
-            self.states = self.trajectory.states()
+        self.trajectory = TrajectoryGenerator.generateTrajectory(
+            self.waypoints,
+            self.config
+        )
+        self.states = self.trajectory.states()
 
         self.motion = TrapezoidalMotion(
             start_speed=properties.values.follow_trajectory_speed_start,
