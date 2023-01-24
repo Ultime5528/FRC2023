@@ -14,6 +14,12 @@ from subsystems.drivetrain import Drivetrain
 
 
 class FollowTrajectory(SafeCommandBase):
+    @classmethod
+    def toLoading(cls, drivetrain: Drivetrain):
+        cmd = cls(drivetrain, drivetrain.getLoadingPose(), 1, True)
+        cmd.setName(cmd.getName() + ".toLoading")
+        return cmd
+
     """
     Pour une trajectoire inversée, il faut :
     - path_reversed=True

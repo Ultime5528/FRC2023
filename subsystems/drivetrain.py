@@ -2,12 +2,13 @@ import math
 from typing import Literal
 
 import navx
+import networktables
 import rev
 import wpilib
-import wpilib.drive
+from wpilib import drive, DriverStation
 from wpilib import RobotBase, RobotController
 from wpilib.simulation import DifferentialDrivetrainSim
-from wpimath.geometry import Pose2d
+from wpimath.geometry import Pose2d, Translation2d, Rotation2d, Transform2d
 from wpimath.kinematics import DifferentialDriveKinematics
 from wpimath.estimator import DifferentialDrivePoseEstimator
 from wpimath.system import LinearSystemId
@@ -75,6 +76,8 @@ class Drivetrain(SafeSubsystemBase):
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
 
+        self.alliance = DriverStation.getAlliance()
+
         if hasattr(self._gyro, "gyro"):
             self.addChild("Gyro", self._gyro.gyro)
 
@@ -132,6 +135,17 @@ class Drivetrain(SafeSubsystemBase):
 
     def getPose(self):
         return self._estimator.getEstimatedPosition()
+
+    def getLoadingPose(self):
+        if self.alliance.kBlue:
+            blue_offset = Transform2d(Translation2d(-2, 0), Rotation2d(0))
+            loading_pose = self.april_tag_field.getTagPose(4).toPose2d().transformBy(blue_offset)
+        if self.alliance.kBlue:
+            red_offset = Transform2d(Translation2d(2, 0), Rotation2d(180))
+            loading_pose = self.april_tag_field.getTagPose(5).toPose2d().transformBy(red_offset)
+        return loading_pose
+
+
 
     def getField(self):
         return self._field
