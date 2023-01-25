@@ -74,6 +74,8 @@ class Drivetrain(SafeSubsystemBase):
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
 
+        self.alliance = DriverStation.getAlliance()
+
         if hasattr(self._gyro, "gyro"):
             self.addChild("Gyro", self._gyro.gyro)
 
@@ -131,6 +133,17 @@ class Drivetrain(SafeSubsystemBase):
 
     def getPose(self):
         return self._estimator.getEstimatedPosition()
+
+    def getLoadingPose(self):
+        if self.alliance.kBlue:
+            blue_offset = Transform2d(Translation2d(-2, 0), Rotation2d(0))
+            loading_pose = self.april_tag_field.getTagPose(4).toPose2d().transformBy(blue_offset)
+        if self.alliance.kBlue:
+            red_offset = Transform2d(Translation2d(2, 0), Rotation2d(180))
+            loading_pose = self.april_tag_field.getTagPose(5).toPose2d().transformBy(red_offset)
+        return loading_pose
+
+
 
     def getField(self):
         return self._field
