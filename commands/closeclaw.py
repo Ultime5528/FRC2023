@@ -3,21 +3,19 @@ from utils.safecommand import SafeCommand
 from subsystems.claw import Claw
 
 
-class OpenClaw(SafeCommand):
+class CloseClaw(SafeCommand):
     def __init__(self, claw: Claw()):
         super().__init__()
         self.claw = claw
-        self.timer = wpilib.Timer()
 
     def initialize(self) -> None:
-        self.timer.reset()
-        self.timer.start()
+        pass
 
     def execute(self) -> None:
-        self.claw.open()
+        self.claw.close()
 
     def isFinished(self) -> bool:
-        return self.timer.get() >= 1
+        return False
 
     def end(self, interrupted: bool) -> None:
-        self.claw.stop()
+        pass

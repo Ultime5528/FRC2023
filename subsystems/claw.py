@@ -1,4 +1,3 @@
-import commands2
 import wpilib
 import ports
 from utils.safesubsystem import SafeSubsystem
