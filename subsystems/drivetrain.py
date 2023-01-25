@@ -24,6 +24,7 @@ import ports
 from properties import values
 
 select_gyro: Literal["navx", "adis", "adxrs", "empty"] = "navx"
+april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
 
 class Drivetrain(SafeSubsystemBase):
     def __init__(self) -> None:
@@ -49,9 +50,6 @@ class Drivetrain(SafeSubsystemBase):
         # Photon Vision
         self.latest = None
 
-        # April Tag Field
-        self.april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
-
         # Encoders
         self._encoder_left = self._motor_left.getEncoder()
         self._encoder_right = self._motor_right.getEncoder()
@@ -76,8 +74,6 @@ class Drivetrain(SafeSubsystemBase):
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
 
-        self.alliance = DriverStation.getAlliance()
-
         if hasattr(self._gyro, "gyro"):
             self.addChild("Gyro", self._gyro.gyro)
 
@@ -97,7 +93,7 @@ class Drivetrain(SafeSubsystemBase):
             self.sim_vision = SimVisionSystem("cam", camDiagFOV, values.drivetrain_cam_to_robot, maxLEDRange,
                                               camResolutionWidth, camResolutionHeight, minTargetArea)
             for i in range(1, 9):
-                self.sim_vision.addSimVisionTarget(SimVisionTarget(self.april_tag_field.getTagPose(i), 8, 8, i))
+                self.sim_vision.addSimVisionTarget(SimVisionTarget(april_tag_field.getTagPose(i), 8, 8, i))
             self.cam = self.sim_vision.cam
 
         if RobotBase.isReal():
@@ -136,17 +132,6 @@ class Drivetrain(SafeSubsystemBase):
     def getPose(self):
         return self._estimator.getEstimatedPosition()
 
-    def getLoadingPose(self):
-        if self.alliance.kBlue:
-            blue_offset = Transform2d(Translation2d(-2, 0), Rotation2d(0))
-            loading_pose = self.april_tag_field.getTagPose(4).toPose2d().transformBy(blue_offset)
-        if self.alliance.kBlue:
-            red_offset = Transform2d(Translation2d(2, 0), Rotation2d(180))
-            loading_pose = self.april_tag_field.getTagPose(5).toPose2d().transformBy(red_offset)
-        return loading_pose
-
-
-
     def getField(self):
         return self._field
 
@@ -159,7 +144,7 @@ class Drivetrain(SafeSubsystemBase):
             img_capture_time = self.latest.getTimestamp()
             cam_to_target = self.latest.getBestTarget().getBestCameraToTarget()
             target_to_cam = cam_to_target.inverse()
-            target_on_field = self.april_tag_field.getTagPose(self.latest.getBestTarget().getFiducialId())
+            target_on_field = april_tag_field.getTagPose(self.latest.getBestTarget().getFiducialId())
             camera_on_field = target_on_field.transformBy(target_to_cam)
             robot_on_field = camera_on_field.transformBy(values.drivetrain_cam_to_robot).toPose2d()
             self._estimator.addVisionMeasurement(robot_on_field, img_capture_time)

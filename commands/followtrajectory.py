@@ -3,20 +3,29 @@ from collections.abc import Iterable
 from typing import List
 
 import wpimath.trajectory
-from wpimath.geometry import Pose2d, Transform2d, Rotation2d
+from commands2 import ConditionalCommand
+from wpilib import DriverStation
+from wpimath.geometry import Pose2d, Transform2d, Rotation2d, Translation2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
 import properties
 
 from utils.safecommandbase import SafeCommandBase
 from utils.trapezoidalmotion import TrapezoidalMotion
-from subsystems.drivetrain import Drivetrain
+from subsystems.drivetrain import Drivetrain, april_tag_field
+
+blue_offset = Transform2d(Translation2d(-2, 0), Rotation2d(0))
+blue_loading_pose = april_tag_field.getTagPose(4).toPose2d().transformBy(blue_offset)
+red_offset = Transform2d(Translation2d(2, 0), Rotation2d(180))
+red_loading_pose = april_tag_field.getTagPose(5).toPose2d().transformBy(red_offset)
 
 
 class FollowTrajectory(SafeCommandBase):
     @classmethod
     def toLoading(cls, drivetrain: Drivetrain):
-        cmd = cls(drivetrain, drivetrain.getLoadingPose(), 1, True)
+        cmd = ConditionalCommand(cls(drivetrain, red_loading_pose, 1, True),
+                           cls(drivetrain, blue_loading_pose, 1, True),
+                           lambda: DriverStation.getAlliance() == DriverStation.getAlliance().kRed)
         cmd.setName(cmd.getName() + ".toLoading")
         return cmd
 
@@ -74,7 +83,8 @@ class FollowTrajectory(SafeCommandBase):
         self.index = 0
         self.cumulative_dist = 0
         self.start_dist = self.drivetrain.getAverageEncoderPosition()
-        self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory.transformBy(Transform2d(self.drivetrain.getPose().translation(), Rotation2d().fromDegrees(self.drivetrain.getAngle()))))
+        self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory.transformBy(
+            Transform2d(self.drivetrain.getPose().translation(), Rotation2d().fromDegrees(self.drivetrain.getAngle()))))
 
     def execute(self) -> None:
         current_pose = self.drivetrain.getPose()
