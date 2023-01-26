@@ -16,7 +16,8 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain = Drivetrain()
         self.stick = wpilib.Joystick(0)
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
-        JoystickButton(self.stick, 1).whenPressed(FollowTrajectory(self.drivetrain, [Pose2d(1,0,0)], 0.5, origin="Absolute"))
+        JoystickButton(self.stick, 1).whenPressed(FollowTrajectory(self.drivetrain, [Pose2d(1,0,0)], 0.75, origin="Relative"))
+        JoystickButton(self.stick, 2).whenPressed(FollowTrajectory(self.drivetrain, [Pose2d(1,0,0)], 0.75, origin="Absolute"))
 
 if __name__ == "__main__":
     wpilib.run(Robot)

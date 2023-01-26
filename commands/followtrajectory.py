@@ -2,7 +2,7 @@ import math
 from typing import List, Literal
 
 import wpimath.trajectory
-from wpimath.geometry import Pose2d, Transform2d, Rotation2d
+from wpimath.geometry import Pose2d, Transform2d, Rotation2d, Translation3d, Translation2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
 import properties
@@ -45,12 +45,12 @@ class FollowTrajectory(SafeCommand):
         self.config.setReversed(self.path_reversed)
         self.origin = origin
 
+    def initialize(self) -> None:
+        if self.origin == "Relative":
+            self.waypoints = [waypoint.transformBy(Transform2d(self.drivetrain.getPose().translation(), Rotation2d().fromDegrees(self.drivetrain.getAngle()))) for waypoint in self.waypoints]
+            print(type(self.waypoints[0]))
         self.waypoints = [self.drivetrain.getPose(), *self.waypoints]
 
-        if self.origin == "Relative":
-            self.waypoints = [waypoint.transformBy(Transform2d(self.drivetrain.getPose().translation(), Rotation2d.fromDegrees(self.drivetrain.getAngle()))) for waypoint in self.waypoints]
-
-    def initialize(self) -> None:
         self.trajectory = TrajectoryGenerator.generateTrajectory(
             self.waypoints,
             self.config
