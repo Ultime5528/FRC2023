@@ -57,8 +57,8 @@ class FollowTrajectory(SafeCommand):
             self.states = self.trajectory.states()
 
         self.motion = TrapezoidalMotion(
-            start_speed=properties.values.follow_trajectory_speed_start,
-            end_speed=self.speed,
+            min_speed=properties.values.follow_trajectory_speed_start,
+            max_speed=self.speed,
             accel=properties.values.follow_trajectory_acceleration,
             start_position=0,
             displacement=self.states[0].pose.translation().distance(self.states[-1].pose.translation())
