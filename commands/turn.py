@@ -17,8 +17,8 @@ class Turn(SafeCommand):
         self.motion = TrapezoidalMotion(
             start_position=0,
             end_position=angle,
-            start_speed=0.1,
-            end_speed=speed,
+            min_speed=0.1,
+            max_speed=speed,
             accel=0.001
         )
         self.drivetrain = drivetrain
