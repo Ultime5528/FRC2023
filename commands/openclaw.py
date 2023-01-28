@@ -1,9 +1,12 @@
 import wpilib
 from utils.safecommand import SafeCommand
 from subsystems.claw import Claw
+from utils.property import autoproperty
 
 
 class OpenClaw(SafeCommand):
+    claw_opening_duration = autoproperty(1)
+
     def __init__(self, claw: Claw):
         super().__init__()
         self.claw = claw
@@ -18,7 +21,7 @@ class OpenClaw(SafeCommand):
         self.claw.open()
 
     def isFinished(self) -> bool:
-        return self.timer.get() >= 1
+        return self.timer.get() >= self.claw_opening_duration
 
     def end(self, interrupted: bool) -> None:
         self.claw.stop()

@@ -8,9 +8,6 @@ class CloseClaw(SafeCommand):
         self.claw = claw
         self.addRequirements(self.claw)
 
-    def initialize(self) -> None:
-        pass
-
     def execute(self) -> None:
         self.claw.close()
 
@@ -18,4 +15,4 @@ class CloseClaw(SafeCommand):
         return False
 
     def end(self, interrupted: bool) -> None:
-        pass
+        self.claw.stop()
