@@ -22,7 +22,6 @@ select_gyro: Literal["navx", "adis", "adxrs", "empty"] = "navx"
 
 
 class Drivetrain(SafeSubsystem):
-
     def __init__(self) -> None:
         super().__init__()
         # Motors
@@ -57,7 +56,6 @@ class Drivetrain(SafeSubsystem):
             "empty": Empty,
         }[select_gyro]()
         self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(0, 0, 0))
-        
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
         self._left_encoder_offset = 0
@@ -91,17 +89,10 @@ class Drivetrain(SafeSubsystem):
         self._motor_right_sim.setVelocity(self._drive_sim.getRightVelocity())
         self._gyro.setSimAngle(-self._drive_sim.getHeading().degrees())
 
-    def resetOdometry(self) -> None:
-        self._left_encoder_offset = self._encoder_left.getPosition()
-        self._right_encoder_offset = self._encoder_right.getPosition()
-        self._odometry.resetPosition(Pose2d(), Rotation2d.fromDegrees(0.0))
+    def getRotation(self):
+        return self._gyro.getRotation2d()
 
-        if RobotBase.isSimulation():
-            self._drive_sim.setPose(Pose2d())
-        else:
-            self._gyro.reset()
-
-    def getLeftEncoderPosition(self):
+  def getLeftEncoderPosition(self):
         return self._encoder_left.getPosition() - self._left_encoder_offset
 
     def getRightEncoderPosition(self):
@@ -117,7 +108,7 @@ class Drivetrain(SafeSubsystem):
         return self._field
 
     def periodic(self):
-        self._odometry.update(self._gyro.getRotation2d(), self.getLeftEncoderPosition(), self.getRightEncoderPosition())
+        self._odometry.update(self.getRotation(), self.getLeftEncoderPosition(), self.getRightEncoderPosition())
         self._field.setRobotPose(self._odometry.getPose())
         wpilib.SmartDashboard.putNumber("Left Encoder Position", self.getLeftEncoderPosition())
         wpilib.SmartDashboard.putNumber("Right Encoder Position", self.getRightEncoderPosition())
