@@ -6,11 +6,11 @@ import wpimath.trajectory
 from commands2 import ConditionalCommand
 from wpilib import DriverStation
 from wpimath.geometry import Pose2d, Transform2d, Rotation2d, Translation2d
+from wpimath.geometry import Pose2d, Transform2d, Rotation2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
-import properties
-
-from utils.safecommandbase import SafeCommandBase
+from utils.property import autoproperty
+from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
 from subsystems.drivetrain import Drivetrain, april_tag_field
 
@@ -20,7 +20,7 @@ red_offset = Transform2d(Translation2d(2, 0), Rotation2d.fromDegrees(180))
 red_loading_pose = april_tag_field.getTagPose(5).toPose2d().transformBy(red_offset)
 
 
-class FollowTrajectory(SafeCommandBase):
+class FollowTrajectory(SafeCommand):
     @classmethod
     def toLoading(cls, drivetrain: Drivetrain):
         cmd = ConditionalCommand(cls(drivetrain, red_loading_pose, 1, True),
@@ -38,6 +38,10 @@ class FollowTrajectory(SafeCommandBase):
     Example of a command:
     FollowTrajectory(self.drivetrain, [self.drivetrain.getPose(), Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5)
     """
+
+    start_speed = autoproperty(0.1)
+    accel = autoproperty(0.08)
+    correction_factor = autoproperty(0.016)
 
     def __init__(
             self,
@@ -73,9 +77,9 @@ class FollowTrajectory(SafeCommandBase):
             self.states = self.trajectory.states()
 
         self.motion = TrapezoidalMotion(
-            start_speed=properties.values.follow_trajectory_speed_start,
-            end_speed=self.speed,
-            accel=properties.values.follow_trajectory_acceleration,
+            min_speed=self.start_speed,
+            max_speed=self.speed,
+            accel=self.accel,
             start_position=0,
             displacement=self.states[0].pose.translation().distance(self.states[-1].pose.translation())
         )
@@ -104,7 +108,7 @@ class FollowTrajectory(SafeCommandBase):
 
         error = current_pose.rotation() - destination_pose.rotation()
 
-        correction = properties.values.follow_trajectory_correction_factor * error.degrees()
+        correction = self.correction_factor * error.degrees()
         self.drivetrain.tankDrive(speed + correction, speed - correction)
 
     def isFinished(self) -> bool:

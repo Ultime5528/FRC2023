@@ -15,7 +15,7 @@ from wpimath.system.plant import DCMotor
 
 import ports
 from gyro import NavX, ADIS, ADXRS, Empty
-from utils.safesubsystembase import SafeSubsystemBase
+from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
 from utils.sparkmaxutils import configure_follower, configure_leader
 
@@ -23,7 +23,7 @@ select_gyro: Literal["navx", "adis", "adxrs", "empty"] = "navx"
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
 
 
-class Drivetrain(SafeSubsystemBase):
+class Drivetrain(SafeSubsystem):
     def __init__(self) -> None:
         super().__init__()
         # Motors
@@ -117,8 +117,8 @@ class Drivetrain(SafeSubsystemBase):
         self._gyro.setSimAngle(-self._drive_sim.getHeading().degrees())
         self.sim_vision.processFrame(self._drive_sim.getPose())
 
-    def getAngle(self):
-        return self._gyro.getAngle()
+    def getRotation(self):
+        return self._gyro.getRotation2d()
 
     def getLeftEncoderPosition(self):
         return self._encoder_left.getPosition() - self._left_encoder_offset
