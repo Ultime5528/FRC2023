@@ -80,7 +80,7 @@ class Drivetrain(SafeSubsystem):
         if RobotBase.isReal():
             self.cam = PhotonCamera("photonvision")
 
-        else: #sim
+        else:  # sim
             self._motor_left_sim = SparkMaxSim(self._motor_left)
             self._motor_right_sim = SparkMaxSim(self._motor_right)
             self._system = LinearSystemId.identifyDrivetrainSystem(1.98, 0.2, 5, 0.3)
@@ -88,13 +88,13 @@ class Drivetrain(SafeSubsystem):
                 0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005])
 
             # Cam sim
-            camDiagFOV = 75.0
-            maxLEDRange = 20
-            camResolutionWidth = 640
-            camResolutionHeight = 480
-            minTargetArea = 10
-            self.sim_vision = SimVisionSystem("cam", camDiagFOV, self.cam_to_robot, maxLEDRange,
-                                              camResolutionWidth, camResolutionHeight, minTargetArea)
+            cam_diag_fov = 75.0
+            max_led_range = 20
+            cam_resolution_width = 640
+            cam_resolution_height = 480
+            min_target_area = 10
+            self.sim_vision = SimVisionSystem("cam", cam_diag_fov, self.cam_to_robot, max_led_range,
+                                              cam_resolution_width, cam_resolution_height, min_target_area)
             for i in range(1, 9):
                 self.sim_vision.addSimVisionTarget(SimVisionTarget(april_tag_field.getTagPose(i), 8, 8, i))
             self.cam = self.sim_vision.cam
