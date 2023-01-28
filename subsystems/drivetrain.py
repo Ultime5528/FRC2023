@@ -13,8 +13,8 @@ from wpimath.kinematics import DifferentialDriveKinematics
 from wpimath.system import LinearSystemId
 from wpimath.system.plant import DCMotor
 
-from gyro import NavX, ADIS16448, ADIS16470, ADXRS, Empty
 import ports
+from gyro import NavX, ADIS16448, ADIS16470, ADXRS, Empty
 from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
 from utils.sparkmaxutils import configure_follower, configure_leader
