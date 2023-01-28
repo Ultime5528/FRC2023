@@ -145,12 +145,20 @@ cython_debug/
 
 imgui.ini
 
+simgui-window.json
+simgui.json
+simgui-ds.json
 /simgui-window.json
 /simgui.json
 /simgui-ds.json
 
 networktables.ini
-
 networktables.ini.bak
+networktables.json
+networktables.json.bck
+/networktables.ini
+/networktables.ini.bak
 /networktables.json
+/networktables.json.bck
+
 .deploy_cfg

@@ -1,15 +1,20 @@
-import math
-from typing import List
+from typing import Literal, Iterable, Union
 
-import wpimath.trajectory
-from wpimath.geometry import Pose2d, Transform2d, Rotation2d
+from commands2 import ConditionalCommand
+from wpilib import DriverStation
+from wpimath.geometry import Pose2d, Transform2d, Translation2d, Rotation2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
-import properties
-
+from subsystems.drivetrain import Drivetrain, april_tag_field
+from utils.property import autoproperty, FloatProperty, as_callable
 from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
-from subsystems.drivetrain import Drivetrain
+
+
+blue_offset = Transform2d(Translation2d(-2, 0), Rotation2d(0))
+blue_loading_pose = april_tag_field.getTagPose(4).toPose2d().transformBy(blue_offset)
+red_offset = Transform2d(Translation2d(2, 0), Rotation2d.fromDegrees(180))
+red_loading_pose = april_tag_field.getTagPose(5).toPose2d().transformBy(red_offset)
 
 
 class FollowTrajectory(SafeCommand):
@@ -23,43 +28,63 @@ class FollowTrajectory(SafeCommand):
     FollowTrajectory(self.drivetrain, [self.drivetrain.getPose(), Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5)
     """
 
+    @classmethod
+    def toLoading(cls, drivetrain: Drivetrain):
+        cmd = ConditionalCommand(
+            cls(drivetrain, red_loading_pose, lambda: properties.to_loading_speed, origin="absolute"),
+            cls(drivetrain, blue_loading_pose, lambda: properties.to_loading_speed, origin="absolute"),
+            lambda: DriverStation.getAlliance() == DriverStation.Alliance.kRed
+        )
+        cmd.setName(cmd.getName() + ".toLoading")
+        return cmd
+
+    @classmethod
+    def driveStraight(cls, drivetrain: Drivetrain, distance: float, speed: float):
+        cmd = cls(drivetrain, Pose2d(distance, 0, 0), speed, origin="relative")
+        cmd.setName(cmd.getName() + ".driveStraight")
+        return cmd
+
+    start_speed = autoproperty(0.1)
+    accel = autoproperty(0.08)
+    correction_factor = autoproperty(0.016)
+
     def __init__(
             self,
             drivetrain: Drivetrain,
-            waypoints: List[Pose2d],
-            speed: float,
-            add_robot_pose: bool = False,
-            path_reversed: bool = False
+            waypoints: Union[Pose2d, Iterable[Pose2d]],
+            speed: FloatProperty,
+            origin: Literal["absolute", "relative"],
+            direction: Literal["forward", "backward"] = "forward"
     ) -> None:
         super().__init__()
-        self.waypoints = waypoints
+        self.waypoints = waypoints if isinstance(waypoints, Iterable) else [waypoints]
         self.drivetrain = drivetrain
         self.addRequirements(drivetrain)
-        self.speed = speed
-        self.add_robot_pose = add_robot_pose
-        self.path_reversed = path_reversed
+        self.speed = as_callable(speed)
+        self.path_reversed = (direction == "backward")
         self.config = TrajectoryConfig(10, 10)
         self.config.setReversed(self.path_reversed)
+        self.origin = origin
 
-        if not self.add_robot_pose:
-            self.trajectory = TrajectoryGenerator.generateTrajectory(
-                self.waypoints, self.config
+        if self.origin == "relative":
+            self.relative_trajectory = TrajectoryGenerator.generateTrajectory(
+                [Pose2d(0, 0, 0), *waypoints],
+                self.config
             )
 
-            self.states = self.trajectory.states()
-
     def initialize(self) -> None:
-        if self.add_robot_pose:
+        if self.origin == "relative":
+            self.trajectory = self.relative_trajectory.transformBy(Transform2d(Pose2d(), self.drivetrain.getPose()))
+        else:
             self.trajectory = TrajectoryGenerator.generateTrajectory(
                 [self.drivetrain.getPose(), *self.waypoints],
                 self.config
             )
-            self.states = self.trajectory.states()
-
+        self.states = self.trajectory.states()
         self.motion = TrapezoidalMotion(
-            start_speed=properties.values.follow_trajectory_speed_start,
-            end_speed=self.speed,
-            accel=properties.values.follow_trajectory_acceleration,
+            min_speed=self.start_speed,
+            max_speed=self.speed(),
+            accel=self.accel,
             start_position=0,
             displacement=self.states[0].pose.translation().distance(self.states[-1].pose.translation())
         )
@@ -67,7 +92,7 @@ class FollowTrajectory(SafeCommand):
         self.index = 0
         self.cumulative_dist = 0
         self.start_dist = self.drivetrain.getAverageEncoderPosition()
-        self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory.transformBy(Transform2d(self.drivetrain.getPose().translation(), Rotation2d().fromDegrees(self.drivetrain.getAngle()))))
+        self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory)
 
     def execute(self) -> None:
         current_pose = self.drivetrain.getPose()
@@ -87,7 +112,7 @@ class FollowTrajectory(SafeCommand):
 
         error = current_pose.rotation() - destination_pose.rotation()
 
-        correction = properties.values.follow_trajectory_correction_factor * error.degrees()
+        correction = self.correction_factor * error.degrees()
         self.drivetrain.tankDrive(speed + correction, speed - correction)
 
     def isFinished(self) -> bool:
@@ -96,3 +121,10 @@ class FollowTrajectory(SafeCommand):
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.tankDrive(0, 0)
+
+
+class _ClassProperties:
+    to_loading_speed = autoproperty(0.6, subtable=FollowTrajectory.__name__)
+
+
+properties = _ClassProperties()
