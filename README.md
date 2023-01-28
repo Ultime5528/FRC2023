@@ -7,7 +7,8 @@
 
 * File names use lowercase without spaces
 * Class names use PascalCase
-* Function and variable names use camelCase
+* Function use camelCase
+* Variable names use snake_case
 * Function and command names start with an action verb (get, set, move, start, stop...)
 * Commands and subsystems inherit from SafeCommand and SafeSubsystem
 * Ports  
