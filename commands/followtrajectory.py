@@ -23,8 +23,9 @@ class FollowTrajectory(SafeCommand):
     FollowTrajectory(self.drivetrain, [self.drivetrain.getPose(), Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5)
     """
     @classmethod
-    def drive_straight_distance(cls, drivetrain: Drivetrain, distance: float, speed: float, path_reversed: bool = False):
-        cmd = cls(drivetrain, [Pose2d(0, drivetrain, 0)], speed, path_reversed=path_reversed)
+    def driveStraightDistance(cls, drivetrain: Drivetrain, distance: float, speed: float):
+        cmd = cls(drivetrain, [Pose2d(distance, 0, 0)], speed, origin="Relative")
+        cmd.setName(cmd.getName() + " drive straight distance")
         return cmd
 
     def __init__(
