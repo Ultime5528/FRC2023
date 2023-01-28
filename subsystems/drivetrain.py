@@ -14,12 +14,12 @@ from wpimath.system import LinearSystemId
 from wpimath.system.plant import DCMotor
 
 import ports
-from gyro import NavX, ADIS, ADXRS, Empty
+from gyro import NavX, ADIS16448, ADIS16470, ADXRS, Empty
 from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
 from utils.sparkmaxutils import configure_follower, configure_leader
 
-select_gyro: Literal["navx", "adis", "adxrs", "empty"] = "navx"
+select_gyro: Literal["navx", "adis16448", "adis16470", "adxrs", "empty"] = "adis16470"
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
 cam_to_robot = Transform3d(Translation3d(0, 0, 0), Rotation3d(0, 0, 0))
 
@@ -59,7 +59,8 @@ class Drivetrain(SafeSubsystem):
         # Gyro
         self._gyro = {
             "navx": NavX,
-            "adis": ADIS,
+            "adis16448": ADIS16448,
+            "adis16470": ADIS16470,
             "adxrs": ADXRS,
             "empty": Empty,
         }[select_gyro]()
