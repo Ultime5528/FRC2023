@@ -79,7 +79,7 @@ class Drivetrain(SafeSubsystem):
             self.addChild("Gyro", self._gyro.gyro)
 
         if RobotBase.isReal():
-            self.cam = PhotonCamera("photonvision")
+            self.cam = PhotonCamera("mainCamera")
         else:  # sim
             self._motor_left_sim = SparkMaxSim(self._motor_left)
             self._motor_right_sim = SparkMaxSim(self._motor_right)
