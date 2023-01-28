@@ -24,14 +24,14 @@ class MotionConfig:
 class TrapezoidalMotion:
     def __init__(
         self,
-        start_speed: Optional[float] = None,
-        end_speed: Optional[float] = None,
+        min_speed: Optional[float] = None,
+        max_speed: Optional[float] = None,
         accel: Optional[float] = None,
         start_position: Optional[float] = None,
         end_position: Optional[float] = None,
         displacement: Optional[float] = None,
     ):
-        self._initial_config = MotionConfig(start_position, end_position, displacement, start_speed, end_speed, accel)
+        self._initial_config = MotionConfig(start_position, end_position, displacement, min_speed, max_speed, accel)
         self._real_config: Optional[MotionConfig] = None
         self._position = None
         self._inverted = False
@@ -44,8 +44,8 @@ class TrapezoidalMotion:
         start_position: Optional[float] = None,
         displacement: Optional[float] = None,
         end_position: Optional[float] = None,
-        start_speed: Optional[float] = None,
-        end_speed: Optional[float] = None,
+        min_speed: Optional[float] = None,
+        max_speed: Optional[float] = None,
         accel: Optional[float] = None,
     ):
         if start_position is not None:
@@ -54,10 +54,10 @@ class TrapezoidalMotion:
             self._initial_config.displacement = displacement
         if end_position is not None:
             self._initial_config.end_position = end_position
-        if start_speed is not None:
-            self._initial_config.min_speed = start_speed
-        if end_speed is not None:
-            self._initial_config.max_speed = end_speed
+        if min_speed is not None:
+            self._initial_config.min_speed = min_speed
+        if max_speed is not None:
+            self._initial_config.max_speed = max_speed
         if accel is not None:
             self._initial_config.accel = accel
 
@@ -65,8 +65,8 @@ class TrapezoidalMotion:
 
     def _compute(self):
         assert self._initial_config.start_position is not None, "'start_position' is not set."
-        assert self._initial_config.min_speed is not None, "'start_speed' is not set."
-        assert self._initial_config.max_speed is not None, "'end_speed' is not set."
+        assert self._initial_config.min_speed is not None, "'min_speed' is not set."
+        assert self._initial_config.max_speed is not None, "'max_speed' is not set."
         assert self._initial_config.accel is not None, "'accel' is not set."
 
         self._initial_config.check_final_state()
