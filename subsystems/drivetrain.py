@@ -18,7 +18,7 @@ from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
 import ports
 
-select_gyro: Literal["navx", "adis16448", "adis16470" "adxrs", "empty"] = "adis16470"
+select_gyro: Literal["navx", "adis16448", "adis16470", "adxrs", "empty"] = "adis16470"
 
 
 class Drivetrain(SafeSubsystem):
@@ -58,7 +58,7 @@ class Drivetrain(SafeSubsystem):
             "empty": Empty,
         }[select_gyro]()
         self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(0, 0, 0))
-        
+
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
         self._left_encoder_offset = 0
