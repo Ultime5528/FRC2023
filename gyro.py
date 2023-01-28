@@ -73,6 +73,7 @@ class ADIS16448(Gyro):
     def reset(self):
         self.gyro.reset()
 
+
 class ADIS16470(Gyro):
     def __init__(self):
         self.gyro = wpilib.ADIS16470_IMU()
@@ -95,6 +96,8 @@ class ADIS16470(Gyro):
 
     def reset(self):
         self.gyro.reset()
+
+
 class ADXRS(Gyro):
     def __init__(self):
         self.gyro = wpilib.ADXRS450_Gyro()
