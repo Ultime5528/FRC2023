@@ -3,7 +3,7 @@ from typing import List, Literal
 
 from wpimath.geometry import Pose2d, Transform2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
-
+from utils.property import autoproperty
 import properties
 from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
@@ -35,8 +35,8 @@ class FollowTrajectory(SafeCommand):
             drivetrain: Drivetrain,
             waypoints: List[Pose2d],
             speed: float,
-            origin: Literal["Absolute", "Relative"] = "Absolute",
-            direction: Literal["Forward", "Backward"] = "Forward"
+            origin: Literal["absolute", "relative"],
+            direction: Literal["forward", "backward"] = "Forward"
     ) -> None:
         super().__init__()
         self.waypoints = waypoints

@@ -92,7 +92,7 @@ class Drivetrain(SafeSubsystem):
     def getRotation(self):
         return self._gyro.getRotation2d()
 
-  def getLeftEncoderPosition(self):
+    def getLeftEncoderPosition(self):
         return self._encoder_left.getPosition() - self._left_encoder_offset
 
     def getRightEncoderPosition(self):
