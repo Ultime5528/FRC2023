@@ -21,6 +21,7 @@ from utils.sparkmaxutils import configure_follower, configure_leader
 
 select_gyro: Literal["navx", "adis", "adxrs", "empty"] = "navx"
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
+cam_to_robot = Transform3d(Translation3d(0, 0, 0), Rotation3d(0, 0, 0))
 
 
 class Drivetrain(SafeSubsystem):
@@ -67,7 +68,6 @@ class Drivetrain(SafeSubsystem):
         self._kinematics = DifferentialDriveKinematics(trackWidth=0.56)
         self._estimator = DifferentialDrivePoseEstimator(self._kinematics, self._gyro.getRotation2d(), 0, 0,
                                                          initialPose=Pose2d(0, 0, 0))
-        self.cam_to_robot = Transform3d(Translation3d(0, 0, 0), Rotation3d(0, 0, 0))
 
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
@@ -93,7 +93,7 @@ class Drivetrain(SafeSubsystem):
             cam_resolution_width = 640
             cam_resolution_height = 480
             min_target_area = 10
-            self.sim_vision = SimVisionSystem("cam", cam_diag_fov, self.cam_to_robot, max_led_range,
+            self.sim_vision = SimVisionSystem("cam", cam_diag_fov, cam_to_robot, max_led_range,
                                               cam_resolution_width, cam_resolution_height, min_target_area)
             for i in range(1, 9):
                 self.sim_vision.addSimVisionTarget(SimVisionTarget(april_tag_field.getTagPose(i), 8, 8, i))
@@ -146,7 +146,7 @@ class Drivetrain(SafeSubsystem):
             target_to_cam = cam_to_target.inverse()
             target_on_field = april_tag_field.getTagPose(self.latest.getBestTarget().getFiducialId())
             camera_on_field = target_on_field.transformBy(target_to_cam)
-            robot_on_field = camera_on_field.transformBy(self.cam_to_robot).toPose2d()
+            robot_on_field = camera_on_field.transformBy(cam_to_robot).toPose2d()
             self._estimator.addVisionMeasurement(robot_on_field, img_capture_time)
 
         self._field.setRobotPose(self._estimator.getEstimatedPosition())
