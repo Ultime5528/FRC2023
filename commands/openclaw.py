@@ -4,7 +4,7 @@ from subsystems.claw import Claw
 
 
 class OpenClaw(SafeCommand):
-    def __init__(self, claw: Claw()):
+    def __init__(self, claw: Claw):
         super().__init__()
         self.claw = claw
         self.timer = wpilib.Timer()
