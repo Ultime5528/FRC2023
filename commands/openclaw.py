@@ -8,6 +8,7 @@ class OpenClaw(SafeCommand):
         super().__init__()
         self.claw = claw
         self.timer = wpilib.Timer()
+        self.addRequirements(self.claw)
 
     def initialize(self) -> None:
         self.timer.reset()
