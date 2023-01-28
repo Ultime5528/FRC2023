@@ -16,7 +16,7 @@ from subsystems.drivetrain import Drivetrain, april_tag_field
 
 blue_offset = Transform2d(Translation2d(-2, 0), Rotation2d(0))
 blue_loading_pose = april_tag_field.getTagPose(4).toPose2d().transformBy(blue_offset)
-red_offset = Transform2d(Translation2d(2, 0), Rotation2d(180))
+red_offset = Transform2d(Translation2d(2, 0), Rotation2d.fromDegrees(180))
 red_loading_pose = april_tag_field.getTagPose(5).toPose2d().transformBy(red_offset)
 
 
@@ -25,7 +25,7 @@ class FollowTrajectory(SafeCommandBase):
     def toLoading(cls, drivetrain: Drivetrain):
         cmd = ConditionalCommand(cls(drivetrain, red_loading_pose, 1, True),
                            cls(drivetrain, blue_loading_pose, 1, True),
-                           lambda: DriverStation.getAlliance() == DriverStation.getAlliance().kRed)
+                           lambda: DriverStation.getAlliance() == DriverStation.Alliance.kRed)
         cmd.setName(cmd.getName() + ".toLoading")
         return cmd
 
