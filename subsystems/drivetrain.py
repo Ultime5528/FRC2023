@@ -1,30 +1,27 @@
-import math
 from typing import Literal
 
-import navx
-import networktables
 import rev
 import wpilib
-from wpilib import drive, DriverStation
+from photonvision import PhotonCamera, SimVisionSystem, SimVisionTarget
+from robotpy_apriltag import AprilTagField, loadAprilTagLayoutField
 from wpilib import RobotBase, RobotController
+from wpilib import drive, DriverStation
 from wpilib.simulation import DifferentialDrivetrainSim
-from wpimath.geometry import Pose2d, Translation2d, Rotation2d, Transform2d, Rotation3d, Translation3d, Transform3d
-from wpimath.kinematics import DifferentialDriveKinematics
 from wpimath.estimator import DifferentialDrivePoseEstimator
+from wpimath.geometry import Pose2d, Rotation3d, Translation3d, Transform3d
+from wpimath.kinematics import DifferentialDriveKinematics
 from wpimath.system import LinearSystemId
 from wpimath.system.plant import DCMotor
 
+import ports
 from gyro import NavX, ADIS, ADXRS, Empty
-from utils.sparkmaxutils import configure_follower, configure_leader
 from utils.safesubsystembase import SafeSubsystemBase
 from utils.sparkmaxsim import SparkMaxSim
-from photonvision import PhotonCamera, SimVisionSystem, SimVisionTarget
-from robotpy_apriltag import AprilTagField, loadAprilTagLayoutField
-import ports
-from properties import values
+from utils.sparkmaxutils import configure_follower, configure_leader
 
 select_gyro: Literal["navx", "adis", "adxrs", "empty"] = "navx"
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
+
 
 class Drivetrain(SafeSubsystemBase):
     def __init__(self) -> None:
