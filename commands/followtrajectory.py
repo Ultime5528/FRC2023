@@ -1,15 +1,10 @@
 import math
-from collections.abc import Iterable
-from typing import List
+from typing import List, Literal
 
-import wpimath.trajectory
-from commands2 import ConditionalCommand
-from wpilib import DriverStation
-from wpimath.geometry import Pose2d, Transform2d, Rotation2d, Translation2d
-from wpimath.geometry import Pose2d, Transform2d, Rotation2d
+from wpimath.geometry import Pose2d, Transform2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
-
 from utils.property import autoproperty
+import properties
 from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
 from subsystems.drivetrain import Drivetrain, april_tag_field
@@ -38,6 +33,11 @@ class FollowTrajectory(SafeCommand):
     Example of a command:
     FollowTrajectory(self.drivetrain, [self.drivetrain.getPose(), Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5)
     """
+    @classmethod
+    def driveStraight(cls, drivetrain: Drivetrain, distance: float, speed: float):
+        cmd = cls(drivetrain, [Pose2d(distance, 0, 0)], speed, origin="relative")
+        cmd.setName(cmd.getName() + ".driveStraight")
+        return cmd
 
     start_speed = autoproperty(0.1)
     accel = autoproperty(0.08)
@@ -48,34 +48,34 @@ class FollowTrajectory(SafeCommand):
             drivetrain: Drivetrain,
             waypoints: List[Pose2d],
             speed: float,
-            add_robot_pose: bool = False,
-            path_reversed: bool = False
+            origin: Literal["absolute", "relative"],
+            direction: Literal["forward", "backward"] = "forward"
     ) -> None:
         super().__init__()
         self.waypoints = waypoints if isinstance(waypoints, Iterable) else [waypoints]
         self.drivetrain = drivetrain
         self.addRequirements(drivetrain)
         self.speed = speed
-        self.add_robot_pose = add_robot_pose
-        self.path_reversed = path_reversed
+        self.path_reversed = (direction == "backward")
         self.config = TrajectoryConfig(10, 10)
         self.config.setReversed(self.path_reversed)
+        self.origin = origin
 
-        if not self.add_robot_pose:
-            self.trajectory = TrajectoryGenerator.generateTrajectory(
-                self.waypoints, self.config
+        if self.origin == "relative":
+            self.relative_trajectory = TrajectoryGenerator.generateTrajectory(
+                [Pose2d(0, 0, 0), *waypoints],
+                self.config
             )
 
-            self.states = self.trajectory.states()
-
     def initialize(self) -> None:
-        if self.add_robot_pose:
+        if self.origin == "relative":
+            self.trajectory = self.relative_trajectory.transformBy(Transform2d(Pose2d(), self.drivetrain.getPose()))
+        else:
             self.trajectory = TrajectoryGenerator.generateTrajectory(
                 [self.drivetrain.getPose(), *self.waypoints],
                 self.config
             )
-            self.states = self.trajectory.states()
-
+        self.states = self.trajectory.states()
         self.motion = TrapezoidalMotion(
             min_speed=self.start_speed,
             max_speed=self.speed,
@@ -87,8 +87,7 @@ class FollowTrajectory(SafeCommand):
         self.index = 0
         self.cumulative_dist = 0
         self.start_dist = self.drivetrain.getAverageEncoderPosition()
-        self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory.transformBy(
-            Transform2d(self.drivetrain.getPose().translation(), Rotation2d().fromDegrees(self.drivetrain.getAngle()))))
+        self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory)
 
     def execute(self) -> None:
         current_pose = self.drivetrain.getPose()

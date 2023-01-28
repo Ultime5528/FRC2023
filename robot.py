@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
+import math
+
 import commands2
 import wpilib
+from wpimath.geometry import Pose2d
 
 from commands.followtrajectory import FollowTrajectory
 from subsystems.drivetrain import Drivetrain
@@ -19,7 +22,6 @@ class Robot(commands2.TimedCommandRobot):
 
         # Doit être à la fin, après que tout ait été instancié
         clear_autoproperties()
-
 
 if __name__ == "__main__":
     wpilib.run(Robot)
