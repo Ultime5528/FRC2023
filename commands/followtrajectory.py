@@ -45,18 +45,21 @@ class FollowTrajectory(SafeCommand):
         self.config.setReversed(self.path_reversed)
         self.origin = origin
 
+        if self.origin == "Relative":
+            self.relative_trajectory = TrajectoryGenerator.generateTrajectory(
+                [Pose2d(0, 0, 0), *waypoints],
+                self.config
+            )
+
     def initialize(self) -> None:
         if self.origin == "Relative":
-            self.waypoints = [waypoint.transformBy(Transform2d(self.drivetrain.getPose().translation(), Rotation2d().fromDegrees(self.drivetrain.getAngle()))) for waypoint in self.waypoints]
-            print(type(self.waypoints[0]))
-        self.waypoints = [self.drivetrain.getPose(), *self.waypoints]
-
-        self.trajectory = TrajectoryGenerator.generateTrajectory(
-            self.waypoints,
-            self.config
-        )
+            self.trajectory = self.relative_trajectory.transformBy(Transform2d(Pose2d(), self.drivetrain.getPose()))
+        else:
+            self.trajectory = TrajectoryGenerator.generateTrajectory(
+                [self.drivetrain.getPose(), *self.waypoints],
+                self.config
+            )
         self.states = self.trajectory.states()
-
         self.motion = TrapezoidalMotion(
             start_speed=properties.values.follow_trajectory_speed_start,
             end_speed=self.speed,
@@ -68,7 +71,7 @@ class FollowTrajectory(SafeCommand):
         self.index = 0
         self.cumulative_dist = 0
         self.start_dist = self.drivetrain.getAverageEncoderPosition()
-        self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory.transformBy(Transform2d(self.drivetrain.getPose().translation(), Rotation2d().fromDegrees(self.drivetrain.getAngle()))))
+        self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory)
 
     def execute(self) -> None:
         current_pose = self.drivetrain.getPose()
