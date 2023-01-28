@@ -19,7 +19,7 @@ drivetrain_motor_rl = 4
 
 
 # PWM
-...
+led_strip = 9
 
 # DIO
 ...
