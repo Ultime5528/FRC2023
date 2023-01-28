@@ -7,6 +7,6 @@ cd %USERPROFILE%\Desktop\FRC2022
 set activatePath=%USERPROFILE%\miniconda3\Scripts\activate.bat
 set minicondaPath=%USERPROFILE%\miniconda3
 call %activatePath% %minicondaPath%
-call conda activate frc2022
-python utils\autostartsetup.py
+call conda activate frc2023
+python C:\Users\First\Desktop\FRC2023\utils\autostartup.py
 pause
