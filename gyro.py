@@ -9,6 +9,9 @@ from wpimath.geometry import Rotation2d
 
 
 class Gyro(ABC):
+    def __init__(self):
+        self.gyro.calibrate()
+    
     @abstractmethod
     def getAngle(self): ...
 
@@ -21,8 +24,11 @@ class Gyro(ABC):
     @abstractmethod
     def setSimPitch(self, angle: float): ...
 
-    @abstractmethod
-    def reset(self): ...
+    def reset(self):
+        self.gyro.reset()
+
+    def calibrate(self):
+        self.gyro.calibrate()
 
     def getRotation2d(self):
         return Rotation2d.fromDegrees(self.getAngle())
@@ -47,9 +53,6 @@ class NavX(Gyro):
     def setSimPitch(self, pitch: float):
         self._gyro_sim_pitch.set(pitch)
 
-    def reset(self):
-        self.gyro.reset()
-
 
 class ADIS16448(Gyro):
     def __init__(self):
@@ -69,9 +72,6 @@ class ADIS16448(Gyro):
 
     def setSimPitch(self, pitch: float):
         self._gyro_sim_pitch.set(pitch)
-
-    def reset(self):
-        self.gyro.reset()
 
 
 class ADIS16470(Gyro):
@@ -93,9 +93,6 @@ class ADIS16470(Gyro):
     def setSimPitch(self, pitch: float):
         self._gyro_sim_pitch.set(pitch)
 
-    def reset(self):
-        self.gyro.reset()
-
 
 class ADXRS(Gyro):
     def __init__(self):
@@ -115,9 +112,6 @@ class ADXRS(Gyro):
 
     def setSimPitch(self, pitch: float):
         self.pitch = pitch
-
-    def reset(self):
-        self.gyro.reset()
 
 
 class Empty(Gyro):
@@ -143,4 +137,7 @@ class Empty(Gyro):
         self._gyro_sim_pitch.set(pitch)
 
     def reset(self):
+        pass
+
+    def calibrate(self):
         pass
