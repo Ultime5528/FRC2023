@@ -15,7 +15,6 @@ Liste de vérification
     - [ ] Function and command names start with an action verb (get, set, move, start, stop...)
     - [ ] Ports respect the naming convention "subsystem" _ "component type" _ "precision"
     - [ ] Properties respect the naming convention
-    - [ ] ntproperty key strings are the same as their variables
 - Command and subsytem safety :
     - [ ] Commands and subsystems inherit from SafeCommand and SafeSubsystem
     - [ ] No commands or subsytems have a `setName()` method, unless necessary
