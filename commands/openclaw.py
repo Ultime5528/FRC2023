@@ -5,7 +5,7 @@ from utils.property import autoproperty
 
 
 class OpenClaw(SafeCommand):
-    claw_opening_duration = autoproperty(1)
+    duration = autoproperty(1)
 
     def __init__(self, claw: Claw):
         super().__init__()
@@ -21,7 +21,7 @@ class OpenClaw(SafeCommand):
         self.claw.open()
 
     def isFinished(self) -> bool:
-        return self.timer.get() >= self.claw_opening_duration
+        return self.timer.get() >= self.duration
 
     def end(self, interrupted: bool) -> None:
         self.claw.stop()
