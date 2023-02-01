@@ -22,13 +22,11 @@ select_gyro: Literal["navx", "adis", "adxrs", "empty"] = "navx"
 
 
 class Drivetrain(SafeSubsystem):
-
     def __init__(self) -> None:
         super().__init__()
         # Motors
         self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_front_left, rev.CANSparkMax.MotorType.kBrushless)
         configure_leader(self._motor_left, "brake")
-
         self._motor_left_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_left,
                                                     rev.CANSparkMax.MotorType.kBrushless)
         configure_follower(self._motor_left_follower, self._motor_left, "brake")
@@ -57,7 +55,7 @@ class Drivetrain(SafeSubsystem):
             "empty": Empty,
         }[select_gyro]()
         self._odometry = DifferentialDriveOdometry(self._gyro.getRotation2d(), 0, 0, initialPose=Pose2d(0, 0, 0))
-        
+
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
         self._left_encoder_offset = 0
