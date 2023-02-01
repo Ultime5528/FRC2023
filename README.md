@@ -7,7 +7,7 @@
 
 * File names use lowercase without spaces
 * Class names use PascalCase
-* Function use camelCase
+* Function names use camelCase
 * Variable names use snake_case
 * Function and command names start with an action verb (get, set, move, start, stop...)
 * Commands and subsystems inherit from SafeCommand and SafeSubsystem
@@ -39,5 +39,9 @@
 * Add the environment to the interpreter on PyCharm
 * Run the following command on the PyCharm terminal to add the requirements
 ```commandline
-  pip install robotpy robotpy-apriltag robotpy-commands-v2 robotpy-navx robotpy-rev
+  pip install robotpy[commands2,navx,rev,sim,apriltag,photonvision]
+```
+* To update robotpy :
+```commandline
+  pip install --upgrade robotpy[commands2,navx,rev,sim,apriltag,photonvision]
 ```
