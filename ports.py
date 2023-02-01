@@ -23,3 +23,7 @@ drivetrain_motor_rear_left = 4
 
 # DIO
 ...
+
+# PCM
+claw_piston_forward = 0
+claw_piston_reverse = 1
