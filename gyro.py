@@ -10,8 +10,8 @@ from wpimath.geometry import Rotation2d
 
 class Gyro(ABC):
     def __init__(self):
-        self.gyro.calibrate()
-    
+        self.calibrate()
+
     @abstractmethod
     def getAngle(self): ...
 
@@ -37,6 +37,7 @@ class Gyro(ABC):
 class NavX(Gyro):
     def __init__(self):
         self.gyro = navx.AHRS(wpilib.SerialPort.Port.kMXP)
+        super().__init__()
         gyro_sim_device = SimDeviceSim("navX-Sensor[1]")
         self._gyro_sim_angle = gyro_sim_device.getDouble("Yaw")
         self._gyro_sim_pitch = gyro_sim_device.getDouble("Pitch")
@@ -57,6 +58,7 @@ class NavX(Gyro):
 class ADIS16448(Gyro):
     def __init__(self):
         self.gyro = wpilib.ADIS16448_IMU()
+        super().__init__()
         gyro_sim_device = SimDeviceSim("Gyro:ADIS16448[4]")
         self._gyro_sim_angle = gyro_sim_device.getDouble("gyro_angle_z")
         self._gyro_sim_pitch = gyro_sim_device.getDouble("gyro_angle_y")
@@ -77,6 +79,7 @@ class ADIS16448(Gyro):
 class ADIS16470(Gyro):
     def __init__(self):
         self.gyro = wpilib.ADIS16470_IMU()
+        super().__init__()
         gyro_sim_device = SimDeviceSim("Gyro:ADIS16470[0]")
         self._gyro_sim_angle = gyro_sim_device.getDouble("gyro_angle_z")
         self._gyro_sim_pitch = gyro_sim_device.getDouble("gyro_angle_y")
@@ -97,6 +100,7 @@ class ADIS16470(Gyro):
 class ADXRS(Gyro):
     def __init__(self):
         self.gyro = wpilib.ADXRS450_Gyro()
+        super().__init__()
         gyro_sim_device = SimDeviceSim("Gyro:ADXRS450[0]")
         self._gyro_sim_angle = gyro_sim_device.getDouble("angle_x")
         self.pitch = 0
@@ -116,6 +120,7 @@ class ADXRS(Gyro):
 
 class Empty(Gyro):
     def __init__(self):
+        super().__init__()
         self._device = hal.SimDevice("Empty-Gyro")
         self._gyro_sim_angle = self._device.createDouble("yaw", hal.SimValueDirection.HAL_SimValueOutput, 0)
         self._gyro_sim_pitch = self._device.createDouble("pitch", hal.SimValueDirection.HAL_SimValueOutput, 0)
