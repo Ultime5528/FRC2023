@@ -96,6 +96,10 @@ class ADIS16470(Gyro):
     def setSimPitch(self, pitch: float):
         self._gyro_sim_pitch.set(pitch)
 
+    def calibrate(self):
+        if wpilib.RobotBase.isReal():
+            self.gyro.calibrate()
+
 
 class ADXRS(Gyro):
     def __init__(self):
