@@ -85,7 +85,7 @@ class ADIS16470(Gyro):
         return -math.remainder(self.gyro.getAngle(), 360.0)
 
     def getPitch(self):
-        return math.remainder(self.gyro.getGyroAngleY(), 360.0)
+        return math.remainder(self.gyro.getYComplementaryAngle(), 360.0)
 
     def setSimAngle(self, angle: float):
         self._gyro_sim_angle.set(angle)
