@@ -1,29 +1,32 @@
 import wpilib
-from commands2 import CommandBase
+from utils.safecommand import SafeCommand
 import properties
 from subsystems.drivetrain import Drivetrain
+from utils.property import autoproperty
+import math
 
-_minimal_drive_speed = 0.25
-_angle_threshold = 0.5
-_timer_threshold = 2
 
-class DriveToDock(CommandBase):
+class DriveToDock(SafeCommand):
+    minimal_drive_speed = autoproperty(0.25)
+    angle_threshold = autoproperty(0.5)
+    timer_threshold = autoproperty(2)
+
     def __init__(self, drivetrain: Drivetrain):
         super().__init__()
         self.drivetrain = drivetrain
         self.addRequirements(drivetrain)
         self.has_docked = False
-        self.timer = wpilib.Timer
+        self.timer = wpilib.Timer()
 
     def initialize(self) -> None:
         self.timer.reset()
 
     def execute(self) -> None:
         _pitch = self.drivetrain.getPitch()
-        _calculated_speed = (_pitch / abs(_pitch)) * (_minimal_drive_speed + abs(_pitch))
+        _calculated_speed = math.copysign((self.minimal_drive_speed + abs(_pitch)), _pitch)
         self.drivetrain.arcadeDrive(_calculated_speed, 0)
 
-        if _pitch <= _angle_threshold and self.has_docked:
+        if _pitch <= self.angle_threshold and self.has_docked:
             self.timer.start()
         else:
             self.timer.stop()
@@ -31,7 +34,7 @@ class DriveToDock(CommandBase):
             self.has_docked = True
 
     def isFinished(self) -> bool:
-        return self.timer.get() < _timer_threshold
+        return self.timer.get() > self.timer_threshold
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.arcadeDrive(0, 0)
