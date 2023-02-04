@@ -24,6 +24,7 @@ class ModeLED(Enum):
 class LEDController(commands2.SubsystemBase):
     red_hsv = np.array([0, 255, 255])
     blue_hsv = np.array([120, 255, 255])
+    purple_hsv = np.array([140, 255, 60])
     yellow_hsv = np.array([30, 255, 255])
     orange_hsv = np.array([10, 255, 255])
     black = np.array([0, 0, 0])
@@ -48,7 +49,7 @@ class LEDController(commands2.SubsystemBase):
             self.setHSV(i, color_func(i))
 
     def pulse(self, color):
-        t = round(254 * abs(math.cos(self.time * 2 * math.pi / 500)**3))
+        t = round(254 * abs(math.cos(self.time * 2 * math.pi / 400)**3))
         hue, saturation, _ = color
         self.setAll(lambda i: (hue, saturation, 255 - t))
 
@@ -148,5 +149,5 @@ class LEDController(commands2.SubsystemBase):
             if alliance == wpilib.DriverStation.Alliance.kInvalid:
                 self.selectTeam()
             else:
-                self.pulse(self.red_hsv)
+                self.pulse(self.purple_hsv)
         self.led_strip.setData(self.buffer)
