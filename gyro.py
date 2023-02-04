@@ -1,9 +1,9 @@
 import math
-import navx
-import wpilib
-import hal
 from abc import ABC, abstractmethod
 
+import hal
+import navx
+import wpilib
 from wpilib.simulation import SimDeviceSim
 from wpimath.geometry import Rotation2d
 
@@ -51,10 +51,33 @@ class NavX(Gyro):
         self.gyro.reset()
 
 
-class ADIS(Gyro):
+class ADIS16448(Gyro):
     def __init__(self):
         self.gyro = wpilib.ADIS16448_IMU()
         gyro_sim_device = SimDeviceSim("Gyro:ADIS16448[4]")
+        self._gyro_sim_angle = gyro_sim_device.getDouble("gyro_angle_z")
+        self._gyro_sim_pitch = gyro_sim_device.getDouble("gyro_angle_y")
+
+    def getAngle(self):
+        return -math.remainder(self.gyro.getAngle(), 360.0)
+
+    def getPitch(self):
+        return math.remainder(self.gyro.getGyroAngleY(), 360.0)
+
+    def setSimAngle(self, angle: float):
+        self._gyro_sim_angle.set(angle)
+
+    def setSimPitch(self, pitch: float):
+        self._gyro_sim_pitch.set(pitch)
+
+    def reset(self):
+        self.gyro.reset()
+
+
+class ADIS16470(Gyro):
+    def __init__(self):
+        self.gyro = wpilib.ADIS16470_IMU()
+        gyro_sim_device = SimDeviceSim("Gyro:ADIS16470[0]")
         self._gyro_sim_angle = gyro_sim_device.getDouble("gyro_angle_z")
         self._gyro_sim_pitch = gyro_sim_device.getDouble("gyro_angle_y")
 
