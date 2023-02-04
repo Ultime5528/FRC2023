@@ -10,11 +10,14 @@ from utils.property import autoproperty
 from utils.safecommand import SafeCommand
 
 
-class Drive(SafeCommand):
+class SlowDrive(SafeCommand):
     smoothing_window = autoproperty(1)
     interpolation_curve = autoproperty(0.6)
     deadzone_x = autoproperty(0.05)
     deadzone_y = autoproperty(0.05)
+    forward_factor = autoproperty(0.5)
+    turn_factor = autoproperty(0.5)
+
 
     def __init__(self, drivetrain: Drivetrain, stick: wpilib.Joystick):
         super().__init__()
@@ -27,8 +30,8 @@ class Drive(SafeCommand):
         self.turn_filter = LinearFilter.movingAverage(int(self.smoothing_window))
 
     def execute(self):
-        forward = self.interpolate(self.stick.getY()) * -1
-        turn = self.interpolate(self.stick.getX()) * -1
+        forward = self.forward_factor * self.interpolate(self.stick.getY()) * -1
+        turn = self.turn_factor * self.interpolate(self.stick.getX()) * -1
 
         self.drivetrain.arcadeDrive(self.forward_filter.calculate(forward), self.turn_filter.calculate(turn))
 
