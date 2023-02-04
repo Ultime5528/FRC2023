@@ -18,9 +18,9 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain = Drivetrain()
         self.stick = wpilib.Joystick(0)
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
-        JoystickButton(self.stick, 1).whenPressed(GoGrid(self.drivetrain, "4"))
+        JoystickButton(self.stick, 1).whenPressed(GoGrid(self.drivetrain, "3"))
 
-        JoystickButton(self.stick, 1).whenPressed(SlowDrive(self.drivetrain, self.stick))
+        # JoystickButton(self.stick, 1).whenPressed(SlowDrive(self.drivetrain, self.stick))
 
         # Doit être à la fin, après que tout ait été instancié
         clear_autoproperties()
