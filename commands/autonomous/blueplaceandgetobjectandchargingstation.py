@@ -14,12 +14,12 @@ from commands.openclaw import OpenClaw
 class BluePlaceAndGetObjectAndChargingStation(commands2.SequentialCommandGroup):
     def __init__(self, drivetrain: Drivetrain, claw: Claw, arm: Arm):
         super().__init__(
-            MoveArm.toThirdLevel(arm),
-            OpenClaw(claw),
-            commands2.ParallelCommandGroup(
-                FollowTrajectory(drivetrain, [Pose2d(5.69, 0.92, 0)], 0.75, origin="absolute"),
-                MoveArm.toPickupLevel(arm),
+            MoveArm.toThirdLevel(arm),# Niveau trois
+            OpenClaw(claw),# Déposer
+            commands2.ParallelCommandGroup( # En meme temps
+                FollowTrajectory(drivetrain, [Pose2d(6.265738, 0.785636, 0)], 0.75, origin="absolute"),# Aller milieu (où les 4 objets de choix)
+                MoveArm.toPickupLevel(arm),# Préparer à prendre objet
             ),
-            CloseClaw(claw),
-            FollowTrajectory(drivetrain, [Pose2d(2.74, 0.51, 0)], 0.75, origin="absolute", direction="backward")
+            CloseClaw(claw),# Prendre objet
+            FollowTrajectory(drivetrain, [Pose2d(3.894836, 2.273407, 0)], 0.75, origin="absolute", direction="backward")# Aller a charging station
         )
