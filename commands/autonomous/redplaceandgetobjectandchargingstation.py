@@ -10,10 +10,10 @@ from commands.movearm import MoveArm
 from commands.closeclaw import CloseClaw
 from commands.openclaw import OpenClaw
 
-class RedPlaceAndGetObject(commands2.SequentialCommandGroup):
+
+class RedPlaceAndGetObjectAndChargingStation(commands2.SequentialCommandGroup):
     def __init__(self, drivetrain: Drivetrain, claw: Claw, arm: Arm):
         super().__init__(
-            self,
             MoveArm.toThirdLevel(arm),
             OpenClaw(claw),
             commands2.ParallelCommandGroup(
@@ -21,5 +21,5 @@ class RedPlaceAndGetObject(commands2.SequentialCommandGroup):
                 MoveArm.toPickupLevel(arm),
             ),
             CloseClaw(claw),
-            FollowTrajectory(drivetrain, [Pose2d(1.328606, 7.109085, 0)], 0.75, origin="absolute", direction="backward")
+            FollowTrajectory(drivetrain, [Pose2d(12.693080, 3.272686, 0)], 0.75, origin="absolute", direction="backward")
         )
