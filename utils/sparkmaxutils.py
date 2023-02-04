@@ -27,7 +27,7 @@ def _configure_motor(motor: rev.CANSparkMax, mode: IdleMode):
     _handle_can_error(motor.setIdleMode(_idle_mode_to_enum(mode)), "setIdleMode", motor)
     _handle_can_error(motor.burnFlash(), "burnFlash", motor)
     _handle_can_error(motor.clearFaults(), "clearFaults", motor)
-    # wpilib.Timer.(0.250)
+    wpilib.wait(0.250)
 
 
 def _idle_mode_to_enum(mode: IdleMode):
