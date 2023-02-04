@@ -7,9 +7,9 @@ import wpilib
 import ports
 import numpy as np
 
-def interpoler(t, couleur1, couleur2):
+def interpoler( t, color1, color2):
     assert 0 <= t <= 1
-    return ((1 - t) * couleur1 + t * couleur2).astype(int)
+    return ((1 - t) * color1 + t * color2).astype(int)
 
 
 Color = Union[np.ndarray, Tuple[int, int, int], List[int]]
@@ -17,14 +17,12 @@ Color = Union[np.ndarray, Tuple[int, int, int], List[int]]
 
 class ModeLED(Enum):
     NONE = "none"
-    SHOOT = "shoot"
-    INTAKE = "intake"
-
 
 class LEDController(commands2.SubsystemBase):
+    # HSV: [Hue(color 0 to 188), Saturation( amount of gray 0 to 255), Value(brightness 0 to 255)
     red_hsv = np.array([0, 255, 255])
     blue_hsv = np.array([120, 255, 255])
-    purple_hsv = np.array([140, 255, 60])
+    purple_hsv = np.array([140, 255, 120])
     yellow_hsv = np.array([30, 255, 255])
     orange_hsv = np.array([10, 255, 255])
     black = np.array([0, 0, 0])
@@ -49,14 +47,14 @@ class LEDController(commands2.SubsystemBase):
             self.setHSV(i, color_func(i))
 
     def pulse(self, color):
-        t = round(254 * abs(math.cos(self.time * 2 * math.pi / 400)**3))
+        t = round(254 * abs(math.cos(self.time * 2 * math.pi / 300)**3))
         hue, saturation, _ = color
         self.setAll(lambda i: (hue, saturation, 255 - t))
 
     def rainbow(self):
         for i in range(len(self.buffer)):
-            pixel_hue = (self.time + int(i * 180 / len(self.buffer))) % 180
-            self.buffer[i].setHSV(pixel_hue, 255, i)
+            pixel_hue = (self.time + int(i * 180 / 0.5*len(self.buffer))) % 180
+            self.buffer[i].setHSV(pixel_hue, 255, i+100)
 
         self.time += 3
         self.time %= 180
@@ -69,14 +67,16 @@ class LEDController(commands2.SubsystemBase):
             color = (0, 255, abs(pixel_value))
         self.setAll(lambda i: color)
 
-    def ripples(self, color):
-        if self.time % 10 == 0:
-            def getColor(i: int):
-                if random.random() <= (1 - (wpilib.DriverStation.getMatchTime() / 15)):
-                    return color
-                else:
-                    return self.black
-            self.setAll(getColor)
+    def auto(self):
+        color = self.getAllianceColor()
+        def getColor(i: int):
+            y = 0.5 * math.sin(2 * math.pi * (i - 0.85*self.time) /200*math.pi) + 0.5
+            color1 = interpoler(y, color, interpoler(y, color, self.purple_hsv))
+            color2 = interpoler(y, color, self.white)
+            return interpoler(y, color, self.purple_hsv)
+
+
+        self.setAll(getColor)
 
     def waves(self, color):
         def getColor(i: int):
@@ -113,10 +113,7 @@ class LEDController(commands2.SubsystemBase):
             self.explosiveness -= 0.02
             self.setAll(getColor)
 
-
-    def periodic(self) -> None:
-        self.time += 1
-
+    def getAllianceColor(self):
         alliance = wpilib.DriverStation.getAlliance()
         if alliance == wpilib.DriverStation.Alliance.kInvalid:
             color = self.black
@@ -124,30 +121,32 @@ class LEDController(commands2.SubsystemBase):
             color = self.red_hsv
         else:  # kBlue
             color = self.blue_hsv
+        return color
 
+    def periodic(self) -> None:
+        self.time += 1
         if wpilib.DriverStation.isAutonomousEnabled(): #auto
-            self.ripples(color)
+            self.auto()
         elif wpilib.DriverStation.isTeleopEnabled(): #teleop
-            if ModeLED.SHOOT == self.mode:
-                self.halfWaves(color)
-            elif ModeLED.INTAKE == self.mode:
-                self.waves(color, self.intake.ballCount())
-            elif wpilib.DriverStation.getMatchTime() <= 1:
-                self.explode(color)
+            if wpilib.DriverStation.getMatchTime() <= 1:
+                self.explode(self.getAllianceColor())
             elif wpilib.DriverStation.getMatchTime() <= 5:
                 self.explosiveness = 1
-                self.flash(color, 10)
+                self.flash(self.getAllianceColor(), 10)
             elif wpilib.DriverStation.getMatchTime() <= 15:
                 self.flash(self.orange_hsv, 35)
             elif wpilib.DriverStation.getMatchTime() <= 30:
                 self.flash(self.yellow_hsv, 50)
             else:
-                self.waves(color, self.intake.ballCount())
+                self.waves(self.getAllianceColor())
 
         else:  # game hasn't started
             #print("disabled")
-            if alliance == wpilib.DriverStation.Alliance.kInvalid:
+            if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kInvalid:
                 self.selectTeam()
             else:
-                self.pulse(self.purple_hsv)
+                self.rainbow()
+                #self.pulse(self.purple_hsv)
+
+
         self.led_strip.setData(self.buffer)
