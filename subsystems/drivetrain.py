@@ -2,6 +2,8 @@ from typing import Literal
 
 import rev
 import wpilib
+import wpilib.drive
+import wpiutil
 from photonvision import PhotonCamera, SimVisionSystem, SimVisionTarget
 from robotpy_apriltag import AprilTagField, loadAprilTagLayoutField
 from wpilib import RobotBase, RobotController
@@ -151,7 +153,9 @@ class Drivetrain(SafeSubsystem):
 
         self._field.setRobotPose(self._estimator.getEstimatedPosition())
 
-        wpilib.SmartDashboard.putNumber("Left Encoder Position", self.getLeftEncoderPosition())
-        wpilib.SmartDashboard.putNumber("Right Encoder Position", self.getRightEncoderPosition())
-        wpilib.SmartDashboard.putNumber("Left Motor", self._motor_left.get())
-        wpilib.SmartDashboard.putNumber("Right Motor", self._motor_right.get())
+    def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
+        super().initSendable(builder)
+        builder.addDoubleProperty("Left motor", self._motor_left.get, None)
+        builder.addDoubleProperty("Right Motor", self._motor_right.get, None)
+        builder.addDoubleProperty("Left Encoder Position", self.getLeftEncoderPosition, None)
+        builder.addDoubleProperty("Right Encoder Position", self.getRightEncoderPosition, None)

@@ -9,6 +9,9 @@ from wpimath.geometry import Rotation2d
 
 
 class Gyro(ABC):
+    def __init__(self):
+        self.calibrate()
+
     @abstractmethod
     def getAngle(self): ...
 
@@ -21,8 +24,11 @@ class Gyro(ABC):
     @abstractmethod
     def setSimPitch(self, angle: float): ...
 
-    @abstractmethod
-    def reset(self): ...
+    def reset(self):
+        self.gyro.reset()
+
+    def calibrate(self):
+        self.gyro.calibrate()
 
     def getRotation2d(self):
         return Rotation2d.fromDegrees(self.getAngle())
@@ -31,6 +37,7 @@ class Gyro(ABC):
 class NavX(Gyro):
     def __init__(self):
         self.gyro = navx.AHRS(wpilib.SerialPort.Port.kMXP)
+        super().__init__()
         gyro_sim_device = SimDeviceSim("navX-Sensor[1]")
         self._gyro_sim_angle = gyro_sim_device.getDouble("Yaw")
         self._gyro_sim_pitch = gyro_sim_device.getDouble("Pitch")
@@ -47,13 +54,11 @@ class NavX(Gyro):
     def setSimPitch(self, pitch: float):
         self._gyro_sim_pitch.set(pitch)
 
-    def reset(self):
-        self.gyro.reset()
-
 
 class ADIS16448(Gyro):
     def __init__(self):
         self.gyro = wpilib.ADIS16448_IMU()
+        super().__init__()
         gyro_sim_device = SimDeviceSim("Gyro:ADIS16448[4]")
         self._gyro_sim_angle = gyro_sim_device.getDouble("gyro_angle_z")
         self._gyro_sim_pitch = gyro_sim_device.getDouble("gyro_angle_y")
@@ -70,13 +75,11 @@ class ADIS16448(Gyro):
     def setSimPitch(self, pitch: float):
         self._gyro_sim_pitch.set(pitch)
 
-    def reset(self):
-        self.gyro.reset()
-
 
 class ADIS16470(Gyro):
     def __init__(self):
         self.gyro = wpilib.ADIS16470_IMU()
+        super().__init__()
         gyro_sim_device = SimDeviceSim("Gyro:ADIS16470[0]")
         self._gyro_sim_angle = gyro_sim_device.getDouble("gyro_angle_z")
         self._gyro_sim_pitch = gyro_sim_device.getDouble("gyro_angle_y")
@@ -93,13 +96,15 @@ class ADIS16470(Gyro):
     def setSimPitch(self, pitch: float):
         self._gyro_sim_pitch.set(pitch)
 
-    def reset(self):
-        self.gyro.reset()
+    def calibrate(self):
+        if wpilib.RobotBase.isReal():
+            self.gyro.calibrate()
 
 
 class ADXRS(Gyro):
     def __init__(self):
         self.gyro = wpilib.ADXRS450_Gyro()
+        super().__init__()
         gyro_sim_device = SimDeviceSim("Gyro:ADXRS450[0]")
         self._gyro_sim_angle = gyro_sim_device.getDouble("angle_x")
         self.pitch = 0
@@ -116,12 +121,10 @@ class ADXRS(Gyro):
     def setSimPitch(self, pitch: float):
         self.pitch = pitch
 
-    def reset(self):
-        self.gyro.reset()
-
 
 class Empty(Gyro):
     def __init__(self):
+        super().__init__()
         self._device = hal.SimDevice("Empty-Gyro")
         self._gyro_sim_angle = self._device.createDouble("yaw", hal.SimValueDirection.HAL_SimValueOutput, 0)
         self._gyro_sim_pitch = self._device.createDouble("pitch", hal.SimValueDirection.HAL_SimValueOutput, 0)
@@ -143,4 +146,7 @@ class Empty(Gyro):
         self._gyro_sim_pitch.set(pitch)
 
     def reset(self):
+        pass
+
+    def calibrate(self):
         pass
