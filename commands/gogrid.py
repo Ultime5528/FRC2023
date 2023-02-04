@@ -59,11 +59,13 @@ class GoGrid(SafeCommand):
         robot_to_grid = Transform2d(self.drivetrain.getPose(), grid_pos)
         robot_to_grid_angle = degrees(atan2(robot_to_grid.Y(), robot_to_grid.X()))
 
-        SequentialCommandGroup(
+        go_grid = SequentialCommandGroup(
             Turn(self.drivetrain, robot_to_grid_angle, 0.3),
             FollowTrajectory(self.drivetrain, grid_pos, 0.5, "absolute"),
             FollowTrajectory.driveStraight(self.drivetrain, 0.3, 0.5)
-        ).schedule()
+        )
+        go_grid.setName("Go grid")
+        go_grid.schedule()
 
     def isFinished(self) -> bool:
         return True
