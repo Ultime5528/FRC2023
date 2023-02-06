@@ -6,10 +6,21 @@ import navx
 import wpilib
 from wpilib.simulation import SimDeviceSim
 from wpimath.geometry import Rotation2d
+from wpiutil import Sendable, SendableBuilder
 
 
-class Gyro(ABC):
+class AbstractSendableMetaclass(type(ABC), type(Sendable)):
+    pass
+
+
+class AbstractSendable(ABC, Sendable, metaclass=AbstractSendableMetaclass):
+    def initSendable(self, builder: SendableBuilder) -> None:
+        super().__init__(builder)
+
+
+class Gyro(AbstractSendable):
     def __init__(self):
+        super().__init__()
         self.calibrate()
 
     @abstractmethod
@@ -32,6 +43,11 @@ class Gyro(ABC):
 
     def getRotation2d(self):
         return Rotation2d.fromDegrees(self.getAngle())
+
+    def initSendable(self, builder: SendableBuilder) -> None:
+        super().initSendable(builder)
+        builder.addDoubleProperty("angle", self.getAngle, None)
+        builder.addDoubleProperty("pitch", self.getPitch, None)
 
 
 class NavX(Gyro):
