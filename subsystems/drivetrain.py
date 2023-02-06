@@ -14,6 +14,7 @@ from wpimath.geometry import Pose2d, Rotation3d, Translation3d, Transform3d
 from wpimath.kinematics import DifferentialDriveKinematics
 from wpimath.system import LinearSystemId
 from wpimath.system.plant import DCMotor
+from wpiutil import Sendable
 
 import ports
 from gyro import NavX, ADIS16448, ADIS16470, ADXRS, Empty
@@ -77,8 +78,7 @@ class Drivetrain(SafeSubsystem):
 
         self.alliance = DriverStation.getAlliance()
 
-        if hasattr(self._gyro, "gyro"):
-            self.addChild("Gyro", self._gyro.gyro)
+        self.addChild("Gyro", self._gyro)
 
         if RobotBase.isReal():
             self.cam = PhotonCamera("mainCamera")
