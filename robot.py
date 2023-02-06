@@ -23,12 +23,8 @@ class Robot(commands2.TimedCommandRobot):
         self.stick = wpilib.Joystick(0)
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
 
-        self.setupDashboard()
         # Doit être à la fin, après que tout ait été instancié
         clear_autoproperties()
-
-    def setupDashboard(self):
-        putCommandOnDashboard("Déplacer", FollowTrajectory(self.drivetrain, [self.drivetrain.getPose(), Pose2d(0, 3, math.radians(90)), Pose2d(3, 3, 0)], 0.5))
 
 if __name__ == "__main__":
     wpilib.run(Robot)

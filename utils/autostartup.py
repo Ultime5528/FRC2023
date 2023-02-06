@@ -9,10 +9,12 @@ import requests
 from threading import Thread
 import ctypes
 
+from wpilib import RobotBase
 
 # Kill previous dashboard processes
 
-old_dashboard_processes = [p for p in psutil.process_iter() if "pynetworktables2js" in p.name() or "chrome.exe" in p.name()]
+old_dashboard_processes = [p for p in psutil.process_iter() if
+                           "pynetworktables2js" in p.name() or "chrome.exe" in p.name()]
 
 for p in old_dashboard_processes:
     try:
@@ -39,9 +41,11 @@ DriverStation.maximize()
 
 # Dashboard
 
-dashboard_path = str(Path(".dashboard").absolute())
-subprocess.Popen("pynetworktables2js.exe --team 5528", shell=True, cwd=dashboard_path)
-# subprocess.Popen("pynetworktables2js.exe --robot 127.0.0.1", shell=True, cwd=dashboard_path)
+dashboard_path = str(Path("C:/Users/First/Desktop/FRC2023/.dashboard"))
+if RobotBase.isReal():
+    subprocess.Popen("pynetworktables2js.exe --team 5528", shell=True, cwd=dashboard_path)
+else:
+    subprocess.Popen("pynetworktables2js.exe --robot 127.0.0.1", shell=True, cwd=dashboard_path)
 
 dashboard_url = "http://localhost:8888"
 
@@ -56,7 +60,7 @@ while True:
 # Chrome
 
 # chrome_path = '"C:/Program Files/Google/Chrome/Application/chrome.exe"'
-chrome_path = '"C:/Program Files (x86)/Google/Chrome/Application/chrome.exe"'
+chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe"
 chrome_path += ' --profile-directory="Default" --app=%s'
 chrome = webbrowser.get(chrome_path)
 Thread(target=lambda: chrome.open(dashboard_url)).start()
