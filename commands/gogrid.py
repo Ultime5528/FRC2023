@@ -1,12 +1,16 @@
 from math import degrees, atan2
 from typing import Literal
+
+from commands2 import SequentialCommandGroup
+from wpilib import DriverStation
 from wpimath.geometry import Transform2d, Translation2d, Rotation2d
-from commands2 import SequentialCommandGroup, ConditionalCommand
-from utils.safecommand import SafeCommand
+
 from commands.followtrajectory import FollowTrajectory
 from commands.turn import Turn
 from subsystems.drivetrain import Drivetrain, april_tag_field
-from wpilib import DriverStation
+from utils.property import autoproperty
+from utils.safecommand import SafeCommand
+
 
 left_offset = Transform2d(Translation2d(0.5, -0.47), Rotation2d.fromDegrees(180))
 mid_offset = Transform2d(Translation2d(0.5, 0), Rotation2d.fromDegrees(180))
@@ -39,6 +43,11 @@ blue_poses = {
 
 
 class GoGrid(SafeCommand):
+    turn_speed = autoproperty(0.3)
+    traj_speed = autoproperty(0.5)
+    straight_distance = autoproperty(0.3)
+    straight_speed = autoproperty(0.5)
+
     def __init__(self, drivetrain: Drivetrain, grid_number: Literal["1", "2", "3", "4", "5", "6", "7", "8", "9"]):
         """
         Parameters
@@ -60,11 +69,11 @@ class GoGrid(SafeCommand):
         robot_to_grid_angle = degrees(atan2(robot_to_grid.Y(), robot_to_grid.X()))
 
         go_grid = SequentialCommandGroup(
-            Turn(self.drivetrain, robot_to_grid_angle, 0.3),
-            FollowTrajectory(self.drivetrain, grid_pos, 0.5, "absolute"),
-            FollowTrajectory.driveStraight(self.drivetrain, 0.3, 0.5)
+            Turn(self.drivetrain, robot_to_grid_angle, self.turn_speed),
+            FollowTrajectory(self.drivetrain, grid_pos, self.traj_speed, "absolute"),
+            FollowTrajectory.driveStraight(self.drivetrain, self.straight_distance, self.straight_speed)
         )
-        go_grid.setName("Go grid")
+        go_grid.setName("GoGrid")
         go_grid.schedule()
 
     def isFinished(self) -> bool:

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 import commands2
 import wpilib
-from commands2._impl.button import JoystickButton
+from commands2.button import JoystickButton
 
 from commands.drive import Drive
 from commands.gogrid import GoGrid
-from commands.slowdrive import SlowDrive
 from subsystems.drivetrain import Drivetrain
 from utils.property import clear_autoproperties
 
