@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>KRAKEN DASHBOARD</title>
+    <script src="jquery-2.2.2.min.js"></script>
+    <script src="/networktables/camera.js"></script>
+	<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <frc-dashboard onload="ntLoaded()">
+        <div style="display: flex;align-items: center;justify-content: center;">
+            <img src="kraken.svg" height="100px"/>
+            <br>
+            <div style="display: inline-block; margin-right: 36px;">
+                NetworkTables websocket: <span id="connectstate">Unknown state</span><br/>
+                Robot: <span id="robotstate">Unknown state</span> @ <span id="robotAddress">disconnected</span>
+            </div>
+            <frc-basic-fms-info></frc-basic-fms-info>
+            <img src="Ultime-5528-Monochrome-Rouge.svg" width="100px" height="100px"/>
+        </div>
+        <hr/>
+
+        <div style="display: flex; flex-wrap: wrap;justify-content: center;">
+            <div style="width: min(100%, 640px); margin-right: 3%;">
+                <h2 class="secondary-text">Vision Hub</h2>
+                <div id="hub_output" style="width: 100%"></div>
+            </div>
+            <div style="width: min(100%, 640px)">
+                <h2 class="secondary-text">Vision Cargo</h2>
+                <div id="cargo_output" style="width: 100%"></div>
+            </div>
+        </div>
+        <!-- SIDE BAR -->
+        <div style="display: flex;">
+            <div style="margin-right:5%;">
+                <h2 class="secondary-text">Mode autonome</h2>
+                <frc-combo-box name="Mode Auto" default="Rien" options='["Rien","2 Ballons", "4 Ballons"]' source-key="/SmartDashboard/ModeAutonome"></frc-combo-box>
+                <frc-custom-slider min="-100" max="100" block-increment="1" source-key="/Properties/shooter_speed_multiplier"></frc-custom-slider>
+                <div class="boolean-box-title">
+                    <h2 class="secondary-text">Aide au pilotage</h2>
+                    <frc-boolean-box true-color="var(--lumo-primary-color)" false-color="var(--lumo-primary-color-10pct)" source-key="/SmartDashboard/Vision/PiloterAide/running"></frc-boolean-box>
+                    <div></div>
+                </div>
+            </div>
+            <!-- MAIN PAGE -->
+            <div>
+                <h2 class="secondary-text">Commandes</h2>
+                <h3 class="secondary-text">Déplacer</h3>
+                <frc-robot-command label="FollowTrajectory" source-key="/SmartDashboard/Déplacer/FollowTrajectory"></frc-robot-command>
+            </div>
+        </div>
+        <script>
+            function onRobotConnection(connected) {
+                document.getElementById("robotstate").innerHTML = connected ? "Connected!" : "Disconnected";
+                document.getElementById("robotAddress").innerHTML = connected ? NetworkTables.getRobotAddress() : "disconnected";
+            }
+
+            function onNetworkTablesConnection(connected) {
+                document.getElementById("connectstate").innerHTML = connected ? "Connected!" : "Disconnected";
+            }
+
+            function ntLoaded() {
+                console.log("NT Loaded");
+                NetworkTables.addWsConnectionListener(onNetworkTablesConnection, true);
+                NetworkTables.addRobotConnectionListener(onRobotConnection, true);
+
+                loadCameraOnConnect({
+                    container: '#hub_output', // where to put the img tag
+                    proto: null,                    // optional, defaults to http://
+                    host: "10.55.28.6",                     // optional, if null will use robot's autodetected IP address
+                    port: 1182,                     // webserver port
+                    image_url: '/stream.mjpg',   // mjpg stream of camera
+                    data_url: '/settings.json',      // used to test if connection is up
+                    wait_img: null,                 // optional img to show when not connected, can use SVG instead
+                    error_img: null,                // optional img to show when error connecting, can use SVG instead
+                    attrs: {                        // optional: attributes set on svg or img element
+                        width: 640,                     // optional, stretches image to this width
+                        height: 480,                    // optional, stretches image to this width
+                    }
+                });
+
+                loadCameraOnConnect({
+                    container: '#cargo_output', // where to put the img tag
+                    proto: null,                    // optional, defaults to http://
+                    host: "10.55.28.6",                     // optional, if null will use robot's autodetected IP address
+                    port: 1184,                     // webserver port
+                    image_url: '/stream.mjpg',   // mjpg stream of camera
+                    data_url: '/settings.json',      // used to test if connection is up
+                    wait_img: null,                 // optional img to show when not connected, can use SVG instead
+                    error_img: null,                // optional img to show when error connecting, can use SVG instead
+                    attrs: {                        // optional: attributes set on svg or img element
+                        width: 640,                     // optional, stretches image to this width
+                        height: 480,                    // optional, stretches image to this width
+                    }
+                });
+            }
+
+        </script>
+
+        <script src="./frc-web-components.js"></script>
+        <script src="/components/customslider.js"></script>
+</body>
+
+</html>
