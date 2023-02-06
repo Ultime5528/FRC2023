@@ -8,12 +8,12 @@ class MoveArm(SafeCommand):
 
     # Elevator Properties #
     elevator_min_speed = autoproperty(0.1)
-    elevator_max_speed = autoproperty(0.3)
+    elevator_max_speed = autoproperty(0.1)
     elevator_acceleration = autoproperty(0.001)
 
     # Extension Properties #
     extension_min_speed = autoproperty(0.1)
-    extension_max_speed = autoproperty(0.3)
+    extension_max_speed = autoproperty(0.1)
     extension_acceleration = autoproperty(0.001)
 
     def __init__(self, arm: Arm, drivetrain: Drivetrain, extension_end_position, elevator_end_position):
