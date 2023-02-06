@@ -68,7 +68,7 @@ class FollowTrajectory(SafeCommand):
 
         if self.origin == "relative":
             self.relative_trajectory = TrajectoryGenerator.generateTrajectory(
-                [Pose2d(0, 0, 0), *waypoints],
+                [Pose2d(0, 0, 0), *self.waypoints],
                 self.config
             )
 
