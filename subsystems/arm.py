@@ -35,6 +35,12 @@ class Arm(SafeSubsystem):
             self.switch_extension_min_sim = DIOSim(self.switch_extension_min)
             self.switch_elevator_min_sim = DIOSim(self.switch_elevator_min)
 
+    def simulationPeriodic(self):
+        motor_elevator_sim_increment = self.motor_elevator.get() * 0.1
+        motor_extension_sim_increment = self.motor_extension.get() * 0.1
+        self.motor_elevator_sim.setPosition(self.motor_elevator_sim.getPosition() + motor_elevator_sim_increment)
+        self.motor_extension_sim.setPosition(self.motor_extension_sim.getPosition() + motor_extension_sim_increment)
+
     def getElevatorPosition(self):
         return self.encoder_elevator.getPosition()
 
@@ -42,11 +48,11 @@ class Arm(SafeSubsystem):
         return self.encoder_elevator.getPosition()
 
     def setElevatorSpeed(self, speed: float):
-        if RobotBase.isSimulation():
-            self.motor_elevator_sim.setPosition(speed)
+        # if RobotBase.isSimulation():
+        #     self.motor_elevator_sim.setPosition(speed)
         self.motor_elevator.set(speed)
 
     def setExtensionSpeed(self, speed: float):
-        if RobotBase.isSimulation():
-            self.motor_extension_sim.setPosition(speed)
-        self.motor_elevator.set(speed)
+        # if RobotBase.isSimulation():
+        #     self.motor_extension_sim.setPosition(speed)
+        self.motor_extension.set(speed)

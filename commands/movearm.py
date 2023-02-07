@@ -27,14 +27,14 @@ class MoveArm(SafeCommand):
     def initialize(self) -> None:
 
         self.elevator_motion = TrapezoidalMotion(
-           start_position=0,
+           start_position=self.arm.getElevatorPosition(),
            end_position=self.elevator_end_position,
            min_speed=self.elevator_min_speed,
            max_speed=self.elevator_max_speed,
            accel=self.elevator_acceleration
         )
         self.extension_motion = TrapezoidalMotion(
-           start_position=0,
+           start_position=self.arm.getExtensionPosition(),
            end_position=self.extension_end_position,
            min_speed=self.extension_min_speed,
            max_speed=self.extension_max_speed,
@@ -56,4 +56,5 @@ class MoveArm(SafeCommand):
         return self.elevator_motion.isFinished() and self.extension_motion.isFinished()
 
     def end(self, interrupted: bool) -> None:
-        pass
+        self.arm.setExtensionSpeed(0)
+        self.arm.setElevatorSpeed(0)
