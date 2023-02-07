@@ -23,4 +23,7 @@ arm_motor_extension = 6
 
 # DIO
 arm_switch_extension_min = 0
-arm_switch_elevator_min = 1
+arm_switch_extension_max = 1
+arm_switch_elevator_min = 2
+arm_switch_elevator_max = 3
+
