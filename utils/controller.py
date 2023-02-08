@@ -13,13 +13,13 @@ class RearWheelFeedbackController:
         self.left_speed = 0.0
         self.right_speed = 0.0
         self.current_pose = Pose2d()
-        self.current_time = 0
+        self.closest_t = 0
 
     # def _check_idx(self, idx):
     #     idx = round(float(idx - 0.5))
     #     return min(max(idx, 1), len(self.states) - 2)
 
-    def _compute_nearest_point(self):
+    def _update_closest_pose(self):
             def calc_distance(t, *args):
                 pose = self.trajectory.sample(t).pose
                 x = pose.X()
@@ -44,15 +44,15 @@ class RearWheelFeedbackController:
             #
             #     return 2 * dx * (x - current_x) + 2 * dy * (y - current_y)
 
-            # minimum = optimize.fmin_cg(calc_distance, self.current_time, calc_distance_jacobian, full_output=True, disp=False)
+            # minimum = optimize.fmin_cg(calc_distance, self.closest_t, calc_distance_jacobian, full_output=True, disp=False)
             res = optimize.minimize_scalar(calc_distance, bounds=(0, self.trajectory.totalTime()), tol=1e-3)
             # idx = minimum[0][0]
             # error = minimum[1]
-            idx
-
-            return idx, error
+            self.closest_t = res.x
+            self.error = res.fun
+            self.closest_pose = self.trajectory.sample(self.closest_t).pose
 
     def update(self, current_pose: Pose2d):
         self.current_pose = current_pose
-        current_idx, error = self._compute_nearest_point()
-        self.current_idx = self._check_idx(current_idx)
+        self._update_closest_pose()
+

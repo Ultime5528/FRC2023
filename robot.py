@@ -34,7 +34,7 @@ class Robot(commands2.TimedCommandRobot):
 
     def teleopPeriodic(self):
         self.controller.update(self.drivetrain.getPose())
-        self.drivetrain.getField().getObject("Closest").setPose(self.controller.states[self.controller.current_idx].pose)
+        self.drivetrain.getField().getObject("Closest").setPose(self.controller.closest_pose)
 
 
 if __name__ == "__main__":
