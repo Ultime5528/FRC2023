@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>KRAKEN DASHBOARD</title>
+    <title>Fancy Web Dashboard</title>
     <script src="jquery-2.2.2.min.js"></script>
     <script src="/networktables/camera.js"></script>
 	<link rel="stylesheet" href="style.css">
@@ -11,7 +11,6 @@
 <body>
     <frc-dashboard onload="ntLoaded()">
         <div style="display: flex;align-items: center;justify-content: center;">
-            <img src="kraken.svg" height="100px"/>
             <br>
             <div style="display: inline-block; margin-right: 36px;">
                 NetworkTables websocket: <span id="connectstate">Unknown state</span><br/>
@@ -24,12 +23,8 @@
 
         <div style="display: flex; flex-wrap: wrap;justify-content: center;">
             <div style="width: min(100%, 640px); margin-right: 3%;">
-                <h2 class="secondary-text">Vision Hub</h2>
-                <div id="hub_output" style="width: 100%"></div>
-            </div>
-            <div style="width: min(100%, 640px)">
-                <h2 class="secondary-text">Vision Cargo</h2>
-                <div id="cargo_output" style="width: 100%"></div>
+                <h2 class="secondary-text">Photonvision</h2>
+                <div id="photonvision" style="width: 100%"></div>
             </div>
         </div>
         <!-- SIDE BAR -->
@@ -67,9 +62,9 @@
                 NetworkTables.addRobotConnectionListener(onRobotConnection, true);
 
                 loadCameraOnConnect({
-                    container: '#hub_output', // where to put the img tag
+                    container: '#photonvision', // where to put the img tag
                     proto: null,                    // optional, defaults to http://
-                    host: "10.55.28.6",                     // optional, if null will use robot's autodetected IP address
+                    host: "127.0.0.1",                     // optional, if null will use robot's autodetected IP address
                     port: 1182,                     // webserver port
                     image_url: '/stream.mjpg',   // mjpg stream of camera
                     data_url: '/settings.json',      // used to test if connection is up
@@ -80,27 +75,12 @@
                         height: 480,                    // optional, stretches image to this width
                     }
                 });
-
-                loadCameraOnConnect({
-                    container: '#cargo_output', // where to put the img tag
-                    proto: null,                    // optional, defaults to http://
-                    host: "10.55.28.6",                     // optional, if null will use robot's autodetected IP address
-                    port: 1184,                     // webserver port
-                    image_url: '/stream.mjpg',   // mjpg stream of camera
-                    data_url: '/settings.json',      // used to test if connection is up
-                    wait_img: null,                 // optional img to show when not connected, can use SVG instead
-                    error_img: null,                // optional img to show when error connecting, can use SVG instead
-                    attrs: {                        // optional: attributes set on svg or img element
-                        width: 640,                     // optional, stretches image to this width
-                        height: 480,                    // optional, stretches image to this width
-                    }
-                });
             }
-
         </script>
 
         <script src="./frc-web-components.js"></script>
         <script src="/components/customslider.js"></script>
-</body>
 
+
+</body>
 </html>
