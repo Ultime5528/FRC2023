@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
+import math
+
 import commands2
 import wpilib
 from commands2.button import JoystickButton
+from wpimath.geometry import Pose2d
 
 from commands.drive import Drive
 from commands.followtrajectory import FollowTrajectory
@@ -19,10 +22,6 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain = Drivetrain()
         self.stick = wpilib.Joystick(0)
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
-        JoystickButton(self.stick, 1).whenPressed(GoGrid(self.drivetrain, "3"))
-
-        JoystickButton(self.stick, 1).whenPressed(SlowDrive(self.drivetrain, self.stick))
-        JoystickButton(self.stick, 2).whenPressed(FollowTrajectory.driveStraight(self.drivetrain, 25, 0.1))
 
         # Doit être à la fin, après que tout ait été instancié
         clear_autoproperties()
