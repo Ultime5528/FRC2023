@@ -2,6 +2,8 @@ from typing import Literal
 
 import rev
 import wpilib
+import wpilib.drive
+import wpiutil
 from photonvision import PhotonCamera, SimVisionSystem, SimVisionTarget
 from robotpy_apriltag import AprilTagField, loadAprilTagLayoutField
 from wpilib import RobotBase, RobotController
@@ -12,6 +14,7 @@ from wpimath.geometry import Pose2d, Rotation3d, Translation3d, Transform3d
 from wpimath.kinematics import DifferentialDriveKinematics
 from wpimath.system import LinearSystemId
 from wpimath.system.plant import DCMotor
+from wpiutil import Sendable
 
 import ports
 from gyro import NavX, ADIS16448, ADIS16470, ADXRS, Empty
@@ -75,8 +78,7 @@ class Drivetrain(SafeSubsystem):
 
         self.alliance = DriverStation.getAlliance()
 
-        if hasattr(self._gyro, "gyro"):
-            self.addChild("Gyro", self._gyro.gyro)
+        self.addChild("Gyro", self._gyro)
 
         if RobotBase.isReal():
             self.cam = PhotonCamera("mainCamera")
@@ -120,6 +122,9 @@ class Drivetrain(SafeSubsystem):
     def getRotation(self):
         return self._gyro.getRotation2d()
 
+    def getPitch(self):
+        return self._gyro.getPitch()
+
     def getLeftEncoderPosition(self):
         return self._encoder_left.getPosition() - self._left_encoder_offset
 
@@ -151,7 +156,9 @@ class Drivetrain(SafeSubsystem):
 
         self._field.setRobotPose(self._estimator.getEstimatedPosition())
 
-        wpilib.SmartDashboard.putNumber("Left Encoder Position", self.getLeftEncoderPosition())
-        wpilib.SmartDashboard.putNumber("Right Encoder Position", self.getRightEncoderPosition())
-        wpilib.SmartDashboard.putNumber("Left Motor", self._motor_left.get())
-        wpilib.SmartDashboard.putNumber("Right Motor", self._motor_right.get())
+    def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
+        super().initSendable(builder)
+        builder.addDoubleProperty("Left motor", self._motor_left.get, None)
+        builder.addDoubleProperty("Right Motor", self._motor_right.get, None)
+        builder.addDoubleProperty("Left Encoder Position", self.getLeftEncoderPosition, None)
+        builder.addDoubleProperty("Right Encoder Position", self.getRightEncoderPosition, None)
