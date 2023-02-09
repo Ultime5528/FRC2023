@@ -45,10 +45,8 @@ class RearWheelFeedbackController:
             #
             #     return 2 * dx * (x - current_x) + 2 * dy * (y - current_y)
 
-            # minimum = optimize.fmin_cg(calc_distance, self.closest_t, calc_distance_jacobian, full_output=True, disp=False)
             res = optimize.minimize_scalar(calc_distance, bounds=(0, self.trajectory.totalTime()), tol=1e-3)
-            # idx = minimum[0][0]
-            # error = minimum[1]
+
             self.closest_t = res.x
             self.error = res.fun
             self.closest_sample = self.trajectory.sample(self.closest_t)
