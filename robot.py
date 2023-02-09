@@ -1,25 +1,14 @@
 #!/usr/bin/env python3
-import math
 
 import commands2
 import wpilib
 from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
-import wpimath.trajectory
-from wpimath._controls._controls.trajectory import TrajectoryConfig
 
-import utils.controller
 from commands.drive import Drive
 from commands.followtrajectory import FollowTrajectory
-from commands.slowdrive import SlowDrive
-from commands.gogrid import GoGrid
 from subsystems.drivetrain import Drivetrain
 from utils.property import clear_autoproperties
-
-from commands.drive import Drive
-from commands.followtrajectory import FollowTrajectory
-
-from utils.dashboard import putCommandOnDashboard
 
 
 class Robot(commands2.TimedCommandRobot):
@@ -31,19 +20,11 @@ class Robot(commands2.TimedCommandRobot):
         self.stick = wpilib.Joystick(0)
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
 
-        JoystickButton(self.stick, 1).whenPressed(SlowDrive(self.drivetrain, self.stick))
-
-        config = TrajectoryConfig(10, 10)
-        self.traj = wpimath.trajectory.TrajectoryGenerator.generateTrajectory([Pose2d(0, 0, 0), Pose2d(5, 5, 1.57)], config)
-        self.drivetrain.getField().getObject("Traj2").setTrajectory(self.traj)
-        self.controller = utils.controller.RearWheelFeedbackController(self.traj)
+        JoystickButton(self.stick, 1).whenPressed(FollowTrajectory(self.drivetrain, [Pose2d(5, 6, 0), Pose2d(15, 2, 0)], 1.0, "absolute"))
+        JoystickButton(self.stick, 2).whenPressed(Drive(self.drivetrain, self.stick))
 
         # Doit être à la fin, après que tout ait été instancié
         clear_autoproperties()
-
-    def teleopPeriodic(self):
-        self.controller.update(self.drivetrain.getPose())
-        self.drivetrain.getField().getObject("Closest").setPose(self.controller.closest_sample.pose)
 
 
 if __name__ == "__main__":

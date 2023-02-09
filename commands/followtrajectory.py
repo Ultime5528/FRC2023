@@ -6,10 +6,10 @@ from wpimath.geometry import Pose2d, Transform2d, Translation2d, Rotation2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
 from subsystems.drivetrain import Drivetrain, april_tag_field
+from utils.controller import RearWheelFeedbackController
 from utils.property import autoproperty, FloatProperty, as_callable
 from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
-
 
 blue_offset = Transform2d(Translation2d(-2, 0), Rotation2d(0))
 blue_loading_pose = april_tag_field.getTagPose(4).toPose2d().transformBy(blue_offset)
@@ -27,6 +27,8 @@ class FollowTrajectory(SafeCommand):
     Example of a command:
     FollowTrajectory(self.drivetrain, [self.drivetrain.getPose(), Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5)
     """
+    start_speed = autoproperty(0.1)
+    accel = autoproperty(0.5)
 
     @classmethod
     def toLoading(cls, drivetrain: Drivetrain):
@@ -44,9 +46,6 @@ class FollowTrajectory(SafeCommand):
         cmd.setName(cmd.getName() + ".driveStraight")
         return cmd
 
-    start_speed = autoproperty(0.1)
-    accel = autoproperty(0.08)
-    correction_factor = autoproperty(0.016)
 
     def __init__(
             self,
@@ -86,38 +85,22 @@ class FollowTrajectory(SafeCommand):
             max_speed=self.speed(),
             accel=self.accel,
             start_position=0,
-            displacement=self.states[0].pose.translation().distance(self.states[-1].pose.translation())
+            end_position=self.trajectory.totalTime()
         )
 
-        self.index = 0
-        self.cumulative_dist = 0
-        self.start_dist = self.drivetrain.getAverageEncoderPosition()
         self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory)
+        self.controller = RearWheelFeedbackController(self.trajectory)
 
     def execute(self) -> None:
         current_pose = self.drivetrain.getPose()
+        delta = self.controller.update(current_pose)
 
-        while (
-                self.index < len(self.states) - 1
-                and abs(self.drivetrain.getAverageEncoderPosition() - self.start_dist) >= self.cumulative_dist
-        ):
-            self.index += 1
-            self.cumulative_dist += self.states[self.index].pose.translation().distance(
-                self.states[self.index - 1].pose.translation())
-
-        destination_pose = self.states[self.index].pose
-        distance_traveled = self.states[0].pose.translation().distance(destination_pose.translation())
-        self.motion.setPosition(distance_traveled)
+        self.motion.setPosition(self.controller.closest_t)
         speed = self.motion.getSpeed() * (-1 if self.path_reversed else 1)
-
-        error = current_pose.rotation() - destination_pose.rotation()
-
-        correction = self.correction_factor * error.degrees()
-        self.drivetrain.tankDrive(speed + correction, speed - correction)
+        self.drivetrain.tankDrive(speed - delta, speed + delta)
 
     def isFinished(self) -> bool:
-        return self.index >= len(self.states) - 1 and abs(
-            self.drivetrain.getAverageEncoderPosition() - self.start_dist) >= self.cumulative_dist
+        return self.controller.closest_t >= 0.99 * self.trajectory.totalTime()
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.tankDrive(0, 0)
