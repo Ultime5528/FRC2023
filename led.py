@@ -19,14 +19,17 @@ class ModeLED(Enum):
     NONE = "none"
 
 class LEDController(commands2.SubsystemBase):
-    # HSV: [Hue(color 0 to 188), Saturation( amount of gray 0 to 255), Value(brightness 0 to 255)
+    # HSV: [Hue(color 0 to 180), Saturation( amount of gray 0 to 255), Value(brightness 0 to 255)
     red_hsv = np.array([0, 255, 255])
     blue_hsv = np.array([120, 255, 255])
-    purple_hsv = np.array([140, 255, 120])
+    sky_blue_hsv = np.array([120, 60, 255])
+    purple_hsv = np.array([150, 255, 130])
     yellow_hsv = np.array([30, 255, 255])
     orange_hsv = np.array([10, 255, 255])
     black = np.array([0, 0, 0])
     white = np.array([0, 0, 255])
+    pink = np.array([15, 160, 255])
+
     last = 0
 
     def __init__(self):
@@ -53,8 +56,8 @@ class LEDController(commands2.SubsystemBase):
 
     def rainbow(self):
         for i in range(len(self.buffer)):
-            pixel_hue = (self.time + int(i * 180 / 0.5*len(self.buffer))) % 180
-            self.buffer[i].setHSV(pixel_hue, 255, i+100)
+            pixel_hue = (self.time + int(i * 180 / len(self.buffer))) % 180
+            self.buffer[i].setHSV(pixel_hue, 255, i+50)
 
         self.time += 3
         self.time %= 180
@@ -70,10 +73,17 @@ class LEDController(commands2.SubsystemBase):
     def auto(self):
         color = self.getAllianceColor()
         def getColor(i: int):
-            y = 0.5 * math.sin(2 * math.pi * (i - 0.85*self.time) /200*math.pi) + 0.5
-            color1 = interpoler(y, color, interpoler(y, color, self.purple_hsv))
-            color2 = interpoler(y, color, self.white)
-            return interpoler(y, color, self.purple_hsv)
+            y = 0.5 * math.sin(2 * math.pi**2 * (i - 0.85 * self.time) / 200) + 0.5
+            if (color == self.blue_hsv).all():
+                color1 = interpoler(y, color, interpoler(y, color, self.purple_hsv))
+                color2 = interpoler(y, color, interpoler(y, color, self.sky_blue_hsv))
+                return interpoler(y, color1, color2)
+            elif (color == self.red_hsv).all():
+                color3 = interpoler(y, color, interpoler(y, color, self.orange_hsv))
+                color4 = interpoler(y, color, interpoler(y, color, self.pink))
+                return interpoler(y, color3, color4)
+            else:
+                return self.black
 
 
         self.setAll(getColor)
@@ -146,7 +156,7 @@ class LEDController(commands2.SubsystemBase):
                 self.selectTeam()
             else:
                 self.rainbow()
-                #self.pulse(self.purple_hsv)
+                # self.pulse(self.purple_hsv)
 
 
         self.led_strip.setData(self.buffer)
