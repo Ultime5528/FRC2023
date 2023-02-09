@@ -69,11 +69,11 @@ class Robot(commands2.TimedCommandRobot):
         JoystickButton(self.panel, 7).whenPressed(GoGrid(self.drivetrain, "7"))
         JoystickButton(self.panel, 8).whenPressed(GoGrid(self.drivetrain, "8"))
         JoystickButton(self.panel, 9).whenPressed(GoGrid(self.drivetrain, "9"))
-        JoystickButton(self.panel, 10).whenPressed(MoveArm.toLevel1(self.arm)
-        JoystickButton(self.panel, 11).whenPressed(MoveArm.toLevel2(self.arm)
-        JoystickButton(self.panel, 12).whenPressed(MoveArm.toLevel3(self.arm)
-        JoystickButton(self.panel, 13).whenPressed(MoveArm.toFloor(self.arm)
-        JoystickButton(self.panel, 14).whenPressed(MoveArm.toBase(self.arm)
+        JoystickButton(self.panel, 10).whenPressed(MoveArm.toLevel1(self.arm))
+        JoystickButton(self.panel, 11).whenPressed(MoveArm.toLevel2(self.arm))
+        JoystickButton(self.panel, 12).whenPressed(MoveArm.toLevel3(self.arm))
+        JoystickButton(self.panel, 13).whenPressed(MoveArm.toFloor(self.arm))
+        JoystickButton(self.panel, 14).whenPressed(MoveArm.toBase(self.arm))
 
     def setup_dashboard(self):
         put_command_on_dashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
