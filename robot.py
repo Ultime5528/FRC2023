@@ -13,6 +13,9 @@ from commands.turn import Turn
 from subsystems.claw import Claw
 from commands.gogrid import GoGrid
 from subsystems.drivetrain import Drivetrain
+from commands.followtrajectory import FollowTrajectory
+from subsystems.arm import Arm
+from commands.movearm import MoveArm
 from utils.property import clear_autoproperties
 
 
@@ -40,7 +43,9 @@ class Robot(commands2.TimedCommandRobot):
 
 
         self.drivetrain = Drivetrain()
+        self.arm = Arm()
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
+        JoystickButton(self.stick, 1).whenPressed(GoGrid(self.drivetrain, "3"))
 
         self.claw = Claw()
 
