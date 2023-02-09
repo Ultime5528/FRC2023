@@ -35,11 +35,14 @@ class Robot(commands2.TimedCommandRobot):
         wpilib.LiveWindow.enableAllTelemetry()
         wpilib.LiveWindow.setEnabled(True)
 
-        self.drivetrain = Drivetrain()
-        self.claw = Claw()
         self.stick = wpilib.Joystick(0)
+        self.panel = wpilib.Joystick(1)
+
+
+        self.drivetrain = Drivetrain()
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
-        JoystickButton(self.stick, 1).whenPressed(GoGrid(self.drivetrain, "3"))
+
+        self.claw = Claw()
 
         self.setup_buttons()
         self.setup_dashboard()
@@ -48,7 +51,24 @@ class Robot(commands2.TimedCommandRobot):
         clear_autoproperties()
 
     def setup_buttons(self):
+        # Pilot
         JoystickButton(self.stick, 1).whenPressed(SlowDrive(self.drivetrain, self.stick))
+
+        # Copilot
+        JoystickButton(self.panel, 1).whenPressed(GoGrid(self.drivetrain, "1"))
+        JoystickButton(self.panel, 2).whenPressed(GoGrid(self.drivetrain, "2"))
+        JoystickButton(self.panel, 3).whenPressed(GoGrid(self.drivetrain, "3"))
+        JoystickButton(self.panel, 4).whenPressed(GoGrid(self.drivetrain, "4"))
+        JoystickButton(self.panel, 5).whenPressed(GoGrid(self.drivetrain, "5"))
+        JoystickButton(self.panel, 6).whenPressed(GoGrid(self.drivetrain, "6"))
+        JoystickButton(self.panel, 7).whenPressed(GoGrid(self.drivetrain, "7"))
+        JoystickButton(self.panel, 8).whenPressed(GoGrid(self.drivetrain, "8"))
+        JoystickButton(self.panel, 9).whenPressed(GoGrid(self.drivetrain, "9"))
+        JoystickButton(self.panel, 10).whenPressed(MoveArm.toLevel1(self.arm)
+        JoystickButton(self.panel, 11).whenPressed(MoveArm.toLevel2(self.arm)
+        JoystickButton(self.panel, 12).whenPressed(MoveArm.toLevel3(self.arm)
+        JoystickButton(self.panel, 13).whenPressed(MoveArm.toFloor(self.arm)
+        JoystickButton(self.panel, 14).whenPressed(MoveArm.toBase(self.arm)
 
     def setup_dashboard(self):
         put_command_on_dashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
