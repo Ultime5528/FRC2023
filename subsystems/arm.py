@@ -4,8 +4,17 @@ from wpilib import DigitalInput, RobotBase
 from wpilib.simulation import DIOSim
 
 import ports
+from utils.property import autoproperty
 from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
+
+
+def checkIsInDeadzoneUpper(extension: float, elevation: float):
+    return extension >= properties.deadzone_upper_extension and elevation >= properties.deadzone_upper_elevation
+
+
+def checkIsInDeadzoneLower(extension:  float, elevation:  float):
+    return extension <= properties.deadzone_lower_extension and elevation <= properties.deadzone_lower_elevation
 
 
 class Arm(SafeSubsystem):
@@ -78,3 +87,22 @@ class Arm(SafeSubsystem):
         # if RobotBase.isSimulation():
         #     self.motor_extension_sim.setPosition(speed)
         self.motor_extension.set(speed)
+
+    def isInDeadzoneUpper(self):
+        return checkIsInDeadzoneUpper(self.getExtensionPosition(), self.getElevatorPosition())
+
+    def isInDeadzoneLower(self):
+        return checkIsInDeadzoneLower(self.getExtensionPosition(), self.getElevatorPosition())
+
+    def shouldTransition(self, extension:  float, elevation:  float):
+        return self.isInDeadzoneUpper() and checkIsInDeadzoneLower(extension, elevation) or self.isInDeadzoneLower() and checkIsInDeadzoneUpper(extension, elevation)
+
+
+class _ClassProperties:
+    deadzone_lower_extension = autoproperty(0, subtable=Arm.__name__)
+    deadzone_lower_elevation = autoproperty(0, subtable=Arm.__name__)
+    deadzone_upper_extension = autoproperty(0, subtable=Arm.__name__)
+    deadzone_upper_elevation = autoproperty(0, subtable=Arm.__name__)
+
+
+properties = _ClassProperties()

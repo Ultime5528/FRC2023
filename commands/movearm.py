@@ -53,7 +53,7 @@ class MoveArm(ConditionalCommand, SafeCommand):
 
     def __init__(self, arm: Arm, extension_end_position, elevator_end_position):
         def cond():
-            return Arm.getElevatorPosition() <= properties.deadzone_elevation or elevator_end_position <= properties.deadzone_elevation
+            return Arm.shouldTransition(extension_end_position,elevator_end_position)
 
         ConditionalCommand.__init__(
             self,
@@ -141,8 +141,6 @@ class _ClassProperties:
     base_elevation = autoproperty(0, subtable=MoveArm.__name__)
     bin_elevation = autoproperty(0, subtable=MoveArm.__name__)
     transition_elevation = autoproperty(0, subtable=MoveArm.__name__)
-
-    deadzone_elevation = autoproperty(0, subtable=MoveArm.__name__)
 
 
 properties = _ClassProperties()
