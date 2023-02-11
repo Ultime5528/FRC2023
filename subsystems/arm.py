@@ -18,6 +18,9 @@ def checkIsInDeadzoneLower(extension:  float, elevation:  float):
 
 
 class Arm(SafeSubsystem):
+    extension_max_position = autoproperty(10.0)
+    elevator_max_position = autoproperty(10.0)
+
     def __init__(self):
         super().__init__()
 
@@ -44,6 +47,9 @@ class Arm(SafeSubsystem):
         self.encoder_extension = self.motor_extension.getEncoder()
         self.encoder_elevator = self.motor_elevator.getEncoder()
 
+        self._extension_offset = 0.0
+        self._elevator_offset = 0.0
+
         if RobotBase.isSimulation():
             self.motor_elevator_sim = SparkMaxSim(self.motor_elevator)
             self.motor_extension_sim = SparkMaxSim(self.motor_extension)
@@ -59,33 +65,29 @@ class Arm(SafeSubsystem):
         self.motor_extension_sim.setPosition(self.motor_extension_sim.getPosition() + motor_extension_sim_increment)
         self.switch_elevator_min_sim.setValue(self.getElevatorPosition() <= 0.05)
         self.switch_extension_min_sim.setValue(self.getExtensionPosition() <= 0.05)
-        self.switch_elevator_max_sim.setValue(self.getElevatorPosition() >= 9.95)
-        self.switch_extension_max_sim.setValue(self.getExtensionPosition() >= 9.95)
+        self.switch_elevator_max_sim.setValue(self.getElevatorPosition() >= self.elevator_max_position - 0.05)
+        self.switch_extension_max_sim.setValue(self.getExtensionPosition() >= self.extension_max_position - 0.05)
 
     def periodic(self):
-        if self.switch_extension_min.get():  # encoder.setPosition() does not work
-            self.encoder_extension.setPosition(0)
+        if self.switch_extension_min.get():
+            self._extension_offset = self.encoder_extension.getPosition()  # Reset to zero
         if self.switch_elevator_min.get():
-            self.encoder_elevator.setPosition(0)
+            self._elevator_offset = self.encoder_elevator.getPosition()  # Reset to zero
         if self.switch_extension_max.get():
-            self.encoder_extension.setPosition(10)  # todo change to a better value
+            self._extension_offset = self.encoder_extension.getPosition() - self.extension_max_position
         if self.switch_elevator_max.get():
-            self.encoder_elevator.setPosition(10)
+            self._elevator_offset = self.encoder_elevator.getPosition() - self.elevator_max_position
 
     def getElevatorPosition(self):
-        return self.encoder_elevator.getPosition()
+        return self.encoder_elevator.getPosition() - self._elevator_offset
 
     def getExtensionPosition(self):
-        return self.encoder_elevator.getPosition()
+        return self.encoder_elevator.getPosition() - self._extension_offset
 
     def setElevatorSpeed(self, speed: float):
-        # if RobotBase.isSimulation():
-        #     self.motor_elevator_sim.setPosition(speed)
         self.motor_elevator.set(speed)
 
     def setExtensionSpeed(self, speed: float):
-        # if RobotBase.isSimulation():
-        #     self.motor_extension_sim.setPosition(speed)
         self.motor_extension.set(speed)
 
     def isInDeadzoneUpper(self):
