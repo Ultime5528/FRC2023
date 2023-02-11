@@ -63,7 +63,7 @@ class Arm(SafeSubsystem):
         self.switch_extension_max_sim.setValue(self.getExtensionPosition() >= 9.95)
 
     def periodic(self):
-        if self.switch_extension_min.get():  # encoder.setPosition does not work
+        if self.switch_extension_min.get():  # encoder.setPosition() does not work
             self.encoder_extension.setPosition(0)
         if self.switch_elevator_min.get():
             self.encoder_elevator.setPosition(0)
@@ -95,7 +95,8 @@ class Arm(SafeSubsystem):
         return checkIsInDeadzoneLower(self.getExtensionPosition(), self.getElevatorPosition())
 
     def shouldTransition(self, extension:  float, elevation:  float):
-        return self.isInDeadzoneUpper() and checkIsInDeadzoneLower(extension, elevation) or self.isInDeadzoneLower() and checkIsInDeadzoneUpper(extension, elevation)
+        return self.isInDeadzoneUpper() and checkIsInDeadzoneLower(extension, elevation) or \
+               self.isInDeadzoneLower() and checkIsInDeadzoneUpper(extension, elevation)
 
 
 class _ClassProperties:
