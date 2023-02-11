@@ -2,6 +2,8 @@
 import commands2
 import numpy as np
 import wpilib
+
+from commands.movearm import MoveArm
 from led import LEDController
 from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
@@ -12,11 +14,14 @@ from commands.followtrajectory import FollowTrajectory
 from commands.openclaw import OpenClaw
 from commands.slowdrive import SlowDrive
 from commands.turn import Turn
+from subsystems.arm import Arm
 from subsystems.claw import Claw
 from commands.gogrid import GoGrid
 from subsystems.drivetrain import Drivetrain
 from commands2.button import JoystickButton
 from commands.drive import Drive
+from utils.property import clear_autoproperties
+
 
 def put_command_on_dashboard(sub_table: str, cmd: commands2.CommandBase, name=None):
     if sub_table:
@@ -46,7 +51,7 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
         JoystickButton(self.stick, 1).whenPressed(GoGrid(self.drivetrain, "3"))
         self.led_controller = LEDController()
-        JoystickButton(self.stick,1).whenPressed(self.led_controller.rainbow())
+        JoystickButton(self.stick, 1).whenPressed(self.led_controller.rainbow())
 
         self.claw = Claw()
 
@@ -59,6 +64,8 @@ class Robot(commands2.TimedCommandRobot):
     def setup_buttons(self):
         # Pilot
         JoystickButton(self.stick, 1).whenPressed(SlowDrive(self.drivetrain, self.stick))
+        JoystickButton(self.stick, 2).whenPressed(OpenClaw(self.claw))
+        JoystickButton(self.stick, 3).whenPressed(CloseClaw(self.claw))
 
         # Copilot
         JoystickButton(self.panel, 1).whenPressed(GoGrid(self.drivetrain, "1"))
@@ -77,15 +84,24 @@ class Robot(commands2.TimedCommandRobot):
         JoystickButton(self.panel, 14).whenPressed(MoveArm.toBase(self.arm))
         # JoystickButton(self.panel, 15).whenPressed(ledpourcube))
         # JoystickButton(self.panel, 16).whenPressed(ledpourcône))
-        JoystickButton(self.panel, 17).whenPressed(OpenClaw(self.claw.open))
-        JoystickButton(self.panel, 18).whenPressed(CloseClaw(self.claw.close))
+        # JoystickButton(self.panel, 17).whenPressed(Drop(self.claw)
+
     def setup_dashboard(self):
         put_command_on_dashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
         put_command_on_dashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(5, 1, 0), 1, "absolute"))
         put_command_on_dashboard("Drivetrain", Turn(self.drivetrain, 180, 0.5))
         put_command_on_dashboard("Claw", OpenClaw(self.claw))
         put_command_on_dashboard("Claw", CloseClaw(self.claw))
-
+        put_command_on_dashboard("Arm", MoveArm.toLevel1(self.arm))
+        put_command_on_dashboard("Arm", MoveArm.toLevel2(self.arm))
+        put_command_on_dashboard("Arm", MoveArm.toLevel3(self.arm))
+        put_command_on_dashboard("Arm", MoveArm.toFloor(self.arm))
+        put_command_on_dashboard("Arm", MoveArm.toBase(self.arm))
+        put_command_on_dashboard("Arm", MoveArm.toBin(self.arm))
+        put_command_on_dashboard("Arm", MoveArm.toTransition(self.arm))
+        # put_command_on_dashboard("Led", ledpourcube)
+        # put_command_on_dashboard("Led", lespourtriangle)
+        
 
 
 if __name__ == "__main__":
