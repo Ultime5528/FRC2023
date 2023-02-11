@@ -53,7 +53,7 @@ class MoveArm(ConditionalCommand, SafeCommand):
 
     def __init__(self, arm: Arm, extension_end_position, elevator_end_position):
         def cond():
-            return Arm.shouldTransition(extension_end_position,elevator_end_position)
+            return arm.shouldTransition(extension_end_position, elevator_end_position)
 
         ConditionalCommand.__init__(
             self,
