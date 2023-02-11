@@ -76,7 +76,8 @@ class Robot(commands2.TimedCommandRobot):
         JoystickButton(self.panel, 14).whenPressed(MoveArm.toBase(self.arm))
         # JoystickButton(self.panel, 15).whenPressed(ledpourcube))
         # JoystickButton(self.panel, 16).whenPressed(ledpourcône))
-        # JoystickButton(self.panel, 17)
+        JoystickButton(self.panel, 17).whenPressed(OpenClaw(self.claw.open))
+        JoystickButton(self.panel, 18).whenPressed(CloseClaw(self.claw.close))
     def setup_dashboard(self):
         put_command_on_dashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
         put_command_on_dashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(5, 1, 0), 1, "absolute"))
