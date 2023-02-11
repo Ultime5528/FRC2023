@@ -7,7 +7,7 @@ import wpilib
 import wpiutil
 from wpilib.simulation import SimDeviceSim
 from wpimath.geometry import Rotation2d
-from wpiutil._wpiutil import Sendable, SendableBuilder
+from wpiutil import Sendable, SendableBuilder
 
 
 class AbstractSendableMetaclass(type(ABC), type(Sendable)):
