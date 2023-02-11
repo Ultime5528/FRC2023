@@ -27,6 +27,9 @@ class BasicFollowTrajectory(SafeCommand):
     Example of a command:
     FollowTrajectory(self.drivetrain, [self.drivetrain.getPose(), Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5)
     """
+    start_speed = autoproperty(0.1)
+    accel = autoproperty(0.5)
+    correction_factor = autoproperty(0.016)
 
     @classmethod
     def toLoading(cls, drivetrain: Drivetrain):
@@ -43,10 +46,6 @@ class BasicFollowTrajectory(SafeCommand):
         cmd = cls(drivetrain, Pose2d(distance, 0, 0), speed, origin="relative")
         cmd.setName(cmd.getName() + ".driveStraight")
         return cmd
-
-    start_speed = autoproperty(0.1)
-    accel = autoproperty(0.5)
-    correction_factor = autoproperty(0.016)
 
     def __init__(
             self,

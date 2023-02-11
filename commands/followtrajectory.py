@@ -1,5 +1,6 @@
 from typing import Literal, Iterable, Union
 
+import wpiutil
 from commands2 import ConditionalCommand
 from wpilib import DriverStation
 from wpimath.geometry import Pose2d, Transform2d, Translation2d, Rotation2d
@@ -66,6 +67,9 @@ class FollowTrajectory(SafeCommand):
         self.config = TrajectoryConfig(10, 10)
         self.config.setReversed(self.path_reversed)
         self.origin = origin
+        self._delta = 0.0
+        self._computed_speed = 0.0
+        self._controller = None
 
         if self.origin == "relative":
             self.relative_trajectory = TrajectoryGenerator.generateTrajectory(
@@ -90,21 +94,26 @@ class FollowTrajectory(SafeCommand):
             end_position=self.trajectory.totalTime()
         )
         self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory)
-        self.controller = RearWheelFeedbackController(self.trajectory)
+        self._controller = RearWheelFeedbackController(self.trajectory)
 
     def execute(self) -> None:
         current_pose = self.drivetrain.getPose()
-        delta = self.controller.update(current_pose, self.angle_factor, self.track_error_factor)
-
-        self.motion.setPosition(self.controller.closest_t)
-        speed = self.motion.getSpeed() * (-1 if self.path_reversed else 1)
-        self.drivetrain.tankDrive(speed - delta, speed + delta)
+        self._delta = self._controller.update(current_pose, self.angle_factor, self.track_error_factor)
+        self.motion.setPosition(self._controller.closest_t)
+        self._computed_speed = self.motion.getSpeed() * (-1 if self.path_reversed else 1)
+        self.drivetrain.tankDrive(self._computed_speed - self._delta, self._computed_speed + self._delta)
 
     def isFinished(self) -> bool:
-        return self.controller.closest_t >= 0.99 * self.trajectory.totalTime()
+        return self._controller.closest_t >= 0.99 * self.trajectory.totalTime()
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.tankDrive(0, 0)
+
+    def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
+        super().initSendable(builder)
+        builder.addDoubleProperty("closest_t", lambda: self._controller.closest_t if self._controller else 0.0, None)
+        builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, None)
+        builder.addDoubleProperty("delta", lambda: self._delta, None)
 
 
 class _ClassProperties:
