@@ -54,8 +54,6 @@ class Drivetrain(SafeSubsystem):
         # Encoders
         self._encoder_left = self._motor_left.getEncoder()
         self._encoder_right = self._motor_right.getEncoder()
-        self._encoder_left.setPositionConversionFactor(0.0463)
-        self._encoder_right.setPositionConversionFactor(0.0463)
         self._left_encoder_offset = 0
         self._right_encoder_offset = 0
 
