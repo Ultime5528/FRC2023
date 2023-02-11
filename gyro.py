@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 import hal
 import navx
 import wpilib
-import wpiutil
 from wpilib.simulation import SimDeviceSim
 from wpimath.geometry import Rotation2d
 from wpiutil import Sendable, SendableBuilder
