@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import commands2
+import numpy as np
 import wpilib
+from led import LEDController
 from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
 
@@ -13,11 +15,8 @@ from commands.turn import Turn
 from subsystems.claw import Claw
 from commands.gogrid import GoGrid
 from subsystems.drivetrain import Drivetrain
-from commands.followtrajectory import FollowTrajectory
-from subsystems.arm import Arm
-from commands.movearm import MoveArm
-from utils.property import clear_autoproperties
-
+from commands2.button import JoystickButton
+from commands.drive import Drive
 
 def put_command_on_dashboard(sub_table: str, cmd: commands2.CommandBase, name=None):
     if sub_table:
@@ -46,6 +45,8 @@ class Robot(commands2.TimedCommandRobot):
         self.arm = Arm()
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
         JoystickButton(self.stick, 1).whenPressed(GoGrid(self.drivetrain, "3"))
+        self.led_controller = LEDController()
+        JoystickButton(self.stick,1).whenPressed(self.led_controller.rainbow())
 
         self.claw = Claw()
 
