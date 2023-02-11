@@ -14,3 +14,4 @@ class TakeObject(SequentialCommandGroup):
             CloseClaw(claw),
             MoveArm.toBase(arm)
         )
+        self.setName("TakeObject")

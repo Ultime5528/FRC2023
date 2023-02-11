@@ -13,3 +13,4 @@ class Drop(SequentialCommandGroup):
             OpenClaw(claw),
             MoveArm.toBase(arm)
         )
+        self.setName("Drop")
