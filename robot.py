@@ -2,6 +2,7 @@
 import commands2
 import wpilib
 from commands2.button import JoystickButton
+from wpimath.geometry import Pose2d
 
 from commands.drive import Drive
 from commands.gogrid import GoGrid
