@@ -12,6 +12,9 @@ from commands.followtrajectory import FollowTrajectory
 from commands.slowdrive import SlowDrive
 from commands.gogrid import GoGrid
 from subsystems.drivetrain import Drivetrain
+from commands.followtrajectory import FollowTrajectory
+from subsystems.arm import Arm
+from commands.movearm import MoveArm
 from utils.property import clear_autoproperties
 
 from commands.drive import Drive
@@ -26,7 +29,9 @@ class Robot(commands2.TimedCommandRobot):
         wpilib.LiveWindow.setEnabled(True)
 
         self.drivetrain = Drivetrain()
+        self.arm = Arm()
         self.stick = wpilib.Joystick(0)
+
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
 
         # Doit être à la fin, après que tout ait été instancié
