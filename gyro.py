@@ -101,7 +101,7 @@ class ADIS16470(Gyro):
         self._gyro_sim_pitch = gyro_sim_device.getDouble("gyro_angle_y")
 
     def getAngle(self):
-        return -math.remainder(self.gyro.getAngle(), 360.0)
+        return math.remainder(self.gyro.getAngle(), 360.0)
 
     def getPitch(self):
         return math.remainder(self.gyro.getYComplementaryAngle(), 360.0)
