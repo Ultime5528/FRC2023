@@ -28,7 +28,7 @@ class LEDController(commands2.SubsystemBase):
     orange_hsv = np.array([10, 255, 255])
     black = np.array([0, 0, 0])
     white = np.array([0, 0, 255])
-    pink = np.array([15, 160, 255])
+    pink = np.array([15, 120, 255])
 
     last = 0
 
