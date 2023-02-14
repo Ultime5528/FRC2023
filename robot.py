@@ -8,6 +8,9 @@ from commands.drive import Drive
 from commands.movearm import MoveArm
 from subsystems.arm import Arm
 from subsystems.drivetrain import Drivetrain
+from commands.followtrajectory import FollowTrajectory
+from subsystems.arm import Arm
+from commands.movearm import MoveArm
 from utils.property import clear_autoproperties
 
 
@@ -19,6 +22,8 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain = Drivetrain()
         self.arm = Arm()
         self.stick = wpilib.Joystick(0)
+
+        self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
 
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
         JoystickButton(self.stick, 1).whenPressed(MoveArm(self.arm, 2, 2))
