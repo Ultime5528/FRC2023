@@ -6,23 +6,21 @@ import wpilib.drive
 import wpiutil
 from photonvision import PhotonCamera, SimVisionSystem, SimVisionTarget
 from robotpy_apriltag import AprilTagField, loadAprilTagLayoutField
+from wpilib import DriverStation
 from wpilib import RobotBase, RobotController
-from wpilib import drive, DriverStation
 from wpilib.simulation import DifferentialDrivetrainSim
 from wpimath.estimator import DifferentialDrivePoseEstimator
 from wpimath.geometry import Pose2d, Rotation3d, Translation3d, Transform3d
 from wpimath.kinematics import DifferentialDriveKinematics
 from wpimath.system import LinearSystemId
 from wpimath.system.plant import DCMotor
-from wpiutil import Sendable
 
 import ports
 from gyro import NavX, ADIS16448, ADIS16470, ADXRS, Empty
+from utils.property import autoproperty
 from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
 from utils.sparkmaxutils import configure_follower, configure_leader
-from utils.property import autoproperty
-
 
 select_gyro: Literal["navx", "adis16448", "adis16470", "adxrs", "empty"] = "adis16470"
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
