@@ -21,6 +21,8 @@ from gyro import NavX, ADIS16448, ADIS16470, ADXRS, Empty
 from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
 from utils.sparkmaxutils import configure_follower, configure_leader
+from utils.property import autoproperty
+
 
 select_gyro: Literal["navx", "adis16448", "adis16470", "adxrs", "empty"] = "adis16470"
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
@@ -28,6 +30,8 @@ cam_to_robot = Transform3d(Translation3d(0, 0, 0), Rotation3d(0, 0, 0))
 
 
 class Drivetrain(SafeSubsystem):
+    encoder_conversion_factor = autoproperty(0.045)
+
     def __init__(self) -> None:
         super().__init__()
         # Motors
@@ -53,10 +57,8 @@ class Drivetrain(SafeSubsystem):
         # Encoders
         self._encoder_left = self._motor_left.getEncoder()
         self._encoder_right = self._motor_right.getEncoder()
-        self._encoder_left.setPositionConversionFactor(0.0463)
-        self._encoder_right.setPositionConversionFactor(0.0463)
-        self._left_encoder_offset = 0
-        self._right_encoder_offset = 0
+        self._left_encoder_offset = self._encoder_left.getPosition()
+        self._right_encoder_offset = self._encoder_right.getPosition()
 
         # Gyro
         self._gyro = {
@@ -111,11 +113,11 @@ class Drivetrain(SafeSubsystem):
             self._motor_left.get() * RobotController.getInputVoltage(),
             self._motor_right.get() * RobotController.getInputVoltage())
         self._drive_sim.update(0.02)
-        self._motor_left_sim.setPosition(self._drive_sim.getLeftPosition() + self._left_encoder_offset)
+        self._motor_left_sim.setPosition(self._drive_sim.getLeftPosition() / self.encoder_conversion_factor + self._left_encoder_offset)
         self._motor_left_sim.setVelocity(self._drive_sim.getLeftVelocity())
-        self._motor_right_sim.setPosition(-self._drive_sim.getRightPosition() + self._right_encoder_offset)
+        self._motor_right_sim.setPosition(-self._drive_sim.getRightPosition() / self.encoder_conversion_factor + self._right_encoder_offset)
         self._motor_right_sim.setVelocity(self._drive_sim.getRightVelocity())
-        self._gyro.setSimAngle(-self._drive_sim.getHeading().degrees())
+        self._gyro.setSimAngle(self._drive_sim.getHeading().degrees())
         self.sim_vision.processFrame(self._drive_sim.getPose())
 
     def getRotation(self):
@@ -125,10 +127,10 @@ class Drivetrain(SafeSubsystem):
         return self._gyro.getPitch()
 
     def getLeftEncoderPosition(self):
-        return self._encoder_left.getPosition() - self._left_encoder_offset
+        return (self._encoder_left.getPosition() - self._left_encoder_offset) * self.encoder_conversion_factor
 
     def getRightEncoderPosition(self):
-        return -(self._encoder_right.getPosition() - self._right_encoder_offset)
+        return -(self._encoder_right.getPosition() - self._right_encoder_offset) * self.encoder_conversion_factor
 
     def getAverageEncoderPosition(self):
         return (self.getLeftEncoderPosition() + self.getRightEncoderPosition()) / 2
