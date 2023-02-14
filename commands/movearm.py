@@ -2,13 +2,12 @@ import commands2
 from commands2 import ConditionalCommand
 
 from utils.property import autoproperty
-from utils.safecommand import SafeCommand
+from utils.safecommand import SafeCommand, SafeMixin
 from utils.trapezoidalmotion import TrapezoidalMotion
 from subsystems.arm import Arm
-from subsystems.drivetrain import Drivetrain
 
 
-class MoveArm(ConditionalCommand, SafeCommand):
+class MoveArm(SafeMixin, ConditionalCommand):
     @classmethod
     def toLevel1(cls, arm: Arm):
         cmd = cls(arm, lambda: properties.level1_extension, lambda: properties.level1_elevation)
@@ -55,8 +54,7 @@ class MoveArm(ConditionalCommand, SafeCommand):
         def cond():
             return arm.shouldTransition(extension_end_position, elevator_end_position)
 
-        ConditionalCommand.__init__(
-            self,
+        super().__init__(
             commands2.SequentialCommandGroup(
                 MoveArmDirect.toTransition(arm),
                 MoveArmDirect(arm, extension_end_position, elevator_end_position)
@@ -64,7 +62,6 @@ class MoveArm(ConditionalCommand, SafeCommand):
             MoveArmDirect(arm, extension_end_position, elevator_end_position),
             cond
         )
-        SafeCommand.__init__(self)
 
 
 class MoveArmDirect(SafeCommand):

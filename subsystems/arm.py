@@ -59,8 +59,8 @@ class Arm(SafeSubsystem):
             self.switch_elevator_max_sim = DIOSim(self.switch_elevator_max)
 
     def simulationPeriodic(self):
-        motor_elevator_sim_increment = self.motor_elevator.get() * 0.1
-        motor_extension_sim_increment = self.motor_extension.get() * 0.1
+        motor_elevator_sim_increment = self.motor_elevator.get() * 0.5
+        motor_extension_sim_increment = self.motor_extension.get() * 0.5
         self.motor_elevator_sim.setPosition(self.motor_elevator_sim.getPosition() + motor_elevator_sim_increment)
         self.motor_extension_sim.setPosition(self.motor_extension_sim.getPosition() + motor_extension_sim_increment)
         self.switch_elevator_min_sim.setValue(self.getElevatorPosition() <= 0.05)

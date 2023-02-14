@@ -9,6 +9,7 @@ from wpimath.geometry import Pose2d
 
 from commands.drive import Drive
 from commands.followtrajectory import FollowTrajectory
+from commands.movearm import MoveArm
 from commands.slowdrive import SlowDrive
 from commands.gogrid import GoGrid
 from subsystems.drivetrain import Drivetrain
