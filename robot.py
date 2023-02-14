@@ -3,17 +3,9 @@
 import commands2
 import wpilib
 from commands2.button import JoystickButton
-from wpimath.geometry import Pose2d
 
-from commands.basicfollowtrajectory import BasicFollowTrajectory
 from commands.drive import Drive
-from commands.followtrajectory import FollowTrajectory
 from commands.movearm import MoveArm
-from commands.slowdrive import SlowDrive
-from commands.gogrid import GoGrid
-
-from subsystems.drivetrain import Drivetrain
-from commands.followtrajectory import FollowTrajectory
 from subsystems.arm import Arm
 from subsystems.drivetrain import Drivetrain
 from utils.property import clear_autoproperties
