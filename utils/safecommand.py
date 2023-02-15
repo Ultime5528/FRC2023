@@ -44,7 +44,11 @@ class SafeCommandMetaclass(commands2.CommandBase.__class__):
         return cls
 
 
-class SafeCommand(commands2.CommandBase, metaclass=SafeCommandMetaclass):
-    def __init__(self):
-        super().__init__()
+class SafeMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.setName(self.__class__.__name__)
+
+
+class SafeCommand(SafeMixin, commands2.CommandBase, metaclass=SafeCommandMetaclass):
+    pass

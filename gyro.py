@@ -56,16 +56,16 @@ class NavX(Gyro):
         super().__init__()
         gyro_sim_device = SimDeviceSim("navX-Sensor[1]")
         self._gyro_sim_angle = gyro_sim_device.getDouble("Yaw")
-        self._gyro_sim_pitch = gyro_sim_device.getDouble("Pitch")
+        self._gyro_sim_pitch = gyro_sim_device.getDouble("Roll")
 
     def getAngle(self):
         return -math.remainder(self.gyro.getAngle(), 360.0)
 
     def getPitch(self):
-        return self.gyro.getPitch()
+        return -self.gyro.getRoll()
 
     def setSimAngle(self, angle: float):
-        self._gyro_sim_angle.set(angle)
+        self._gyro_sim_angle.set(-angle)
 
     def setSimPitch(self, pitch: float):
         self._gyro_sim_pitch.set(pitch)
