@@ -16,13 +16,17 @@ drivetrain_motor_front_right = 1
 drivetrain_motor_rear_right = 2
 drivetrain_motor_front_left = 3
 drivetrain_motor_rear_left = 4
-
+arm_motor_elevator = 5
+arm_motor_extension = 6
 
 # PWM
 ...
 
 # DIO
-...
+arm_switch_extension_min = 0
+arm_switch_extension_max = 1
+arm_switch_elevator_min = 2
+arm_switch_elevator_max = 3
 
 # PCM
 claw_piston_forward = 0
