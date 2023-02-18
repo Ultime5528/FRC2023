@@ -1,5 +1,4 @@
 import rev
-import wpilib
 import wpiutil
 from wpilib import DigitalInput, RobotBase
 from wpilib.simulation import DIOSim
@@ -86,10 +85,16 @@ class Arm(SafeSubsystem):
         return self.encoder_extension.getPosition() - self._extension_offset
 
     def setElevatorSpeed(self, speed: float):
-        self.motor_elevator.set(0 if self.isElevationMin() else speed)
+        if self.isElevationMin() and speed < 0:
+            speed = 0
+        self.motor_elevator.set(speed)
 
     def setExtensionSpeed(self, speed: float):
-        self.motor_extension.set(0 if self.isExtensionMin() or self.isExtensionMax() else speed)
+        if self.isExtensionMin() and speed < 0:
+            speed = 0
+        if self.isExtensionMax() and speed > 0:
+            speed = 0
+        self.motor_extension.set(speed)
 
     def isInDeadzone(self):
         return checkIsInDeadzone(self.getExtensionPosition())
@@ -104,7 +109,7 @@ class Arm(SafeSubsystem):
 
 
 class _ClassProperties:
-    deadzone_extension = autoproperty(0, subtable=Arm.__name__)
+    deadzone_extension = autoproperty(1.0, subtable=Arm.__name__)
 
 
 properties = _ClassProperties()
