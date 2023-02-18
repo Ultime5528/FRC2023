@@ -1,11 +1,13 @@
 from typing import Literal, Iterable, Union
 
+import wpiutil
 from commands2 import ConditionalCommand
 from wpilib import DriverStation
 from wpimath.geometry import Pose2d, Transform2d, Translation2d, Rotation2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
 from subsystems.drivetrain import Drivetrain, april_tag_field
+from utils.controller import RearWheelFeedbackController
 from utils.property import autoproperty, FloatProperty, as_callable
 from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
@@ -27,6 +29,10 @@ class FollowTrajectory(SafeCommand):
     Example of a command:
     FollowTrajectory(self.drivetrain, [self.drivetrain.getPose(), Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5)
     """
+    start_speed = autoproperty(0.1)
+    accel = autoproperty(0.5)
+    angle_factor = autoproperty(2.5)
+    track_error_factor = autoproperty(3.0)
 
     @classmethod
     def toLoading(cls, drivetrain: Drivetrain):
@@ -43,10 +49,6 @@ class FollowTrajectory(SafeCommand):
         cmd = cls(drivetrain, Pose2d(distance, 0, 0), speed, origin="relative")
         cmd.setName(cmd.getName() + ".driveStraight")
         return cmd
-
-    start_speed = autoproperty(0.1)
-    accel = autoproperty(0.08)
-    correction_factor = autoproperty(0.016)
 
     def __init__(
             self,
@@ -65,10 +67,13 @@ class FollowTrajectory(SafeCommand):
         self.config = TrajectoryConfig(10, 10)
         self.config.setReversed(self.path_reversed)
         self.origin = origin
+        self._delta = 0.0
+        self._computed_speed = 0.0
+        self._controller = None
 
         if self.origin == "relative":
             self.relative_trajectory = TrajectoryGenerator.generateTrajectory(
-                [Pose2d(0, 0, 0), *waypoints],
+                [Pose2d(0, 0, 0), *self.waypoints],
                 self.config
             )
 
@@ -80,47 +85,35 @@ class FollowTrajectory(SafeCommand):
                 [self.drivetrain.getPose(), *self.waypoints],
                 self.config
             )
-        self.states = self.trajectory.states()
+
         self.motion = TrapezoidalMotion(
             min_speed=self.start_speed,
             max_speed=self.speed(),
             accel=self.accel,
             start_position=0,
-            displacement=self.states[0].pose.translation().distance(self.states[-1].pose.translation())
+            end_position=self.trajectory.totalTime()
         )
-
-        self.index = 0
-        self.cumulative_dist = 0
-        self.start_dist = self.drivetrain.getAverageEncoderPosition()
         self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory)
+        self._controller = RearWheelFeedbackController(self.trajectory)
 
     def execute(self) -> None:
         current_pose = self.drivetrain.getPose()
-
-        while (
-                self.index < len(self.states) - 1
-                and abs(self.drivetrain.getAverageEncoderPosition() - self.start_dist) >= self.cumulative_dist
-        ):
-            self.index += 1
-            self.cumulative_dist += self.states[self.index].pose.translation().distance(
-                self.states[self.index - 1].pose.translation())
-
-        destination_pose = self.states[self.index].pose
-        distance_traveled = self.states[0].pose.translation().distance(destination_pose.translation())
-        self.motion.setPosition(distance_traveled)
-        speed = self.motion.getSpeed() * (-1 if self.path_reversed else 1)
-
-        error = current_pose.rotation() - destination_pose.rotation()
-
-        correction = self.correction_factor * error.degrees()
-        self.drivetrain.tankDrive(speed + correction, speed - correction)
+        self._delta = self._controller.update(current_pose, self.angle_factor, self.track_error_factor)
+        self.motion.setPosition(self._controller.closest_t)
+        self._computed_speed = self.motion.getSpeed() * (-1 if self.path_reversed else 1)
+        self.drivetrain.tankDrive(self._computed_speed - self._delta, self._computed_speed + self._delta)
 
     def isFinished(self) -> bool:
-        return self.index >= len(self.states) - 1 and abs(
-            self.drivetrain.getAverageEncoderPosition() - self.start_dist) >= self.cumulative_dist
+        return self._controller.closest_t >= 0.99 * self.trajectory.totalTime()
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.tankDrive(0, 0)
+
+    def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
+        super().initSendable(builder)
+        builder.addDoubleProperty("closest_t", lambda: self._controller.closest_t if self._controller else 0.0, None)
+        builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, None)
+        builder.addDoubleProperty("delta", lambda: self._delta, None)
 
 
 class _ClassProperties:

@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
+
 import commands2
 import wpilib
 from commands2.button import JoystickButton
+from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
 
+from commands.basicfollowtrajectory import BasicFollowTrajectory
 from commands.closeclaw import CloseClaw
 from commands.drive import Drive
+from commands.manualelevate import ManualElevate
+from commands.movearm import MoveArm
+from subsystems.arm import Arm
 from commands.followtrajectory import FollowTrajectory
 from commands.openclaw import OpenClaw
 from commands.slowdrive import SlowDrive
 from commands.turn import Turn
 from subsystems.claw import Claw
 from subsystems.drivetrain import Drivetrain
+from commands.followtrajectory import FollowTrajectory
+from subsystems.arm import Arm
+from commands.movearm import MoveArm
 from utils.property import clear_autoproperties
 
 
@@ -35,10 +44,13 @@ class Robot(commands2.TimedCommandRobot):
         wpilib.LiveWindow.setEnabled(True)
 
         self.drivetrain = Drivetrain()
+        self.arm = Arm()
         self.claw = Claw()
         self.stick = wpilib.Joystick(0)
+
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
 
+        self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
         self.setup_buttons()
         self.setup_dashboard()
 

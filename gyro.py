@@ -6,10 +6,21 @@ import navx
 import wpilib
 from wpilib.simulation import SimDeviceSim
 from wpimath.geometry import Rotation2d
+from wpiutil import Sendable, SendableBuilder
 
 
-class Gyro(ABC):
+class AbstractSendableMetaclass(type(ABC), type(Sendable)):
+    pass
+
+
+class AbstractSendable(ABC, Sendable, metaclass=AbstractSendableMetaclass):
+    def initSendable(self, builder: SendableBuilder) -> None:
+        super().__init__(builder)
+
+
+class Gyro(AbstractSendable):
     def __init__(self):
+        super().__init__()
         self.calibrate()
 
     @abstractmethod
@@ -33,6 +44,11 @@ class Gyro(ABC):
     def getRotation2d(self):
         return Rotation2d.fromDegrees(self.getAngle())
 
+    def initSendable(self, builder: SendableBuilder) -> None:
+        super().initSendable(builder)
+        builder.addDoubleProperty("angle", self.getAngle, None)
+        builder.addDoubleProperty("pitch", self.getPitch, None)
+
 
 class NavX(Gyro):
     def __init__(self):
@@ -40,16 +56,16 @@ class NavX(Gyro):
         super().__init__()
         gyro_sim_device = SimDeviceSim("navX-Sensor[1]")
         self._gyro_sim_angle = gyro_sim_device.getDouble("Yaw")
-        self._gyro_sim_pitch = gyro_sim_device.getDouble("Pitch")
+        self._gyro_sim_pitch = gyro_sim_device.getDouble("Roll")
 
     def getAngle(self):
         return -math.remainder(self.gyro.getAngle(), 360.0)
 
     def getPitch(self):
-        return self.gyro.getPitch()
+        return -self.gyro.getRoll()
 
     def setSimAngle(self, angle: float):
-        self._gyro_sim_angle.set(angle)
+        self._gyro_sim_angle.set(-angle)
 
     def setSimPitch(self, pitch: float):
         self._gyro_sim_pitch.set(pitch)
@@ -85,7 +101,7 @@ class ADIS16470(Gyro):
         self._gyro_sim_pitch = gyro_sim_device.getDouble("gyro_angle_y")
 
     def getAngle(self):
-        return -math.remainder(self.gyro.getAngle(), 360.0)
+        return math.remainder(self.gyro.getAngle(), 360.0)
 
     def getPitch(self):
         return math.remainder(self.gyro.getYComplementaryAngle(), 360.0)

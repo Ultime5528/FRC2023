@@ -99,6 +99,7 @@ class TrapezoidalMotion:
 
         if 2 * self._accel_window > self._real_config.displacement:
             self._accel_window = self._real_config.displacement / 2
+            self._real_config.max_speed = self._real_config.min_speed + self._real_config.accel * self._accel_window
 
     def setPosition(self, position: float):
         assert (
