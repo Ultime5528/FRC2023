@@ -26,7 +26,6 @@ select_gyro: Literal["navx", "adis16448", "adis16470", "adxrs", "empty"] = "adis
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
 cam_to_robot = Transform3d(Translation3d(0, 0, 0), Rotation3d(0, 0, 0))
 
-
 class Drivetrain(SafeSubsystem):
     encoder_conversion_factor = autoproperty(0.045)
 
@@ -161,3 +160,7 @@ class Drivetrain(SafeSubsystem):
         builder.addDoubleProperty("Right Motor", self._motor_right.get, None)
         builder.addDoubleProperty("Left Encoder Position", self.getLeftEncoderPosition, None)
         builder.addDoubleProperty("Right Encoder Position", self.getRightEncoderPosition, None)
+        builder.addDoubleProperty("X Complementary Angle", self._gyro.gyro.getXComplementaryAngle, None)
+        builder.addDoubleProperty("Y Complementary Angle", self._gyro.gyro.getYComplementaryAngle, None)
+        builder.addDoubleProperty("Get Angle", self._gyro.gyro.getAngle, None)
+
