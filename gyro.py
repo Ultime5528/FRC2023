@@ -8,6 +8,8 @@ from wpilib.simulation import SimDeviceSim
 from wpimath.geometry import Rotation2d
 from wpiutil import Sendable, SendableBuilder
 
+from utils.property import default_setter
+
 
 class AbstractSendableMetaclass(type(ABC), type(Sendable)):
     pass
@@ -46,8 +48,8 @@ class Gyro(AbstractSendable):
 
     def initSendable(self, builder: SendableBuilder) -> None:
         super().initSendable(builder)
-        builder.addDoubleProperty("angle", self.getAngle, None)
-        builder.addDoubleProperty("pitch", self.getPitch, None)
+        builder.addDoubleProperty("angle", self.getAngle, default_setter)
+        builder.addDoubleProperty("pitch", self.getPitch, default_setter)
 
 
 class NavX(Gyro):
