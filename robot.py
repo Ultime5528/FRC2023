@@ -5,6 +5,7 @@ import wpilib
 from commands2.button import JoystickButton
 
 from commands.drive import Drive
+from commands.manualelevate import ManualElevate
 from commands.movearm import MoveArm
 from subsystems.arm import Arm
 from subsystems.drivetrain import Drivetrain
@@ -27,6 +28,8 @@ class Robot(commands2.TimedCommandRobot):
 
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
         JoystickButton(self.stick, 1).whenPressed(MoveArm(self.arm, 2, 2))
+        JoystickButton(self.stick, 2).whenPressed(ManualElevate.up(self.arm))
+        JoystickButton(self.stick, 3).whenPressed(ManualElevate.down(self.arm))
         # Doit être à la fin, après que tout ait été instancié
         clear_autoproperties()
 

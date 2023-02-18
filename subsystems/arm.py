@@ -1,5 +1,6 @@
 import rev
 import wpilib
+import wpiutil
 from wpilib import DigitalInput, RobotBase
 from wpilib.simulation import DIOSim
 
@@ -99,6 +100,11 @@ class Arm(SafeSubsystem):
     def shouldTransition(self, extension:  float, elevation:  float):
         return self.isInDeadzoneUpper() and checkIsInDeadzoneLower(extension, elevation) or \
                self.isInDeadzoneLower() and checkIsInDeadzoneUpper(extension, elevation)
+
+    def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
+        super().initSendable(builder)
+        builder.addDoubleProperty("Elevator position", self.getElevatorPosition, None)
+        builder.addDoubleProperty("Extension position", self.getExtensionPosition, None)
 
 
 class _ClassProperties:
