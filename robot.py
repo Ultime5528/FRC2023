@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import commands2
+from commands2 import Trigger
 import numpy as np
 import wpilib
 
@@ -10,7 +11,6 @@ from commands.gogrid import GoGrid
 from commands.manualextend import ManualExtend
 from commands.movearm import MoveArm
 from commands.takeobject import TakeObject
-from led import LEDController
 from commands2.button import JoystickButton
 from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
@@ -47,6 +47,9 @@ class Robot(commands2.TimedCommandRobot):
         self.claw = Claw()
 
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
+
+        Trigger(lambda: self.arm.getPhotocell()).onTrue(TakeObject(self.claw, self.arm))
+
 
         self.setup_buttons()
         self.setup_dashboard()

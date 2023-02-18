@@ -32,9 +32,6 @@ class Arm(SafeSubsystem):
         self.switch_extension_max = DigitalInput(ports.arm_switch_extension_max)
         self.addChild("switch_extension_max", self.switch_extension_max)
 
-        self.switch_elevator_min = DigitalInput(ports.arm_switch_elevator_min)
-        self.addChild("switch_elevator_min", self.switch_elevator_min)
-
         self.switch_elevator_max = DigitalInput(ports.arm_switch_elevator_max)
         self.addChild("switch_elevator_max", self.switch_elevator_max)
 
@@ -48,6 +45,9 @@ class Arm(SafeSubsystem):
         self.encoder_extension = self.motor_extension.getEncoder()
         self.encoder_elevator = self.motor_elevator.getEncoder()
 
+        self.photocell = wpilib.DigitalInput(ports.photocell)
+        self.addChild("photocell", self.photocell)
+
         self._extension_offset = 0.0
         self._elevator_offset = 0.0
 
@@ -56,7 +56,6 @@ class Arm(SafeSubsystem):
             self.motor_extension_sim = SparkMaxSim(self.motor_extension)
             self.switch_extension_min_sim = DIOSim(self.switch_extension_min)
             self.switch_extension_max_sim = DIOSim(self.switch_extension_max)
-            self.switch_elevator_min_sim = DIOSim(self.switch_elevator_min)
             self.switch_elevator_max_sim = DIOSim(self.switch_elevator_max)
 
     def simulationPeriodic(self):
@@ -64,7 +63,6 @@ class Arm(SafeSubsystem):
         motor_extension_sim_increment = self.motor_extension.get() * 0.5
         self.motor_elevator_sim.setPosition(self.motor_elevator_sim.getPosition() + motor_elevator_sim_increment)
         self.motor_extension_sim.setPosition(self.motor_extension_sim.getPosition() + motor_extension_sim_increment)
-        self.switch_elevator_min_sim.setValue(self.getElevatorPosition() <= 0.05)
         self.switch_extension_min_sim.setValue(self.getExtensionPosition() <= 0.05)
         self.switch_elevator_max_sim.setValue(self.getElevatorPosition() >= self.elevator_max_position - 0.05)
         self.switch_extension_max_sim.setValue(self.getExtensionPosition() >= self.extension_max_position - 0.05)
@@ -72,8 +70,6 @@ class Arm(SafeSubsystem):
     def periodic(self):
         if self.switch_extension_min.get():
             self._extension_offset = self.encoder_extension.getPosition()  # Reset to zero
-        if self.switch_elevator_min.get():
-            self._elevator_offset = self.encoder_elevator.getPosition()  # Reset to zero
         if self.switch_extension_max.get():
             self._extension_offset = self.encoder_extension.getPosition() - self.extension_max_position
         if self.switch_elevator_max.get():
@@ -105,6 +101,9 @@ class Arm(SafeSubsystem):
         super().initSendable(builder)
         builder.addDoubleProperty("Elevator position", self.getElevatorPosition, None)
         builder.addDoubleProperty("Extension position", self.getExtensionPosition, None)
+
+    def getPhotocell(self):
+        return self.photocell.get()
 
 
 class _ClassProperties:
