@@ -4,6 +4,7 @@ import commands2
 import wpilib
 from commands2.button import JoystickButton
 
+from commands.basicfollowtrajectory import BasicFollowTrajectory
 from commands.drive import Drive
 from commands.manualelevate import ManualElevate
 from commands.movearm import MoveArm
