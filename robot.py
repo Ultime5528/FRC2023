@@ -4,7 +4,12 @@ import commands2
 import numpy as np
 import wpilib
 
+from commands.drivetodock import DriveToDock
+from commands.drop import Drop
+from commands.gogrid import GoGrid
+from commands.manualextend import ManualExtend
 from commands.movearm import MoveArm
+from commands.takeobject import TakeObject
 from led import LEDController
 from commands2.button import JoystickButton
 from commands2.button import JoystickButton
@@ -29,20 +34,6 @@ from commands.movearm import MoveArm
 from utils.property import clear_autoproperties
 
 
-def put_command_on_dashboard(sub_table: str, cmd: commands2.CommandBase, name=None):
-    if sub_table:
-        sub_table += "/"
-    else:
-        sub_table = ""
-
-    if name is None:
-        name = cmd.getName()
-
-    wpilib.SmartDashboard.putData(sub_table + name, cmd)
-
-    return cmd
-
-
 class Robot(commands2.TimedCommandRobot):
     def robotInit(self):
         wpilib.LiveWindow.enableAllTelemetry()
@@ -51,15 +42,12 @@ class Robot(commands2.TimedCommandRobot):
         self.stick = wpilib.Joystick(0)
         self.panel = wpilib.Joystick(1)
 
-
         self.drivetrain = Drivetrain()
         self.arm = Arm()
         self.claw = Claw()
-        self.stick = wpilib.Joystick(0)
 
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
 
-        self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
         self.setup_buttons()
         self.setup_dashboard()
 
@@ -95,6 +83,7 @@ class Robot(commands2.TimedCommandRobot):
         put_command_on_dashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
         put_command_on_dashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(5, 1, 0), 1, "absolute"))
         put_command_on_dashboard("Drivetrain", Turn(self.drivetrain, 180, 0.5))
+        put_command_on_dashboard("Drivetrain", DriveToDock(self.drivetrain))
         put_command_on_dashboard("Claw", OpenClaw(self.claw))
         put_command_on_dashboard("Claw", CloseClaw(self.claw))
         put_command_on_dashboard("Arm", MoveArm.toLevel1(self.arm))
@@ -104,9 +93,29 @@ class Robot(commands2.TimedCommandRobot):
         put_command_on_dashboard("Arm", MoveArm.toBase(self.arm))
         put_command_on_dashboard("Arm", MoveArm.toBin(self.arm))
         put_command_on_dashboard("Arm", MoveArm.toTransition(self.arm))
+        put_command_on_dashboard("ArmManual", ManualElevate.up(self.arm))
+        put_command_on_dashboard("ArmManual", ManualElevate.down(self.arm))
+        put_command_on_dashboard("ArmManual", ManualExtend.up(self.arm))
+        put_command_on_dashboard("ArmManual", ManualExtend.down(self.arm))
+        put_command_on_dashboard("Groups", Drop(self.claw, self.arm))
+        put_command_on_dashboard("Groups", TakeObject(self.claw, self.arm))
+
         # put_command_on_dashboard("Led", ledpourcube)
         # put_command_on_dashboard("Led", lespourtriangle)
-        
+
+
+def put_command_on_dashboard(sub_table: str, cmd: commands2.CommandBase, name=None):
+    if sub_table:
+        sub_table += "/"
+    else:
+        sub_table = ""
+
+    if name is None:
+        name = cmd.getName()
+
+    wpilib.SmartDashboard.putData(sub_table + name, cmd)
+
+    return cmd
 
 
 if __name__ == "__main__":
