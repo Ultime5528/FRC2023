@@ -1,36 +1,26 @@
 #!/usr/bin/env python3
 
 import commands2
-import numpy as np
 import wpilib
-
-from commands.drivetodock import DriveToDock
-from commands.drop import Drop
-from commands.gogrid import GoGrid
-from commands.manualextend import ManualExtend
-from commands.movearm import MoveArm
-from commands.takeobject import TakeObject
-from led import LEDController
-from commands2.button import JoystickButton
 from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
 
-from commands.basicfollowtrajectory import BasicFollowTrajectory
 from commands.closeclaw import CloseClaw
 from commands.drive import Drive
-from commands.manualelevate import ManualElevate
-from commands.movearm import MoveArm
-from subsystems.arm import Arm
+from commands.drivetodock import DriveToDock
+from commands.drop import Drop
 from commands.followtrajectory import FollowTrajectory
+from commands.gogrid import GoGrid
+from commands.manualelevate import ManualElevate
+from commands.manualextend import ManualExtend
+from commands.movearm import MoveArm
 from commands.openclaw import OpenClaw
 from commands.slowdrive import SlowDrive
+from commands.takeobject import TakeObject
 from commands.turn import Turn
 from subsystems.arm import Arm
 from subsystems.claw import Claw
 from subsystems.drivetrain import Drivetrain
-from commands.followtrajectory import FollowTrajectory
-from subsystems.arm import Arm
-from commands.movearm import MoveArm
 from utils.property import clear_autoproperties
 
 
