@@ -8,7 +8,7 @@ from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
 from subsystems.drivetrain import Drivetrain, april_tag_field
 from utils.controller import RearWheelFeedbackController
-from utils.property import autoproperty, FloatProperty, as_callable
+from utils.property import autoproperty, FloatProperty, as_callable, default_setter
 from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
 
@@ -32,7 +32,7 @@ class FollowTrajectory(SafeCommand):
     start_speed = autoproperty(0.1)
     accel = autoproperty(0.5)
     angle_factor = autoproperty(2.5)
-    track_error_factor = autoproperty(30.0)
+    track_error_factor = autoproperty(3.0)
 
     @classmethod
     def toLoading(cls, drivetrain: Drivetrain):
@@ -111,9 +111,9 @@ class FollowTrajectory(SafeCommand):
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
-        builder.addDoubleProperty("closest_t", lambda: self._controller.closest_t if self._controller else 0.0, None)
-        builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, None)
-        builder.addDoubleProperty("delta", lambda: self._delta, None)
+        builder.addDoubleProperty("closest_t", lambda: self._controller.closest_t if self._controller else 0.0, default_setter)
+        builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, default_setter)
+        builder.addDoubleProperty("delta", lambda: self._delta, default_setter)
 
 
 class _ClassProperties:

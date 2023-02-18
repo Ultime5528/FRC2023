@@ -1,7 +1,7 @@
 import math
 from typing import Optional
 
-from scipy import optimize
+import numpy as np
 from wpimath.geometry import Pose2d
 from wpimath.trajectory import Trajectory
 
@@ -15,13 +15,17 @@ class RearWheelFeedbackController:
 
     def __init__(self, trajectory: Trajectory, angle_factor=2.5, track_error_factor=30.0):
         self.trajectory = trajectory
+        self.states = trajectory.states()
+        self.poses_array = np.array([(state.pose.X(), state.pose.Y()) for state in self.states])
         self.current_pose = Pose2d()
         self.closest_t = 0
         self.closest_sample: Optional[Trajectory.State] = None
         self.angle_factor = angle_factor
         self.track_error_factor = track_error_factor
 
-    def _update_closest(self):
+    def _update_closest_scipy(self):
+            from scipy import optimize
+
             def calc_distance(t, *args):
                 pose = self.trajectory.sample(t).pose
                 x = pose.X()
@@ -35,6 +39,16 @@ class RearWheelFeedbackController:
             self.closest_t = res.x
             self.error = res.fun
             self.closest_sample = self.trajectory.sample(self.closest_t)
+
+    def _update_closest(self):
+        current_array = np.array([self.current_pose.X(), self.current_pose.Y()])
+        diffs = self.poses_array - current_array
+        dists = np.linalg.norm(diffs, axis=1)
+        argmin = dists.argmin()
+        min_state = self.states[argmin]
+        self.closest_t = min_state.t
+        self.error = dists[argmin]
+        self.closest_sample = min_state
 
     def update(self, current_pose: Pose2d, angle_factor: Optional[float] = None, track_error_factor: Optional[float] = None):
         if angle_factor is not None:
