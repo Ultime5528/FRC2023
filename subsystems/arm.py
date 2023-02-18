@@ -11,12 +11,8 @@ from utils.sparkmaxsim import SparkMaxSim
 from utils.sparkmaxutils import configure_leader
 
 
-def checkIsInDeadzoneUpper(extension: float, elevation: float):
-    return extension >= properties.deadzone_upper_extension and elevation >= properties.deadzone_upper_elevation
-
-
-def checkIsInDeadzoneLower(extension:  float, elevation:  float):
-    return extension <= properties.deadzone_lower_extension and elevation <= properties.deadzone_lower_elevation
+def checkIsInDeadzone(extension: float):
+    return extension <= properties.deadzone_extension
 
 
 class Arm(SafeSubsystem):
@@ -94,15 +90,11 @@ class Arm(SafeSubsystem):
     def setExtensionSpeed(self, speed: float):
         self.motor_extension.set(speed)
 
-    def isInDeadzoneUpper(self):
-        return checkIsInDeadzoneUpper(self.getExtensionPosition(), self.getElevatorPosition())
-
-    def isInDeadzoneLower(self):
-        return checkIsInDeadzoneLower(self.getExtensionPosition(), self.getElevatorPosition())
+    def isInDeadzone(self):
+        return checkIsInDeadzone(self.getExtensionPosition())
 
     def shouldTransition(self, extension:  float, elevation:  float):
-        return self.isInDeadzoneUpper() and checkIsInDeadzoneLower(extension, elevation) or \
-               self.isInDeadzoneLower() and checkIsInDeadzoneUpper(extension, elevation)
+        return self.isInDeadzone() or checkIsInDeadzone(extension)
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
@@ -111,10 +103,7 @@ class Arm(SafeSubsystem):
 
 
 class _ClassProperties:
-    deadzone_lower_extension = autoproperty(0, subtable=Arm.__name__)
-    deadzone_lower_elevation = autoproperty(0, subtable=Arm.__name__)
-    deadzone_upper_extension = autoproperty(0, subtable=Arm.__name__)
-    deadzone_upper_elevation = autoproperty(0, subtable=Arm.__name__)
+    deadzone_extension = autoproperty(0, subtable=Arm.__name__)
 
 
 properties = _ClassProperties()
