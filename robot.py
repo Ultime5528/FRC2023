@@ -4,13 +4,8 @@ import commands2
 import wpilib
 from commands2.button import JoystickButton
 
+from commands.basicfollowtrajectory import BasicFollowTrajectory
 from commands.drive import Drive
-from commands.movearm import MoveArm
-from subsystems.arm import Arm
-from subsystems.drivetrain import Drivetrain
-from commands.followtrajectory import FollowTrajectory
-from subsystems.arm import Arm
-from commands.movearm import MoveArm
 from utils.property import clear_autoproperties
 
 

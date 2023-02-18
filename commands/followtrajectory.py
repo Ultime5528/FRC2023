@@ -32,7 +32,7 @@ class FollowTrajectory(SafeCommand):
     start_speed = autoproperty(0.1)
     accel = autoproperty(0.5)
     angle_factor = autoproperty(2.5)
-    track_error_factor = autoproperty(30.0)
+    track_error_factor = autoproperty(3.0)
 
     @classmethod
     def toLoading(cls, drivetrain: Drivetrain):
