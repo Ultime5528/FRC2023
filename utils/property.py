@@ -16,6 +16,10 @@ def as_callable(val: FloatProperty) -> Callable[[], float]:
     return lambda: val
 
 
+def default_setter(value):
+    pass
+
+
 _DEFAULT_CLASS_NAME = object()
 
 
