@@ -1,21 +1,17 @@
 import rev
-import wpilib
 import wpiutil
 from wpilib import DigitalInput, RobotBase
 from wpilib.simulation import DIOSim
 
 import ports
-from utils.property import autoproperty
+from utils.property import autoproperty, default_setter
 from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
+from utils.sparkmaxutils import configure_leader
 
 
-def checkIsInDeadzoneUpper(extension: float, elevation: float):
-    return extension >= properties.deadzone_upper_extension and elevation >= properties.deadzone_upper_elevation
-
-
-def checkIsInDeadzoneLower(extension:  float, elevation:  float):
-    return extension <= properties.deadzone_lower_extension and elevation <= properties.deadzone_lower_elevation
+def checkIsInDeadzone(extension: float):
+    return extension <= properties.deadzone_extension
 
 
 class Arm(SafeSubsystem):
@@ -32,15 +28,17 @@ class Arm(SafeSubsystem):
         self.switch_extension_max = DigitalInput(ports.arm_switch_extension_max)
         self.addChild("switch_extension_max", self.switch_extension_max)
 
-        self.switch_elevator_max = DigitalInput(ports.arm_switch_elevator_max)
-        self.addChild("switch_elevator_max", self.switch_elevator_max)
+        self.switch_elevator_min = DigitalInput(ports.arm_switch_elevator_min)
+        self.addChild("switch_elevator_min", self.switch_elevator_min)
 
         # Motors
         self.motor_elevator = rev.CANSparkMax(ports.arm_motor_elevator,
                                               rev.CANSparkMax.MotorType.kBrushless)
+        configure_leader(self.motor_elevator, "brake", True)
 
         self.motor_extension = rev.CANSparkMax(ports.arm_motor_extension,
                                                rev.CANSparkMax.MotorType.kBrushless)
+        configure_leader(self.motor_extension, "brake", True)
 
         self.encoder_extension = self.motor_extension.getEncoder()
         self.encoder_elevator = self.motor_elevator.getEncoder()
@@ -56,7 +54,7 @@ class Arm(SafeSubsystem):
             self.motor_extension_sim = SparkMaxSim(self.motor_extension)
             self.switch_extension_min_sim = DIOSim(self.switch_extension_min)
             self.switch_extension_max_sim = DIOSim(self.switch_extension_max)
-            self.switch_elevator_max_sim = DIOSim(self.switch_elevator_max)
+            self.switch_elevator_min_sim = DIOSim(self.switch_elevator_min)
 
     def simulationPeriodic(self):
         motor_elevator_sim_increment = self.motor_elevator.get() * 0.5
@@ -64,53 +62,59 @@ class Arm(SafeSubsystem):
         self.motor_elevator_sim.setPosition(self.motor_elevator_sim.getPosition() + motor_elevator_sim_increment)
         self.motor_extension_sim.setPosition(self.motor_extension_sim.getPosition() + motor_extension_sim_increment)
         self.switch_extension_min_sim.setValue(self.getExtensionPosition() <= 0.05)
-        self.switch_elevator_max_sim.setValue(self.getElevatorPosition() >= self.elevator_max_position - 0.05)
-        self.switch_extension_max_sim.setValue(self.getExtensionPosition() >= self.extension_max_position - 0.05)
 
     def periodic(self):
-        if self.switch_extension_min.get():
+        if self.isExtensionMin():
             self._extension_offset = self.encoder_extension.getPosition()  # Reset to zero
-        if self.switch_extension_max.get():
+        if self.isElevationMin():
+            self._elevator_offset = self.encoder_elevator.getPosition()  # Reset to zero
+        if self.isExtensionMax():
             self._extension_offset = self.encoder_extension.getPosition() - self.extension_max_position
-        if self.switch_elevator_max.get():
-            self._elevator_offset = self.encoder_elevator.getPosition() - self.elevator_max_position
+
+    def isExtensionMin(self):
+        return not self.switch_extension_min.get()
+
+    def isExtensionMax(self):
+        return not self.switch_extension_max.get()
+
+    def isElevationMin(self):
+        return not self.switch_elevator_min.get()
 
     def getElevatorPosition(self):
         return self.encoder_elevator.getPosition() - self._elevator_offset
 
     def getExtensionPosition(self):
-        return self.encoder_elevator.getPosition() - self._extension_offset
+        return self.encoder_extension.getPosition() - self._extension_offset
 
     def setElevatorSpeed(self, speed: float):
+        if self.isElevationMin() and speed < 0:
+            speed = 0
         self.motor_elevator.set(speed)
 
     def setExtensionSpeed(self, speed: float):
+        if self.isExtensionMin() and speed < 0:
+            speed = 0
+        if self.isExtensionMax() and speed > 0:
+            speed = 0
         self.motor_extension.set(speed)
 
-    def isInDeadzoneUpper(self):
-        return checkIsInDeadzoneUpper(self.getExtensionPosition(), self.getElevatorPosition())
-
-    def isInDeadzoneLower(self):
-        return checkIsInDeadzoneLower(self.getExtensionPosition(), self.getElevatorPosition())
+    def isInDeadzone(self):
+        return checkIsInDeadzone(self.getExtensionPosition())
 
     def shouldTransition(self, extension:  float, elevation:  float):
-        return self.isInDeadzoneUpper() and checkIsInDeadzoneLower(extension, elevation) or \
-               self.isInDeadzoneLower() and checkIsInDeadzoneUpper(extension, elevation)
+        return self.isInDeadzone() or checkIsInDeadzone(extension)
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
-        builder.addDoubleProperty("Elevator position", self.getElevatorPosition, None)
-        builder.addDoubleProperty("Extension position", self.getExtensionPosition, None)
+        builder.addDoubleProperty("Elevator position", self.getElevatorPosition, default_setter)
+        builder.addDoubleProperty("Extension position", self.getExtensionPosition, default_setter)
 
     def getPhotocell(self):
         return self.photocell.get()
 
 
 class _ClassProperties:
-    deadzone_lower_extension = autoproperty(0, subtable=Arm.__name__)
-    deadzone_lower_elevation = autoproperty(0, subtable=Arm.__name__)
-    deadzone_upper_extension = autoproperty(0, subtable=Arm.__name__)
-    deadzone_upper_elevation = autoproperty(0, subtable=Arm.__name__)
+    deadzone_extension = autoproperty(1.0, subtable=Arm.__name__)
 
 
 properties = _ClassProperties()

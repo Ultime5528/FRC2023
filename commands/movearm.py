@@ -126,21 +126,21 @@ class MoveArmDirect(SafeCommand):
 
 
 class _ClassProperties:
-    level1_extension = autoproperty(1.0, subtable=MoveArm.__name__)
-    level2_extension = autoproperty(1.0, subtable=MoveArm.__name__)
-    level3_extension = autoproperty(1.0, subtable=MoveArm.__name__)
-    floor_extension = autoproperty(1.0, subtable=MoveArm.__name__)
-    base_extension = autoproperty(1.0, subtable=MoveArm.__name__)
-    bin_extension = autoproperty(1.0, subtable=MoveArm.__name__)
-    transition_extension = autoproperty(1.0, subtable=MoveArm.__name__)
+    level1_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    level2_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    level3_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    floor_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    base_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    bin_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    transition_extension = autoproperty(0.0, subtable=MoveArm.__name__)
 
-    level1_elevation = autoproperty(1.0, subtable=MoveArm.__name__)
-    level2_elevation = autoproperty(1.0, subtable=MoveArm.__name__)
-    level3_elevation = autoproperty(1.0, subtable=MoveArm.__name__)
-    floor_elevation = autoproperty(1.0, subtable=MoveArm.__name__)
-    base_elevation = autoproperty(1.0, subtable=MoveArm.__name__)
-    bin_elevation = autoproperty(1.0, subtable=MoveArm.__name__)
-    transition_elevation = autoproperty(1.0, subtable=MoveArm.__name__)
+    level1_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    level2_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    level3_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    floor_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    base_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    bin_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    transition_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
 
 
 properties = _ClassProperties()

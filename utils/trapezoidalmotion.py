@@ -92,7 +92,6 @@ class TrapezoidalMotion:
             accel=abs(self._initial_config.accel),
         )
 
-        assert self._real_config.start_position != self._real_config.end_position
         assert self._real_config.min_speed <= self._real_config.max_speed
 
         self._accel_window = (self._real_config.max_speed - self._real_config.min_speed) / self._real_config.accel
@@ -109,6 +108,9 @@ class TrapezoidalMotion:
 
     def getSpeed(self) -> float:
         assert self._position is not None, "Position has not been set."
+
+        if self.isFinished():
+            return 0.0
 
         if self._inverted:
             s = self._real_config.start_position - self._position
