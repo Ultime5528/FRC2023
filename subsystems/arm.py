@@ -1,6 +1,7 @@
 import rev
 import wpiutil
 from wpilib import DigitalInput, RobotBase
+from wpilib.event import EventLoop, BooleanEvent
 from wpilib.simulation import DIOSim
 
 import ports
@@ -16,7 +17,10 @@ def checkIsInDeadzone(extension: float):
 
 class Arm(SafeSubsystem):
     extension_max_position = autoproperty(10.0)
+    extension_min_position = autoproperty(-10.0)
     elevator_max_position = autoproperty(10.0)
+    elevator_min_position = autoproperty(-10.0)
+
 
     def __init__(self):
         super().__init__()
@@ -49,6 +53,22 @@ class Arm(SafeSubsystem):
         self._extension_offset = 0.0
         self._elevator_offset = 0.0
 
+        self.loop = EventLoop()
+        self._min_elevation_event = BooleanEvent(
+            self.loop, self.isSwitchElevationMinOn
+        ).rising()
+        self._min_elevation_event.ifHigh(self.resetElevation)
+
+        self._min_extension_event = BooleanEvent(
+            self.loop, self.isSwitchExtensionMinOn
+        ).rising()
+        self._min_extension_event.ifHigh(self.resetExtension)
+
+        self._max_extension_event = BooleanEvent(
+            self.loop, self.isSwitchExtensionMaxOn
+        ).rising()
+        # self._max_extension_event.ifHigh(self.maximizeExtension)
+
         if RobotBase.isSimulation():
             self.motor_elevator_sim = SparkMaxSim(self.motor_elevator)
             self.motor_extension_sim = SparkMaxSim(self.motor_extension)
@@ -62,23 +82,19 @@ class Arm(SafeSubsystem):
         self.motor_elevator_sim.setPosition(self.motor_elevator_sim.getPosition() + motor_elevator_sim_increment)
         self.motor_extension_sim.setPosition(self.motor_extension_sim.getPosition() + motor_extension_sim_increment)
         self.switch_extension_min_sim.setValue(self.getExtensionPosition() <= 0.05)
+        self.switch_extension_max_sim.setvalue(self.getExtensionPosition() >= self.extension_max_position)
 
     def periodic(self):
-        if self.isExtensionMin():
-            self._extension_offset = self.encoder_extension.getPosition()  # Reset to zero
-        if self.isElevationMin():
-            self._elevator_offset = self.encoder_elevator.getPosition()  # Reset to zero
-        if self.isExtensionMax():
-            self._extension_offset = self.encoder_extension.getPosition() - self.extension_max_position
+        self.loop.poll()
 
-    def isExtensionMin(self):
-        return not self.switch_extension_min.get()
+    def resetExtension(self):
+        self._extension_offset = self.encoder_extension.getPosition()
 
-    def isExtensionMax(self):
-        return not self.switch_extension_max.get()
+    def resetElevation(self):
+        self._elevator_offset = self.encoder_elevator.getPosition()
 
-    def isElevationMin(self):
-        return not self.switch_elevator_min.get()
+    # def maximizeExtension(self):
+    #     self._extension_offset = self.encoder_extension.getPosition() - self.extension_max_position
 
     def getElevatorPosition(self):
         return self.encoder_elevator.getPosition() - self._elevator_offset
@@ -86,8 +102,31 @@ class Arm(SafeSubsystem):
     def getExtensionPosition(self):
         return self.encoder_extension.getPosition() - self._extension_offset
 
+    def isSwitchExtensionMinOn(self):
+        return not self.switch_extension_min.get()
+
+    def isSwitchExtensionMaxOn(self):
+        return not self.switch_extension_max.get()
+
+    def isSwitchElevationMinOn(self):
+        return not self.switch_elevator_min.get()
+
+    def isPositionExtensionMax(self):
+        return self.getExtensionPosition() > self.extension_max_position
+
+    def isPositionExtensionMin(self):
+        return self.getExtensionPosition() < self.extension_min_position
+
+    def isPositionElevationMax(self):
+        return self.getElevationPosition() > self.elevation_max_position
+
+    def isPositionElevationMax(self):
+        return self.getElevationPosition() < self.elevation_min_position
+
     def setElevatorSpeed(self, speed: float):
         if self.isElevationMin() and speed < 0:
+            speed = 0
+        if self.isElevationMax() and speed > 0:
             speed = 0
         self.motor_elevator.set(speed)
 
