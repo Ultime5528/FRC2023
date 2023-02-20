@@ -109,7 +109,7 @@ class Arm(SafeSubsystem):
         builder.addDoubleProperty("Elevator position", self.getElevatorPosition, default_setter)
         builder.addDoubleProperty("Extension position", self.getExtensionPosition, default_setter)
 
-    def getPhotocell(self):
+    def hasObject(self):
         return self.photocell.get()
 
 

@@ -39,7 +39,7 @@ class Robot(commands2.TimedCommandRobot):
 
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
 
-        Trigger(self.arm.getPhotocell).onTrue(TakeObject(self.claw, self.arm))
+        Trigger(self.arm.hasObject).onTrue(TakeObject(self.claw, self.arm))
 
         self.setup_buttons()
         self.setup_dashboard()
