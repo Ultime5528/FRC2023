@@ -2,6 +2,7 @@
 
 import commands2
 import wpilib
+from commands2 import Trigger
 from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
 
@@ -37,6 +38,8 @@ class Robot(commands2.TimedCommandRobot):
         self.claw = Claw()
 
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
+
+        Trigger(self.arm.hasObject).onTrue(TakeObject(self.claw, self.arm))
 
         self.setup_buttons()
         self.setup_dashboard()

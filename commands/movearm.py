@@ -84,7 +84,7 @@ class MoveArmDirect(SafeCommand):
         cmd.setName(cmd.getName() + ".toTransition")
         return cmd
 
-    def __init__(self, arm: Arm, extension_end_position, elevator_end_position):
+    def __init__(self, arm: Arm, extension_end_position: FloatProperty, elevator_end_position: FloatProperty):
         super().__init__()
         self.arm = arm
         self.extension_end_position = as_callable(extension_end_position)

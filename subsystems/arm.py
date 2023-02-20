@@ -43,6 +43,9 @@ class Arm(SafeSubsystem):
         self.encoder_extension = self.motor_extension.getEncoder()
         self.encoder_elevator = self.motor_elevator.getEncoder()
 
+        self.photocell = wpilib.DigitalInput(ports.arm_photocell)
+        self.addChild("photocell", self.photocell)
+
         self._extension_offset = 0.0
         self._elevator_offset = 0.0
 
@@ -58,7 +61,6 @@ class Arm(SafeSubsystem):
         motor_extension_sim_increment = self.motor_extension.get() * 0.5
         self.motor_elevator_sim.setPosition(self.motor_elevator_sim.getPosition() + motor_elevator_sim_increment)
         self.motor_extension_sim.setPosition(self.motor_extension_sim.getPosition() + motor_extension_sim_increment)
-        self.switch_elevator_min_sim.setValue(self.getElevatorPosition() <= 0.05)
         self.switch_extension_min_sim.setValue(self.getExtensionPosition() <= 0.05)
 
     def periodic(self):
@@ -106,6 +108,9 @@ class Arm(SafeSubsystem):
         super().initSendable(builder)
         builder.addDoubleProperty("Elevator position", self.getElevatorPosition, default_setter)
         builder.addDoubleProperty("Extension position", self.getExtensionPosition, default_setter)
+
+    def hasObject(self):
+        return self.photocell.get()
 
 
 class _ClassProperties:
