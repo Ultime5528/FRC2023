@@ -23,10 +23,10 @@ arm_motor_extension = 5
 ...
 
 # DIO
-arm_switch_extension_min = 0
-arm_switch_extension_max = 1
+arm_switch_extension_min = 1
+arm_switch_extension_max = 0
 arm_photocell = 2
-arm_switch_elevator_max = 3
+arm_switch_elevator_min = 3
 
 # PCM
 claw_piston_forward = 0
