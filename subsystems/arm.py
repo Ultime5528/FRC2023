@@ -45,7 +45,7 @@ class Arm(SafeSubsystem):
         self.encoder_extension = self.motor_extension.getEncoder()
         self.encoder_elevator = self.motor_elevator.getEncoder()
 
-        self.photocell = wpilib.DigitalInput(ports.photocell)
+        self.photocell = wpilib.DigitalInput(ports.arm_photocell)
         self.addChild("photocell", self.photocell)
 
         self._extension_offset = 0.0
