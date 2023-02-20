@@ -6,7 +6,7 @@ from wpimath.geometry import Pose2d, Transform2d, Translation2d, Rotation2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
 from subsystems.drivetrain import Drivetrain, april_tag_field
-from utils.property import autoproperty, FloatProperty, as_callable
+from utils.property import autoproperty, FloatProperty, asCallable
 from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
 
@@ -59,7 +59,7 @@ class BasicFollowTrajectory(SafeCommand):
         self.waypoints = waypoints if isinstance(waypoints, Iterable) else [waypoints]
         self.drivetrain = drivetrain
         self.addRequirements(drivetrain)
-        self.speed = as_callable(speed)
+        self.speed = asCallable(speed)
         self.path_reversed = (direction == "backward")
         self.config = TrajectoryConfig(10, 10)
         self.config.setReversed(self.path_reversed)

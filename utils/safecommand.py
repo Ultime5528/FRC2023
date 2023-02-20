@@ -13,7 +13,7 @@ class CommandException(Exception):
         super().__init__(msg)
 
 
-def wrap_none(f, name):
+def wrapNone(f, name):
     @wraps(f)
     def wrapped(self, *args, **kwargs):
         if wrapped._disabled:

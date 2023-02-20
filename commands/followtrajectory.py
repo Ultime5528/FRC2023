@@ -8,7 +8,7 @@ from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
 from subsystems.drivetrain import Drivetrain, april_tag_field
 from utils.controller import RearWheelFeedbackController
-from utils.property import autoproperty, FloatProperty, as_callable, default_setter
+from utils.property import autoproperty, FloatProperty, asCallable, defaultSetter
 from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
 
@@ -62,7 +62,7 @@ class FollowTrajectory(SafeCommand):
         self.waypoints = waypoints if isinstance(waypoints, Iterable) else [waypoints]
         self.drivetrain = drivetrain
         self.addRequirements(drivetrain)
-        self.speed = as_callable(speed)
+        self.speed = asCallable(speed)
         self.path_reversed = (direction == "backward")
         self.config = TrajectoryConfig(10, 10)
         self.config.setReversed(self.path_reversed)
@@ -111,9 +111,9 @@ class FollowTrajectory(SafeCommand):
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
-        builder.addDoubleProperty("closest_t", lambda: self._controller.closest_t if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, default_setter)
-        builder.addDoubleProperty("delta", lambda: self._delta, default_setter)
+        builder.addDoubleProperty("closest_t", lambda: self._controller.closest_t if self._controller else 0.0, defaultSetter)
+        builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, defaultSetter)
+        builder.addDoubleProperty("delta", lambda: self._delta, defaultSetter)
 
 
 class _ClassProperties:
