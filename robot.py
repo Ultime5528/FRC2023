@@ -1,16 +1,8 @@
 #!/usr/bin/env python3
 
 import commands2
-from commands2 import Trigger
-import numpy as np
 import wpilib
-
-from commands.drivetodock import DriveToDock
-from commands.drop import Drop
-from commands.gogrid import GoGrid
-from commands.manualextend import ManualExtend
-from commands.movearm import MoveArm
-from commands.takeobject import TakeObject
+from commands2 import Trigger
 from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
 
