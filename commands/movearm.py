@@ -3,7 +3,7 @@ from commands2 import ConditionalCommand
 
 from utils.property import autoproperty, FloatProperty, as_callable
 from utils.safecommand import SafeCommand, SafeMixin
-from utils.trapezoidalmotion import TrapezoidalMotion
+from utils.trapezoidalmotion import TrapezoidalMotion, AccelBehaviour
 from subsystems.arm import Arm
 
 
@@ -46,7 +46,7 @@ class MoveArm(SafeMixin, ConditionalCommand):
 
     @classmethod
     def toTransition(cls, arm: Arm):
-        cmd = cls(arm, lambda: properties.transition_extension, lambda: properties.transition_elevation)
+        cmd = cls(arm, lambda: properties.transition_extension, lambda: properties.transition_elevation, AccelBehaviour.StartOnly)
         cmd.setName(cmd.getName() + ".toTransition")
         return cmd
 
@@ -60,7 +60,7 @@ class MoveArm(SafeMixin, ConditionalCommand):
         super().__init__(
             commands2.SequentialCommandGroup(
                 MoveArmDirect.toTransition(arm),
-                MoveArmDirect(arm, extension_end_position, elevator_end_position)
+                MoveArmDirect(arm, extension_end_position, elevator_end_position, AccelBehaviour.EndOnly)
             ),
             MoveArmDirect(arm, extension_end_position, elevator_end_position),
             cond
@@ -80,15 +80,16 @@ class MoveArmDirect(SafeCommand):
 
     @classmethod
     def toTransition(cls, arm: Arm):
-        cmd = cls(arm, lambda: properties.transition_extension, lambda: properties.transition_elevation)
+        cmd = cls(arm, lambda: properties.transition_extension, lambda: properties.transition_elevation, AccelBehaviour.StartOnly)
         cmd.setName(cmd.getName() + ".toTransition")
         return cmd
 
-    def __init__(self, arm: Arm, extension_end_position: FloatProperty, elevator_end_position: FloatProperty):
+    def __init__(self, arm: Arm, extension_end_position: FloatProperty, elevator_end_position: FloatProperty, extension_accel_behaviour: AccelBehaviour=AccelBehaviour.Both):
         super().__init__()
         self.arm = arm
         self.extension_end_position = as_callable(extension_end_position)
         self.elevator_end_position = as_callable(elevator_end_position)
+        self.extension_accel_behaviour = extension_accel_behaviour
 
     def initialize(self) -> None:
         self.elevator_motion = TrapezoidalMotion(
@@ -103,7 +104,8 @@ class MoveArmDirect(SafeCommand):
             end_position=self.extension_end_position(),
             min_speed=self.extension_min_speed,
             max_speed=self.extension_max_speed,
-            accel=self.extension_acceleration
+            accel=self.extension_acceleration,
+            accel_behaviour=self.extension_accel_behaviour
         )
 
     def execute(self) -> None:
@@ -121,7 +123,8 @@ class MoveArmDirect(SafeCommand):
         return self.elevator_motion.isFinished() and self.extension_motion.isFinished()
 
     def end(self, interrupted: bool) -> None:
-        self.arm.setExtensionSpeed(0)
+        if self.extension_accel_behaviour == AccelBehaviour.StartOnly:
+            self.arm.setExtensionSpeed(0)
         self.arm.setElevatorSpeed(0)
 
 
