@@ -46,7 +46,7 @@ class MoveArm(SafeMixin, ConditionalCommand):
 
     @classmethod
     def toTransition(cls, arm: Arm):
-        cmd = cls(arm, lambda: properties.transition_extension, lambda: properties.transition_elevation, AccelBehaviour.StartOnly)
+        cmd = cls(arm, lambda: properties.transition_extension, lambda: properties.transition_elevation)
         cmd.setName(cmd.getName() + ".toTransition")
         return cmd
 

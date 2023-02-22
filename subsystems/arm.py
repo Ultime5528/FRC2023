@@ -141,7 +141,7 @@ class Arm(SafeSubsystem):
         return checkIsInDeadzone(self.getExtensionPosition())
 
     def shouldTransition(self, extension:  float, elevator:  float):
-        return self.isInDeadzone() or checkIsInDeadzone(extension)
+        return self.isInDeadzone() != checkIsInDeadzone(extension)
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
