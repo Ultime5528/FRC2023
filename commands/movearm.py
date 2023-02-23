@@ -79,6 +79,7 @@ class MoveArmDirect(SafeCommand):
         self.arm = arm
         self.extension_end_position = as_callable(extension_end_position)
         self.elevator_end_position = as_callable(elevator_end_position)
+        self.addRequirements(arm)
 
     def initialize(self) -> None:
         self.elevator_motion = TrapezoidalMotion(
@@ -125,20 +126,19 @@ class MoveArmToTransition(SafeCommand):
     def __init__(self, arm: Arm):
         super().__init__()
         self.arm = arm
-        self.extension_end_position = as_callable(properties.transition_extension)
-        self.elevator_end_position = as_callable(properties.transition_elevation)
+        self.addRequirements(arm)
 
     def initialize(self) -> None:
         self.elevator_motion = TrapezoidalMotion(
             start_position=self.arm.getElevatorPosition(),
-            end_position=self.elevator_end_position(),
+            end_position=properties.transition_elevation,
             min_speed=properties.elevator_min_speed,
             max_speed=properties.elevator_max_speed,
             accel=properties.elevator_acceleration
         )
         self.extension_motion = TrapezoidalMotion(
             start_position=self.arm.getExtensionPosition(),
-            end_position=self.extension_end_position(),
+            end_position=properties.transition_extension,
             start_speed=properties.extension_min_speed,
             end_speed=properties.extension_max_speed,
             max_speed=properties.extension_max_speed,
@@ -153,6 +153,12 @@ class MoveArmToTransition(SafeCommand):
         current_extension = self.arm.getExtensionPosition()
         self.extension_motion.setPosition(current_extension)
         self.arm.setExtensionSpeed(self.extension_motion.getSpeed())
+
+    def isFinished(self) -> bool:
+        return self.extension_motion.isFinished()
+
+    def end(self, interrupted: bool) -> None:
+        self.arm.setElevatorSpeed(0)
 
 
 class _ClassProperties:
