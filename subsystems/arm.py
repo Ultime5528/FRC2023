@@ -1,7 +1,7 @@
 import rev
 import wpiutil
 import wpilib
-from wpilib import DigitalInput, RobotBase
+from wpilib import DigitalInput, RobotBase, Mechanism2d, Color8Bit
 from wpilib.event import EventLoop, BooleanEvent
 from wpilib.simulation import DIOSim
 
@@ -75,14 +75,22 @@ class Arm(SafeSubsystem):
             self.switch_extension_min_sim = DIOSim(self.switch_extension_min)
             self.switch_extension_max_sim = DIOSim(self.switch_extension_max)
             self.switch_elevator_min_sim = DIOSim(self.switch_elevator_min)
+            self.mech = Mechanism2d(350, 200)
+            self.root = self.mech.getRoot("Arm root", 340, 80)
+            support = self.root.appendLigament("Support", 50, 90)
+            self.mech_elevator = support.appendLigament("Elevator", 10, 90)
+            claw = self.mech_elevator.appendLigament("Claw", 30, 90, lineWidth=4, color=Color8Bit(255, 0, 0))
+            self.addChild("Mechanism", self.mech)
 
     def simulationPeriodic(self):
         motor_elevator_sim_increment = self.motor_elevator.get() * 0.5
-        motor_extension_sim_increment = self.motor_extension.get() * 0.5
+        motor_extension_sim_increment = self.motor_extension.get() * 4.0
         self.motor_elevator_sim.setPosition(self.motor_elevator_sim.getPosition() + motor_elevator_sim_increment)
         self.motor_extension_sim.setPosition(self.motor_extension_sim.getPosition() + motor_extension_sim_increment)
         self.switch_extension_min_sim.setValue(self.getExtensionPosition() <= 0.05)
         self.switch_extension_max_sim.setValue(self.getExtensionPosition() >= self.extension_max_position)
+        self.mech_elevator.setAngle(-10 + (135 - -10) * (self.encoder_elevator.getPosition() - self.elevator_min_position) / (self.elevator_max_position - self.elevator_min_position))
+        self.mech_elevator.setLength(10 + self.encoder_extension.getPosition() - self.extension_min_position)
 
     def periodic(self):
         self.loop.poll()
@@ -92,9 +100,6 @@ class Arm(SafeSubsystem):
 
     def resetElevator(self):
         self._elevator_offset = self.encoder_elevator.getPosition()
-
-    # def maximizeExtension(self):
-    #     self._extension_offset = self.encoder_extension.getPosition() - self.extension_max_position
 
     def getElevatorPosition(self):
         return self.encoder_elevator.getPosition() - self._elevator_offset

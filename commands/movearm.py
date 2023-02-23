@@ -92,7 +92,8 @@ class MoveArmDirect(SafeCommand):
         self.extension_motion = TrapezoidalMotion(
             start_position=self.arm.getExtensionPosition(),
             end_position=self.extension_end_position(),
-            min_speed=properties.extension_min_speed,
+            start_speed=max(properties.extension_min_speed, self.arm.getExtensionSpeed()),
+            end_speed=properties.extension_min_speed,
             max_speed=properties.extension_max_speed,
             accel=properties.extension_acceleration
         )
@@ -139,23 +140,42 @@ class MoveArmToTransition(SafeCommand):
         self.extension_motion = TrapezoidalMotion(
             start_position=self.arm.getExtensionPosition(),
             end_position=properties.transition_extension,
-            start_speed=max(properties.extension_min_speed, self.arm.getExtensionSpeed()),
-            end_speed=properties.extension_max_speed,
+            start_speed=properties.extension_min_speed,
+            end_speed=properties.extension_min_speed,
             max_speed=properties.extension_max_speed,
             accel=properties.extension_acceleration
         )
+        self._elevator_finished = False
 
     def execute(self) -> None:
-        current_elevation = self.arm.getElevatorPosition()
-        self.elevator_motion.setPosition(current_elevation)
-        self.arm.setElevatorSpeed(self.elevator_motion.getSpeed())
+        # Elevation
+        if self.elevator_motion.isFinished():
+            self.arm.setElevatorSpeed(0)
+            if not self._elevator_finished:
+                self._elevator_finished = True
+                self.extension_motion = TrapezoidalMotion(
+                    start_position=self.arm.getExtensionPosition(),
+                    end_position=properties.transition_extension,
+                    start_speed=max(properties.extension_min_speed, self.arm.getExtensionSpeed()),
+                    end_speed=properties.extension_max_speed,
+                    max_speed=properties.extension_max_speed,
+                    accel=properties.extension_acceleration
+                )
+        else:
+            current_elevation = self.arm.getElevatorPosition()
+            self.elevator_motion.setPosition(current_elevation)
+            self.arm.setElevatorSpeed(self.elevator_motion.getSpeed())
 
-        current_extension = self.arm.getExtensionPosition()
-        self.extension_motion.setPosition(current_extension)
-        self.arm.setExtensionSpeed(self.extension_motion.getSpeed())
+        # Extension
+        if self.extension_motion.isFinished():
+            self.arm.setExtensionSpeed(0)
+        else:
+            current_extension = self.arm.getExtensionPosition()
+            self.extension_motion.setPosition(current_extension)
+            self.arm.setExtensionSpeed(self.extension_motion.getSpeed())
 
     def isFinished(self) -> bool:
-        return self.extension_motion.isFinished()
+        return self.extension_motion.isFinished() and self.elevator_motion.isFinished()
 
     def end(self, interrupted: bool) -> None:
         self.arm.setElevatorSpeed(0)
