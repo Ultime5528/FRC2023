@@ -137,6 +137,9 @@ class Arm(SafeSubsystem):
             speed = 0
         self.motor_extension.set(speed)
 
+    def getExtensionSpeed(self):
+        return self.motor_extension.get()
+
     def isInDeadzone(self):
         return checkIsInDeadzone(self.getExtensionPosition())
 
