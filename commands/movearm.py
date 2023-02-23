@@ -139,7 +139,7 @@ class MoveArmToTransition(SafeCommand):
         self.extension_motion = TrapezoidalMotion(
             start_position=self.arm.getExtensionPosition(),
             end_position=properties.transition_extension,
-            start_speed=properties.extension_min_speed,
+            start_speed=max(properties.extension_min_speed, self.arm.getExtensionSpeed()),
             end_speed=properties.extension_max_speed,
             max_speed=properties.extension_max_speed,
             accel=properties.extension_acceleration
