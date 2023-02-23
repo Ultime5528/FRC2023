@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import math
 
 import commands2
 import wpilib
@@ -74,8 +75,10 @@ class Robot(commands2.TimedCommandRobot):
 
     def setup_dashboard(self):
         put_command_on_dashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
-        put_command_on_dashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(5, 1, 0), 1, "absolute"))
-        put_command_on_dashboard("Drivetrain", Turn(self.drivetrain, 180, 0.5))
+        put_command_on_dashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(1.5, 0.5, math.radians(45)), 0.1, "relative"))
+        put_command_on_dashboard("Drivetrain", FollowTrajectory.driveStraight(self.drivetrain, 2.00, 0.1))
+        put_command_on_dashboard("Drivetrain", FollowTrajectory.toLoading(self.drivetrain))
+        put_command_on_dashboard("Drivetrain", Turn(self.drivetrain, 180, 0.35))
         put_command_on_dashboard("Drivetrain", DriveToDock(self.drivetrain))
         put_command_on_dashboard("Claw", OpenClaw(self.claw))
         put_command_on_dashboard("Claw", CloseClaw(self.claw))

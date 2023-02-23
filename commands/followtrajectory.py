@@ -13,9 +13,9 @@ from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
 
 
-blue_offset = Transform2d(Translation2d(-2, 0), Rotation2d(0))
+blue_offset = Transform2d(Translation2d(-1, 0), Rotation2d(0))
 blue_loading_pose = april_tag_field.getTagPose(4).toPose2d().transformBy(blue_offset)
-red_offset = Transform2d(Translation2d(2, 0), Rotation2d.fromDegrees(180))
+red_offset = Transform2d(Translation2d(1, 0), Rotation2d.fromDegrees(180))
 red_loading_pose = april_tag_field.getTagPose(5).toPose2d().transformBy(red_offset)
 
 
@@ -31,8 +31,8 @@ class FollowTrajectory(SafeCommand):
     """
     start_speed = autoproperty(0.1)
     accel = autoproperty(0.5)
-    angle_factor = autoproperty(2.5)
-    track_error_factor = autoproperty(3.0)
+    angle_factor = autoproperty(1.0)
+    track_error_factor = autoproperty(0.01)
 
     @classmethod
     def toLoading(cls, drivetrain: Drivetrain):
@@ -114,10 +114,13 @@ class FollowTrajectory(SafeCommand):
         builder.addDoubleProperty("closest_t", lambda: self._controller.closest_t if self._controller else 0.0, default_setter)
         builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, default_setter)
         builder.addDoubleProperty("delta", lambda: self._delta, default_setter)
+        builder.addDoubleProperty("angle_error", lambda: self._controller.angle_error if self._controller else 0.0, default_setter)
+        builder.addDoubleProperty("error", lambda: self._controller.error if self._controller else 0.0, default_setter)
+        builder.addDoubleProperty("omega", lambda: self._controller.omega if self._controller else 0.0, default_setter)
 
 
 class _ClassProperties:
-    to_loading_speed = autoproperty(0.6, subtable=FollowTrajectory.__name__)
+    to_loading_speed = autoproperty(0.1, subtable=FollowTrajectory.__name__)
 
 
 properties = _ClassProperties()
