@@ -18,7 +18,9 @@ class RearWheelFeedbackController:
         self.states = trajectory.states()
         self.poses_array = np.array([(state.pose.X(), state.pose.Y()) for state in self.states])
         self.current_pose = Pose2d()
-        self.closest_t = 0
+        self.closest_t = 0.0
+        self.angle_error = 0.0
+        self.omega = 0.0
         self.closest_sample: Optional[Trajectory.State] = None
         self.angle_factor = angle_factor
         self.track_error_factor = track_error_factor
@@ -69,10 +71,12 @@ class RearWheelFeedbackController:
             self.error *= -1
 
         angle_error = self.current_pose.rotation() - self.closest_sample.pose.rotation()
+        self.angle_error = angle_error.degrees()
 
         omega = curvature * angle_error.cos() / (1.0 - curvature * self.error)
         omega -= self.angle_factor * angle_error.radians()
         omega -= self.track_error_factor * angle_error.sin() * self.error / angle_error.radians()
+        self.omega = omega
 
         if angle_error.radians() == 0.0 or omega == 0.0:
             delta = 0

@@ -26,8 +26,9 @@ select_gyro: Literal["navx", "adis16448", "adis16470", "adxrs", "empty"] = "adis
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
 cam_to_robot = Transform3d(Translation3d(0, 0, 0), Rotation3d(0, 0, 0))
 
+
 class Drivetrain(SafeSubsystem):
-    encoder_conversion_factor = autoproperty(0.045)
+    encoder_conversion_factor = autoproperty(0.056)
 
     def __init__(self) -> None:
         super().__init__()
@@ -90,8 +91,8 @@ class Drivetrain(SafeSubsystem):
             # Cam sim
             cam_diag_fov = 75.0
             max_led_range = 20
-            cam_resolution_width = 640
-            cam_resolution_height = 480
+            cam_resolution_width = 320
+            cam_resolution_height = 240
             min_target_area = 10
             self.sim_vision = SimVisionSystem("cam", cam_diag_fov, cam_to_robot, max_led_range,
                                               cam_resolution_width, cam_resolution_height, min_target_area)
@@ -112,7 +113,7 @@ class Drivetrain(SafeSubsystem):
         self._drive_sim.update(0.02)
         self._motor_left_sim.setPosition(self._drive_sim.getLeftPosition() / self.encoder_conversion_factor + self._left_encoder_offset)
         self._motor_left_sim.setVelocity(self._drive_sim.getLeftVelocity())
-        self._motor_right_sim.setPosition(-self._drive_sim.getRightPosition() / self.encoder_conversion_factor + self._right_encoder_offset)
+        self._motor_right_sim.setPosition(self._drive_sim.getRightPosition() / self.encoder_conversion_factor + self._right_encoder_offset)
         self._motor_right_sim.setVelocity(self._drive_sim.getRightVelocity())
         self._gyro.setSimAngle(self._drive_sim.getHeading().degrees())
         self.sim_vision.processFrame(self._drive_sim.getPose())
@@ -127,7 +128,7 @@ class Drivetrain(SafeSubsystem):
         return (self._encoder_left.getPosition() - self._left_encoder_offset) * self.encoder_conversion_factor
 
     def getRightEncoderPosition(self):
-        return -(self._encoder_right.getPosition() - self._right_encoder_offset) * self.encoder_conversion_factor
+        return (self._encoder_right.getPosition() - self._right_encoder_offset) * self.encoder_conversion_factor
 
     def getAverageEncoderPosition(self):
         return (self.getLeftEncoderPosition() + self.getRightEncoderPosition()) / 2
