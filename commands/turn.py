@@ -21,6 +21,7 @@ class Turn(SafeCommand):
         self.motion = TrapezoidalMotion(
             start_position=0,
             end_position=angle,
+            start_speed=speed,
             min_speed=self.min_speed,
             max_speed=speed,
             accel=self.accel
