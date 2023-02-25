@@ -9,18 +9,18 @@ __all__ = ["configureLeader", "configureFollower"]
 
 
 def configureLeader(motor: rev.CANSparkMax, mode: IdleMode, inverted: bool = False):
-    _handle_can_error(motor.restoreFactoryDefaults(), "restoryFactoryDefaults", motor)
+    handleCanError(motor.restoreFactoryDefaults(), "restoryFactoryDefaults", motor)
     motor.setInverted(inverted)
     configureMotor(motor, mode)
 
 
 def configureFollower(follower: rev.CANSparkMax, leader: rev.CANSparkMax, mode: IdleMode, inverted: bool = False):
-    _handle_can_error(follower.restoreFactoryDefaults(), "restoryFactoryDefaults", follower)
-    _handle_can_error(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus0, 1000), "set status0 rate", follower)
-    _handle_can_error(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus1, 1000), "set status1 rate", follower)
-    _handle_can_error(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus2, 1000), "set status2 rate", follower)
-    _handle_can_error(follower.follow(leader, inverted), "follow", follower)
-    _configure_motor(follower, mode)
+    handleCanError(follower.restoreFactoryDefaults(), "restoryFactoryDefaults", follower)
+    handleCanError(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus0, 1000), "set status0 rate", follower)
+    handleCanError(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus1, 1000), "set status1 rate", follower)
+    handleCanError(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus2, 1000), "set status2 rate", follower)
+    handleCanError(follower.follow(leader, inverted), "follow", follower)
+    configureMotor(follower, mode)
 
 
 def configureMotor(motor: rev.CANSparkMax, mode: IdleMode):

@@ -115,16 +115,16 @@ class FollowTrajectory(SafeCommand):
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
-        builder.addDoubleProperty("closest_t", lambda: self._controller.closest_t if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("curvature", lambda: self._controller.closest_sample.curvature if self._controller and self._controller.closest_sample else 0.0, default_setter)
-        builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, default_setter)
-        builder.addDoubleProperty("delta", lambda: self._delta, default_setter)
-        builder.addDoubleProperty("angle_error", lambda: self._controller.angle_error.degrees() if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("angle_error_cos", lambda: self._controller.angle_error.cos() if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("angle_error_sin", lambda: self._controller.angle_error.sin() if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("error", lambda: self._controller.error if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("omega_0", lambda: self._controller.omega_0 if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("omega_1", lambda: self._controller.omega_1 if self._controller else 0.0, default_setter)
+        builder.addDoubleProperty("closest_t", lambda: self._controller.closest_t if self._controller else 0.0, defaultSetter)
+        builder.addDoubleProperty("curvature", lambda: self._controller.closest_sample.curvature if self._controller and self._controller.closest_sample else 0.0, defaultSetter)
+        builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, defaultSetter)
+        builder.addDoubleProperty("delta", lambda: self._delta, defaultSetter)
+        builder.addDoubleProperty("angle_error", lambda: self._controller.angle_error.degrees() if self._controller else 0.0, defaultSetter)
+        builder.addDoubleProperty("angle_error_cos", lambda: self._controller.angle_error.cos() if self._controller else 0.0, defaultSetter)
+        builder.addDoubleProperty("angle_error_sin", lambda: self._controller.angle_error.sin() if self._controller else 0.0, defaultSetter)
+        builder.addDoubleProperty("error", lambda: self._controller.error if self._controller else 0.0, defaultSetter)
+        builder.addDoubleProperty("omega_0", lambda: self._controller.omega_0 if self._controller else 0.0, defaultSetter)
+        builder.addDoubleProperty("omega_1", lambda: self._controller.omega_1 if self._controller else 0.0, defaultSetter)
 
 
 class _ClassProperties:
