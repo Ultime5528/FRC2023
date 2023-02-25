@@ -3,7 +3,7 @@ from commands2 import ConditionalCommand
 
 from utils.property import autoproperty, FloatProperty, as_callable
 from utils.safecommand import SafeCommand, SafeMixin
-from utils.trapezoidalmotion import TrapezoidalMotion, AccelBehaviour
+from utils.trapezoidalmotion import TrapezoidalMotion
 from subsystems.arm import Arm
 
 
@@ -64,11 +64,11 @@ class MoveArm(SafeMixin, ConditionalCommand):
 class MoveArmDirect(SafeCommand):
     @classmethod
     def toTransition(cls, arm: Arm):
-        cmd = cls(arm, lambda: properties.transition_extension, lambda: properties.transition_elevation, AccelBehaviour.StartOnly)
+        cmd = cls(arm, lambda: properties.transition_extension, lambda: properties.transition_elevation)
         cmd.setName(cmd.getName() + ".toTransition")
         return cmd
 
-    def __init__(self, arm: Arm, extension_end_position: FloatProperty, elevator_end_position: FloatProperty, extension_accel_behaviour: AccelBehaviour=AccelBehaviour.Both):
+    def __init__(self, arm: Arm, extension_end_position: FloatProperty, elevator_end_position: FloatProperty):
         super().__init__()
         self.arm = arm
         self.extension_end_position = as_callable(extension_end_position)
@@ -113,9 +113,8 @@ class MoveArmDirect(SafeCommand):
         return self.elevator_motion.isFinished() and self.extension_motion.isFinished()
 
     def end(self, interrupted: bool) -> None:
-        if self.extension_accel_behaviour == AccelBehaviour.StartOnly:
-            self.arm.setExtensionSpeed(0)
         self.arm.setElevatorSpeed(0)
+        self.arm.setExtensionSpeed(0)
 
 
 class MoveArmToTransition(SafeCommand):
