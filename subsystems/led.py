@@ -32,15 +32,17 @@ class LEDController(commands2.SubsystemBase):
     black = np.array([0, 0, 0])
     white = np.array([0, 0, 255])
     pink = np.array([15, 120, 255])
+    led_number = 30
 
     last = 0
 
     def __init__(self):
         super().__init__()
         self.led_strip = wpilib.AddressableLED(ports.led_strip)
-        self.buffer = [wpilib.AddressableLED.LEDData() for _ in range(300)]
+        self.buffer = [wpilib.AddressableLED.LEDData() for _ in range(self.led_number)]
         self.led_strip.setLength(len(self.buffer))
         self.time = 0
+        self.led_number == 300
         self.explosiveness = 1
         self.led_strip.start()
         self.mode = ModeLED.NONE
@@ -171,7 +173,7 @@ class LEDController(commands2.SubsystemBase):
 
         return self.setAll(getColor)
 
-    def setMode(self, mode: str):
+    def setMode(self, mode: ModeLED):
         match mode:
             case "NONE":
                 self.mode = ModeLED.NONE
@@ -191,18 +193,20 @@ class LEDController(commands2.SubsystemBase):
                 elif wpilib.DriverStation.getMatchTime() <= 5:
                     self.explosiveness = 1
                     self.flash(self.getAllianceColor(), 10)
-                else:
-                    self.waves(self.getAllianceColor())
+                elif wpilib.DriverStation.getMatchTime() <= 105:
+                    self.pulse(self.orange_hsv)
+                elif self.getAllianceColor() == self.blue_hsv:
+                    return self.shadeBlue()
+                elif self.getAllianceColor() == self.red_hsv:
+                    return self.shadeRed()
             else:  # game hasn't started
                 if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kInvalid:
                     self.selectTeam()
                 else:
-                    self.halfWaves(self.purple_hsv)
+                    self.rainbow()
         elif self.mode == ModeLED.CONE:
             self.cone()
         elif self.mode == ModeLED.CUBE:
             self.cube()
-
-
 
         self.led_strip.setData(self.buffer)

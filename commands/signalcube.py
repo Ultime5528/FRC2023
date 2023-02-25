@@ -2,15 +2,17 @@ import math
 
 import wpilib
 from subsystems.led import LEDController
+from utils.property import autoproperty
 from utils.safecommand import SafeCommand
 
 
 class SignalCube(SafeCommand):
+    duration = autoproperty(2.0)
+
     def __init__(self, led_controller: LEDController):
         super().__init__()
         self.led_controller = led_controller
         self.timer = wpilib.Timer()
-        self.duration = 2
 
     def initialize(self) -> None:
         self.timer.reset()
@@ -24,4 +26,4 @@ class SignalCube(SafeCommand):
 
     def end(self, interrupted: bool) -> None:
         self.led_controller.setMode("NONE")
-        self.led_controller.black
+
