@@ -1,4 +1,4 @@
-from typing import Literal, Iterable, Union
+from typing import Literal, Iterable, Union, Optional
 
 import wpiutil
 from commands2 import ConditionalCommand
@@ -22,7 +22,7 @@ red_loading_pose = april_tag_field.getTagPose(5).toPose2d().transformBy(red_offs
 class FollowTrajectory(SafeCommand):
     """
     Pour une trajectoire inversée, il faut :
-    - path_reversed=True
+    - direction="backward"
     - Les angles doivent être inversés (0 devient 180, -30 devient 150...)
     - Les coordonnées doivent être multipliées par -1 : (3, -1) devient (-3, 1)
 
@@ -31,6 +31,7 @@ class FollowTrajectory(SafeCommand):
     """
     start_speed = autoproperty(0.1)
     accel = autoproperty(0.5)
+    curvature_factor = autoproperty(1.0)
     angle_factor = autoproperty(1.0)
     track_error_factor = autoproperty(0.01)
 
@@ -69,7 +70,7 @@ class FollowTrajectory(SafeCommand):
         self.origin = origin
         self._delta = 0.0
         self._computed_speed = 0.0
-        self._controller = None
+        self._controller: Optional[RearWheelFeedbackController] = None
 
         if self.origin == "relative":
             self.relative_trajectory = TrajectoryGenerator.generateTrajectory(
@@ -95,28 +96,35 @@ class FollowTrajectory(SafeCommand):
         )
         self.drivetrain.getField().getObject("traj").setTrajectory(self.trajectory)
         self._controller = RearWheelFeedbackController(self.trajectory)
+        self.drivetrain.use_vision = False
 
     def execute(self) -> None:
         current_pose = self.drivetrain.getPose()
-        self._delta = self._controller.update(current_pose, self.angle_factor, self.track_error_factor)
         self.motion.setPosition(self._controller.closest_t)
         self._computed_speed = self.motion.getSpeed() * (-1 if self.path_reversed else 1)
+        self._delta = self._controller.update(current_pose, self._computed_speed, self.curvature_factor, self.angle_factor, self.track_error_factor)
         self.drivetrain.tankDrive(self._computed_speed - self._delta, self._computed_speed + self._delta)
+        self.drivetrain.getField().getObject("closest").setPose(self._controller.closest_sample.pose)
 
     def isFinished(self) -> bool:
         return self._controller.closest_t >= 0.99 * self.trajectory.totalTime()
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.tankDrive(0, 0)
+        self.drivetrain.use_vision = True
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
         builder.addDoubleProperty("closest_t", lambda: self._controller.closest_t if self._controller else 0.0, default_setter)
+        builder.addDoubleProperty("curvature", lambda: self._controller.closest_sample.curvature if self._controller and self._controller.closest_sample else 0.0, default_setter)
         builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, default_setter)
         builder.addDoubleProperty("delta", lambda: self._delta, default_setter)
-        builder.addDoubleProperty("angle_error", lambda: self._controller.angle_error if self._controller else 0.0, default_setter)
+        builder.addDoubleProperty("angle_error", lambda: self._controller.angle_error.degrees() if self._controller else 0.0, default_setter)
+        builder.addDoubleProperty("angle_error_cos", lambda: self._controller.angle_error.cos() if self._controller else 0.0, default_setter)
+        builder.addDoubleProperty("angle_error_sin", lambda: self._controller.angle_error.sin() if self._controller else 0.0, default_setter)
         builder.addDoubleProperty("error", lambda: self._controller.error if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("omega", lambda: self._controller.omega if self._controller else 0.0, default_setter)
+        builder.addDoubleProperty("omega_0", lambda: self._controller.omega_0 if self._controller else 0.0, default_setter)
+        builder.addDoubleProperty("omega_1", lambda: self._controller.omega_1 if self._controller else 0.0, default_setter)
 
 
 class _ClassProperties:
