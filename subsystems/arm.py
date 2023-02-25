@@ -154,10 +154,10 @@ class Arm(SafeSubsystem):
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
-        builder.addDoubleProperty("Elevator position", self.getElevatorPosition, default_setter)
-        builder.addDoubleProperty("Extension position", self.getExtensionPosition, default_setter)
-        builder.addDoubleProperty("Elevator speed", self.motor_elevator.get, default_setter)
-        builder.addDoubleProperty("Extension speed", self.motor_extension.get, default_setter)
+        builder.addDoubleProperty("Elevator position", self.getElevatorPosition, defaultSetter)
+        builder.addDoubleProperty("Extension position", self.getExtensionPosition, defaultSetter)
+        builder.addDoubleProperty("Elevator speed", self.motor_elevator.get, defaultSetter)
+        builder.addDoubleProperty("Extension speed", self.motor_extension.get, defaultSetter)
 
     def hasObject(self):
         return self.photocell.get()

@@ -2,7 +2,7 @@ from functools import wraps
 
 import commands2
 
-__all__ = ["SafeCommand"]
+__all__ = ["SafeCommand", "SafeMixin"]
 
 fms = True
 exception_threshold = 3
