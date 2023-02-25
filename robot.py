@@ -17,6 +17,7 @@ from commands.manualelevate import ManualElevate
 from commands.manualextend import ManualExtend
 from commands.movearm import MoveArm, MoveArmDirect
 from commands.openclaw import OpenClaw
+from commands.resetarm import ResetArm
 from commands.slowdrive import SlowDrive
 from commands.takeobject import TakeObject
 from commands.turn import Turn
@@ -85,6 +86,7 @@ class Robot(commands2.TimedCommandRobot):
         put_command_on_dashboard("Drivetrain", GoGrid(self.drivetrain, "9"), name="GoGrid.9")
         put_command_on_dashboard("Claw", OpenClaw(self.claw))
         put_command_on_dashboard("Claw", CloseClaw(self.claw))
+        put_command_on_dashboard("Arm", ResetArm(self.arm))
         put_command_on_dashboard("Arm", MoveArm.toLevel1(self.arm))
         put_command_on_dashboard("Arm", MoveArm.toLevel2(self.arm))
         put_command_on_dashboard("Arm", MoveArm.toLevel3(self.arm))
