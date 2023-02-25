@@ -16,8 +16,6 @@ left_offset = Transform2d(Translation2d(1.1, -0.47), Rotation2d.fromDegrees(180)
 mid_offset = Transform2d(Translation2d(1.1, 0), Rotation2d.fromDegrees(180))
 right_offset = Transform2d(Translation2d(1.1, 0.47), Rotation2d.fromDegrees(180))
 
-before_offset = Transform2d(Translation2d(-0.4, 0), Rotation2d())
-
 # Numbers: left to right driver pov
 red_poses: dict[str, Pose2d] = {
     "2": april_tag_field.getTagPose(1).toPose2d().transformBy(mid_offset),
@@ -49,6 +47,7 @@ class GoGrid(SafeCommand):
     traj_speed = autoproperty(0.5)
     straight_distance = autoproperty(0.3)
     straight_speed = autoproperty(0.5)
+    before_offset = autoproperty(0.4)
 
     def __init__(self, drivetrain: Drivetrain, grid_number: Literal["1", "2", "3", "4", "5", "6", "7", "8", "9"]):
         """
@@ -72,7 +71,7 @@ class GoGrid(SafeCommand):
 
         go_grid = SequentialCommandGroup(
             # Turn(self.drivetrain, robot_to_grid_angle, self.turn_speed),
-            FollowTrajectory(self.drivetrain, [grid_pos.transformBy(before_offset), grid_pos], self.traj_speed, "absolute"),
+            FollowTrajectory(self.drivetrain, [grid_pos.transformBy(Transform2d(Translation2d(-self.before_offset, 0), Rotation2d())), grid_pos], self.traj_speed, "absolute"),
             # FollowTrajectory.driveStraight(self.drivetrain, self.straight_distance, self.straight_speed)
         )
         go_grid.setName("GoGrid")

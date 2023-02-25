@@ -79,7 +79,7 @@ class Robot(commands2.TimedCommandRobot):
         put_command_on_dashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(1.5, 0.5, math.radians(45)), 0.1, "relative"), "curve")
         put_command_on_dashboard("Drivetrain", FollowTrajectory.driveStraight(self.drivetrain, 2.00, 0.1))
         put_command_on_dashboard("Drivetrain", FollowTrajectory.toLoading(self.drivetrain))
-        put_command_on_dashboard("Drivetrain", Turn(self.drivetrain, 180, 0.35))
+        put_command_on_dashboard("Drivetrain", Turn(self.drivetrain, 45, 0.28))
         put_command_on_dashboard("Drivetrain", DriveToDock(self.drivetrain))
         put_command_on_dashboard("Drivetrain", GoGrid(self.drivetrain, "7"), name="GoGrid.7")
         put_command_on_dashboard("Drivetrain", GoGrid(self.drivetrain, "8"), name="GoGrid.8")
