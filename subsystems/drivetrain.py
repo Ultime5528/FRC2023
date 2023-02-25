@@ -24,7 +24,7 @@ from utils.sparkmaxutils import configure_follower, configure_leader
 
 select_gyro: Literal["navx", "adis16448", "adis16470", "adxrs", "empty"] = "adis16470"
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
-cam_to_robot = Transform3d(Translation3d(0, 0, 0), Rotation3d(0, 0, 0))
+cam_to_robot = Transform3d(Translation3d(-0.375, 0, -0.3675), Rotation3d(0, 0, 0))
 
 
 class Drivetrain(SafeSubsystem):
@@ -81,6 +81,7 @@ class Drivetrain(SafeSubsystem):
 
         if RobotBase.isReal():
             self.cam = PhotonCamera("mainCamera")
+            PhotonCamera.setVersionCheckEnabled(False)
         else:  # sim
             self._motor_left_sim = SparkMaxSim(self._motor_left)
             self._motor_right_sim = SparkMaxSim(self._motor_right)
@@ -99,6 +100,9 @@ class Drivetrain(SafeSubsystem):
             for i in range(1, 9):
                 self.sim_vision.addSimVisionTarget(SimVisionTarget(april_tag_field.getTagPose(i), 8, 8, i))
             self.cam = self.sim_vision.cam
+
+        self.use_vision = True
+
 
     def arcadeDrive(self, forward: float, rotation: float) -> None:
         self._drive.arcadeDrive(forward, rotation, False)
@@ -144,14 +148,15 @@ class Drivetrain(SafeSubsystem):
                                self.getRightEncoderPosition())
 
         self.latest = self.cam.getLatestResult()
-        if self.latest.hasTargets():
+        if self.use_vision and self.latest.hasTargets():
             img_capture_time = self.latest.getTimestamp()
             cam_to_target = self.latest.getBestTarget().getBestCameraToTarget()
             target_to_cam = cam_to_target.inverse()
             target_on_field = april_tag_field.getTagPose(self.latest.getBestTarget().getFiducialId())
-            camera_on_field = target_on_field.transformBy(target_to_cam)
-            robot_on_field = camera_on_field.transformBy(cam_to_robot).toPose2d()
-            self._estimator.addVisionMeasurement(robot_on_field, img_capture_time)
+            if target_on_field is not None:
+                camera_on_field = target_on_field.transformBy(target_to_cam)
+                robot_on_field = camera_on_field.transformBy(cam_to_robot).toPose2d()
+                self._estimator.addVisionMeasurement(robot_on_field, img_capture_time)
 
         self._field.setRobotPose(self._estimator.getEstimatedPosition())
 

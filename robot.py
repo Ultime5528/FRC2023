@@ -80,6 +80,9 @@ class Robot(commands2.TimedCommandRobot):
         put_command_on_dashboard("Drivetrain", FollowTrajectory.toLoading(self.drivetrain))
         put_command_on_dashboard("Drivetrain", Turn(self.drivetrain, 180, 0.35))
         put_command_on_dashboard("Drivetrain", DriveToDock(self.drivetrain))
+        put_command_on_dashboard("Drivetrain", GoGrid(self.drivetrain, "7"), name="GoGrid.7")
+        put_command_on_dashboard("Drivetrain", GoGrid(self.drivetrain, "8"), name="GoGrid.8")
+        put_command_on_dashboard("Drivetrain", GoGrid(self.drivetrain, "9"), name="GoGrid.9")
         put_command_on_dashboard("Claw", OpenClaw(self.claw))
         put_command_on_dashboard("Claw", CloseClaw(self.claw))
         put_command_on_dashboard("Arm", MoveArm.toLevel1(self.arm))
@@ -108,6 +111,8 @@ def put_command_on_dashboard(sub_table: str, cmd: commands2.CommandBase, name=No
 
     if name is None:
         name = cmd.getName()
+    else:
+        cmd.setName(name)
 
     wpilib.SmartDashboard.putData(sub_table + name, cmd)
 
