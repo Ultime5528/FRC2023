@@ -155,6 +155,8 @@ class Arm(SafeSubsystem):
         super().initSendable(builder)
         builder.addDoubleProperty("Elevator position", self.getElevatorPosition, default_setter)
         builder.addDoubleProperty("Extension position", self.getExtensionPosition, default_setter)
+        builder.addDoubleProperty("Elevator speed", self.motor_elevator.get, default_setter)
+        builder.addDoubleProperty("Extension speed", self.motor_extension.get, default_setter)
 
     def hasObject(self):
         return self.photocell.get()

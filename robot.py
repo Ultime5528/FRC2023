@@ -15,7 +15,7 @@ from commands.followtrajectory import FollowTrajectory
 from commands.gogrid import GoGrid
 from commands.manualelevate import ManualElevate
 from commands.manualextend import ManualExtend
-from commands.movearm import MoveArm
+from commands.movearm import MoveArm, MoveArmDirect
 from commands.openclaw import OpenClaw
 from commands.slowdrive import SlowDrive
 from commands.takeobject import TakeObject
@@ -88,7 +88,7 @@ class Robot(commands2.TimedCommandRobot):
         put_command_on_dashboard("Arm", MoveArm.toFloor(self.arm))
         put_command_on_dashboard("Arm", MoveArm.toBase(self.arm))
         put_command_on_dashboard("Arm", MoveArm.toBin(self.arm))
-        put_command_on_dashboard("Arm", MoveArm.toTransition(self.arm))
+        put_command_on_dashboard("Arm", MoveArmDirect.toTransition(self.arm))
         put_command_on_dashboard("ArmManual", ManualElevate.up(self.arm))
         put_command_on_dashboard("ArmManual", ManualElevate.down(self.arm))
         put_command_on_dashboard("ArmManual", ManualExtend.up(self.arm))

@@ -44,12 +44,6 @@ class MoveArm(SafeMixin, ConditionalCommand):
         cmd.setName(cmd.getName() + ".toBin")
         return cmd
 
-    @classmethod
-    def toTransition(cls, arm: Arm):
-        cmd = cls(arm, lambda: properties.transition_extension, lambda: properties.transition_elevation)
-        cmd.setName(cmd.getName() + ".toTransition")
-        return cmd
-
     def __init__(self, arm: Arm, extension_end_position: FloatProperty, elevator_end_position: FloatProperty):
         extension_end_position = as_callable(extension_end_position)
         elevator_end_position = as_callable(elevator_end_position)
@@ -92,7 +86,7 @@ class MoveArmDirect(SafeCommand):
         self.extension_motion = TrapezoidalMotion(
             start_position=self.arm.getExtensionPosition(),
             end_position=self.extension_end_position(),
-            start_speed=max(properties.extension_min_speed, self.arm.getExtensionSpeed()),
+            start_speed=max(properties.extension_min_speed, abs(self.arm.getExtensionSpeed())),
             end_speed=properties.extension_min_speed,
             max_speed=properties.extension_max_speed,
             accel=properties.extension_acceleration
@@ -156,7 +150,7 @@ class MoveArmToTransition(SafeCommand):
                 self.extension_motion = TrapezoidalMotion(
                     start_position=self.arm.getExtensionPosition(),
                     end_position=properties.transition_extension,
-                    start_speed=max(properties.extension_min_speed, self.arm.getExtensionSpeed()),
+                    start_speed=max(properties.extension_min_speed, abs(self.arm.getExtensionSpeed())),
                     end_speed=properties.extension_max_speed,
                     max_speed=properties.extension_max_speed,
                     accel=properties.extension_acceleration
