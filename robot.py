@@ -15,8 +15,9 @@ from commands.followtrajectory import FollowTrajectory
 from commands.gogrid import GoGrid
 from commands.manualelevate import ManualElevate
 from commands.manualextend import ManualExtend
-from commands.movearm import MoveArm
+from commands.movearm import MoveArm, MoveArmDirect
 from commands.openclaw import OpenClaw
+from commands.resetarm import ResetArm
 from commands.slowdrive import SlowDrive
 from commands.takeobject import TakeObject
 from commands.turn import Turn
