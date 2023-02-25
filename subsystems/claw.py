@@ -14,10 +14,10 @@ class Claw(SafeSubsystem):
         self.addChild("piston", self.piston)
 
     def open(self):
-        self.piston.set(wpilib.DoubleSolenoid.Value.kForward)
+        self.piston.set(wpilib.DoubleSolenoid.Value.kReverse)
 
     def close(self):
-        self.piston.set(wpilib.DoubleSolenoid.Value.kReverse)
+        self.piston.set(wpilib.DoubleSolenoid.Value.kForward)
 
     def stop(self):
         self.piston.set(wpilib.DoubleSolenoid.Value.kOff)

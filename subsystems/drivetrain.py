@@ -17,7 +17,7 @@ from wpimath.system.plant import DCMotor
 
 import ports
 from gyro import NavX, ADIS16448, ADIS16470, ADXRS, Empty
-from utils.property import autoproperty
+from utils.property import autoproperty, default_setter
 from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
 from utils.sparkmaxutils import configure_follower, configure_leader
@@ -25,7 +25,6 @@ from utils.sparkmaxutils import configure_follower, configure_leader
 select_gyro: Literal["navx", "adis16448", "adis16470", "adxrs", "empty"] = "adis16470"
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
 cam_to_robot = Transform3d(Translation3d(0, 0, 0), Rotation3d(0, 0, 0))
-
 
 class Drivetrain(SafeSubsystem):
     encoder_conversion_factor = autoproperty(0.045)
@@ -41,7 +40,7 @@ class Drivetrain(SafeSubsystem):
 
         self._motor_right = rev.CANSparkMax(ports.drivetrain_motor_front_right,
                                             rev.CANSparkMax.MotorType.kBrushless)
-        configure_leader(self._motor_right, "brake")
+        configure_leader(self._motor_right, "brake", True)
         self._motor_right_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_right,
                                                      rev.CANSparkMax.MotorType.kBrushless)
         configure_follower(self._motor_right_follower, self._motor_right, "brake")
@@ -157,7 +156,8 @@ class Drivetrain(SafeSubsystem):
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
-        builder.addDoubleProperty("Left motor", self._motor_left.get, None)
-        builder.addDoubleProperty("Right Motor", self._motor_right.get, None)
-        builder.addDoubleProperty("Left Encoder Position", self.getLeftEncoderPosition, None)
-        builder.addDoubleProperty("Right Encoder Position", self.getRightEncoderPosition, None)
+        builder.addDoubleProperty("Left motor", lambda: self._motor_left.get() or -999.0, default_setter)
+        builder.addDoubleProperty("Right Motor", lambda: self._motor_right.get() or -999.0, default_setter)
+        builder.addDoubleProperty("Left Encoder Position", self.getLeftEncoderPosition, default_setter)
+        builder.addDoubleProperty("Right Encoder Position", self.getRightEncoderPosition, default_setter)
+
