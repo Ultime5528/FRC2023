@@ -1,9 +1,13 @@
 from subsystems.drivetrain import Drivetrain
+from utils.property import autoproperty
 from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
 
 
 class Turn(SafeCommand):
+    min_speed = autoproperty(0.15)
+    accel = autoproperty(0.002)
+
     def __init__(self, drivetrain: Drivetrain, angle: float, speed: float):
         """
         Parameters
@@ -17,9 +21,9 @@ class Turn(SafeCommand):
         self.motion = TrapezoidalMotion(
             start_position=0,
             end_position=angle,
-            min_speed=0.1,
+            min_speed=self.min_speed,
             max_speed=speed,
-            accel=0.001
+            accel=self.accel
         )
         self.drivetrain = drivetrain
         self.addRequirements(drivetrain)

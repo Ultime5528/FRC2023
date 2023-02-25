@@ -3,7 +3,7 @@ from typing import Literal
 
 from commands2 import SequentialCommandGroup
 from wpilib import DriverStation
-from wpimath.geometry import Transform2d, Translation2d, Rotation2d
+from wpimath.geometry import Transform2d, Translation2d, Rotation2d, Pose2d
 
 from commands.followtrajectory import FollowTrajectory
 from commands.turn import Turn
@@ -12,12 +12,14 @@ from utils.property import autoproperty
 from utils.safecommand import SafeCommand
 
 
-left_offset = Transform2d(Translation2d(0.5, -0.47), Rotation2d.fromDegrees(180))
-mid_offset = Transform2d(Translation2d(0.5, 0), Rotation2d.fromDegrees(180))
-right_offset = Transform2d(Translation2d(0.5, 0.47), Rotation2d.fromDegrees(180))
+left_offset = Transform2d(Translation2d(1.1, -0.47), Rotation2d.fromDegrees(180))
+mid_offset = Transform2d(Translation2d(1.1, 0), Rotation2d.fromDegrees(180))
+right_offset = Transform2d(Translation2d(1.1, 0.47), Rotation2d.fromDegrees(180))
+
+before_offset = Transform2d(Translation2d(-0.4, 0), Rotation2d())
 
 # Numbers: left to right driver pov
-red_poses = {
+red_poses: dict[str, Pose2d] = {
     "2": april_tag_field.getTagPose(1).toPose2d().transformBy(mid_offset),
     "1": april_tag_field.getTagPose(1).toPose2d().transformBy(right_offset),
     "3": april_tag_field.getTagPose(1).toPose2d().transformBy(left_offset),
@@ -69,9 +71,9 @@ class GoGrid(SafeCommand):
         robot_to_grid_angle = degrees(atan2(robot_to_grid.Y(), robot_to_grid.X()))
 
         go_grid = SequentialCommandGroup(
-            Turn(self.drivetrain, robot_to_grid_angle, self.turn_speed),
-            FollowTrajectory(self.drivetrain, grid_pos, self.traj_speed, "absolute"),
-            FollowTrajectory.driveStraight(self.drivetrain, self.straight_distance, self.straight_speed)
+            # Turn(self.drivetrain, robot_to_grid_angle, self.turn_speed),
+            FollowTrajectory(self.drivetrain, [grid_pos.transformBy(before_offset), grid_pos], self.traj_speed, "absolute"),
+            # FollowTrajectory.driveStraight(self.drivetrain, self.straight_distance, self.straight_speed)
         )
         go_grid.setName("GoGrid")
         go_grid.schedule()
