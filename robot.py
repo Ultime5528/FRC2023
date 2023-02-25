@@ -105,7 +105,7 @@ class Robot(commands2.TimedCommandRobot):
         # putCommandOnDashboard("Led", lespourtriangle)
 
 
-def putCommandOnDashboard(sub_table: str, cmd: commands2.CommandBase, name: object = None) -> object:
+def putCommandOnDashboard(sub_table: str, cmd: commands2.CommandBase, name: str = None) -> commands2.CommandBase:
     if sub_table:
         sub_table += "/"
     else:
