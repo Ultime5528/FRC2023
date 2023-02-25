@@ -19,11 +19,14 @@ from commands.movearm import MoveArm
 from commands.openclaw import OpenClaw
 from commands.slowdrive import SlowDrive
 from commands.takeobject import TakeObject
+from commands.signalcone import SignalCone
+from commands.signalcube import SignalCube
 from commands.turn import Turn
 from subsystems.arm import Arm
 from subsystems.claw import Claw
 from subsystems.drivetrain import Drivetrain
 from utils.property import clear_autoproperties
+from subsystems.led import LEDController
 
 
 class Robot(commands2.TimedCommandRobot):
@@ -37,6 +40,7 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain = Drivetrain()
         self.arm = Arm()
         self.claw = Claw()
+        self.led_controller = LEDController()
 
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
 
@@ -69,8 +73,8 @@ class Robot(commands2.TimedCommandRobot):
         JoystickButton(self.panel, 12).whenPressed(MoveArm.toLevel3(self.arm))
         JoystickButton(self.panel, 13).whenPressed(MoveArm.toFloor(self.arm))
         JoystickButton(self.panel, 14).whenPressed(MoveArm.toBase(self.arm))
-        # JoystickButton(self.panel, 15).whenPressed(ledpourcube))
-        # JoystickButton(self.panel, 16).whenPressed(ledpourcône))
+        JoystickButton(self.panel, 15).whenPressed(SignalCone(self.led_controller))
+        JoystickButton(self.panel, 16).whenPressed(SignalCube(self.led_controller))
         # JoystickButton(self.panel, 17).whenPressed(Drop(self.claw)
 
     def setup_dashboard(self):
@@ -98,9 +102,8 @@ class Robot(commands2.TimedCommandRobot):
         put_command_on_dashboard("ArmManual", ManualExtend.down(self.arm))
         put_command_on_dashboard("Groups", Drop(self.claw, self.arm))
         put_command_on_dashboard("Groups", TakeObject(self.claw, self.arm))
-
-        # put_command_on_dashboard("Led", ledpourcube)
-        # put_command_on_dashboard("Led", lespourtriangle)
+        put_command_on_dashboard("Led", SignalCone(self.led_controller))
+        put_command_on_dashboard("Led", SignalCube(self.led_controller))
 
 
 def put_command_on_dashboard(sub_table: str, cmd: commands2.CommandBase, name=None):
