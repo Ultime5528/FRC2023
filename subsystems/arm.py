@@ -1,4 +1,5 @@
 import rev
+import wpilib
 import wpiutil
 import wpilib
 from wpilib import DigitalInput, RobotBase
@@ -9,7 +10,7 @@ import ports
 from utils.property import autoproperty, default_setter
 from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
-from utils.sparkmaxutils import configure_leader
+from utils.sparkmaxutils import configureLeader
 
 
 def checkIsInDeadzone(extension: float):
@@ -38,11 +39,11 @@ class Arm(SafeSubsystem):
         # Motors
         self.motor_elevator = rev.CANSparkMax(ports.arm_motor_elevator,
                                               rev.CANSparkMax.MotorType.kBrushless)
-        configure_leader(self.motor_elevator, "brake", True)
+        configureLeader(self.motor_elevator, "brake", True)
 
         self.motor_extension = rev.CANSparkMax(ports.arm_motor_extension,
                                                rev.CANSparkMax.MotorType.kBrushless)
-        configure_leader(self.motor_extension, "brake", True)
+        configureLeader(self.motor_extension, "brake", True)
 
         self.encoder_extension = self.motor_extension.getEncoder()
         self.encoder_elevator = self.motor_elevator.getEncoder()

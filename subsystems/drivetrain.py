@@ -20,7 +20,7 @@ from gyro import NavX, ADIS16448, ADIS16470, ADXRS, Empty
 from utils.property import autoproperty, default_setter
 from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
-from utils.sparkmaxutils import configure_follower, configure_leader
+from utils.sparkmaxutils import configureFollower, configureLeader
 
 select_gyro: Literal["navx", "adis16448", "adis16470", "adxrs", "empty"] = "adis16470"
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
@@ -34,17 +34,17 @@ class Drivetrain(SafeSubsystem):
         super().__init__()
         # Motors
         self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_front_left, rev.CANSparkMax.MotorType.kBrushless)
-        configure_leader(self._motor_left, "brake")
+        configureLeader(self._motor_left, "brake")
         self._motor_left_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_left,
                                                     rev.CANSparkMax.MotorType.kBrushless)
-        configure_follower(self._motor_left_follower, self._motor_left, "brake")
+        configureFollower(self._motor_left_follower, self._motor_left, "brake")
 
         self._motor_right = rev.CANSparkMax(ports.drivetrain_motor_front_right,
                                             rev.CANSparkMax.MotorType.kBrushless)
-        configure_leader(self._motor_right, "brake", True)
+        configureLeader(self._motor_right, "brake")
         self._motor_right_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_right,
                                                      rev.CANSparkMax.MotorType.kBrushless)
-        configure_follower(self._motor_right_follower, self._motor_right, "brake")
+        configureFollower(self._motor_right_follower, self._motor_right, "brake")
 
         self._drive = wpilib.drive.DifferentialDrive(self._motor_left, self._motor_right)
         self.addChild("DifferentialDrive", self._drive)
