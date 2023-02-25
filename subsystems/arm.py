@@ -1,4 +1,5 @@
 import rev
+import wpilib
 import wpiutil
 from wpilib import DigitalInput, RobotBase
 from wpilib.event import EventLoop, BooleanEvent
@@ -82,7 +83,7 @@ class Arm(SafeSubsystem):
         self.motor_elevator_sim.setPosition(self.motor_elevator_sim.getPosition() + motor_elevator_sim_increment)
         self.motor_extension_sim.setPosition(self.motor_extension_sim.getPosition() + motor_extension_sim_increment)
         self.switch_extension_min_sim.setValue(self.getExtensionPosition() <= 0.05)
-        self.switch_extension_max_sim.setvalue(self.getExtensionPosition() >= self.extension_max_position)
+        self.switch_extension_max_sim.setValue(self.getExtensionPosition() >= self.extension_max_position)
 
     def periodic(self):
         self.loop.poll()
@@ -118,22 +119,22 @@ class Arm(SafeSubsystem):
         return self.getExtensionPosition() < self.extension_min_position
 
     def isPositionElevationMax(self):
-        return self.getElevationPosition() > self.elevation_max_position
+        return self.getElevatorPosition() > self.elevator_max_position
 
-    def isPositionElevationMax(self):
-        return self.getElevationPosition() < self.elevation_min_position
+    def isPositionElevationMin(self):
+        return self.getElevatorPosition() < self.elevator_min_position
 
     def setElevatorSpeed(self, speed: float):
-        if self.isElevationMin() and speed < 0:
+        if self.isPositionElevationMin() and speed < 0:
             speed = 0
-        if self.isElevationMax() and speed > 0:
+        if self.isPositionElevationMax() and speed > 0:
             speed = 0
         self.motor_elevator.set(speed)
 
     def setExtensionSpeed(self, speed: float):
-        if self.isExtensionMin() and speed < 0:
+        if self.isPositionExtensionMin() and speed < 0:
             speed = 0
-        if self.isExtensionMax() and speed > 0:
+        if self.isPositionExtensionMax() and speed > 0:
             speed = 0
         self.motor_extension.set(speed)
 

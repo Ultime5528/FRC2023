@@ -24,6 +24,7 @@ from subsystems.arm import Arm
 from subsystems.claw import Claw
 from subsystems.drivetrain import Drivetrain
 from utils.property import clear_autoproperties
+from utils.safecommand import SafeCommand
 
 
 class Robot(commands2.TimedCommandRobot):
@@ -39,12 +40,12 @@ class Robot(commands2.TimedCommandRobot):
         self.claw = Claw()
 
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
-        JoystickButton(self.stick, 1).whenPressed(MoveArm(self.arm, 2, 2))
+        #JoystickButton(self.stick, 1).whenPressed(MoveArm(self.arm, 2, 2))
 
         
         Trigger(self.arm.hasObject).onTrue(TakeObject(self.claw, self.arm))
 
-        self.setup_buttons()
+        #self.setup_buttons()
         self.setup_dashboard()
 
         # Doit être à la fin, après que tout ait été instancié
