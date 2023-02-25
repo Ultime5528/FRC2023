@@ -1,7 +1,7 @@
 from math import degrees, atan2
 from typing import Literal
 
-from commands2 import SequentialCommandGroup
+from commands2 import SequentialCommandGroup, WaitCommand
 from wpilib import DriverStation
 from wpimath.geometry import Transform2d, Translation2d, Rotation2d, Pose2d
 
@@ -12,9 +12,9 @@ from utils.property import autoproperty
 from utils.safecommand import SafeCommand
 
 
-left_offset = Transform2d(Translation2d(1.1, -0.47), Rotation2d.fromDegrees(180))
+left_offset = Transform2d(Translation2d(1.1, -0.56), Rotation2d.fromDegrees(180))
 mid_offset = Transform2d(Translation2d(1.1, 0), Rotation2d.fromDegrees(180))
-right_offset = Transform2d(Translation2d(1.1, 0.47), Rotation2d.fromDegrees(180))
+right_offset = Transform2d(Translation2d(1.1, 0.56), Rotation2d.fromDegrees(180))
 
 # Numbers: left to right driver pov
 red_poses: dict[str, Pose2d] = {
@@ -67,10 +67,11 @@ class GoGrid(SafeCommand):
             grid_pos = blue_poses[self.grid_number]
 
         robot_to_grid = Transform2d(self.drivetrain.getPose(), grid_pos)
-        robot_to_grid_angle = degrees(atan2(robot_to_grid.Y(), robot_to_grid.X()))
+        robot_to_grid_angle = degrees(atan2(robot_to_grid.Y(), robot_to_grid.X())) * 1.0 - robot_to_grid.rotation().degrees()
 
         go_grid = SequentialCommandGroup(
-            # Turn(self.drivetrain, robot_to_grid_angle, self.turn_speed),
+            Turn(self.drivetrain, robot_to_grid_angle, self.turn_speed),
+            WaitCommand(1.0),
             FollowTrajectory(self.drivetrain, [grid_pos.transformBy(Transform2d(Translation2d(-self.before_offset, 0), Rotation2d())), grid_pos], self.traj_speed, "absolute"),
             # FollowTrajectory.driveStraight(self.drivetrain, self.straight_distance, self.straight_speed)
         )
