@@ -346,7 +346,7 @@
   {
     "name": "/Properties/Turn/accel",
     "type": "double",
-    "value": 0.002,
+    "value": 0.0005,
     "properties": {
       "persistent": true
     }
@@ -379,6 +379,14 @@
     "name": "/Properties/GoGrid/straight_speed",
     "type": "double",
     "value": 0.1,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/GoGrid/before_offset",
+    "type": "double",
+    "value": 0.4,
     "properties": {
       "persistent": true
     }
