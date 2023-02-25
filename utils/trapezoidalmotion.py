@@ -1,5 +1,6 @@
 import math
 from dataclasses import dataclass
+from enum import Enum
 from typing import Optional
 
 __all__ = ["TrapezoidalMotion"]
@@ -21,6 +22,12 @@ class MotionConfig:
             raise ValueError("'end_position' and 'displacement' cannot both be set")
 
 
+class AccelBehaviour(Enum):
+    Both = "Both"
+    StartOnly = "StartOnly"
+    EndOnly = "EndOnly"
+
+
 class TrapezoidalMotion:
     def __init__(
         self,
@@ -30,11 +37,13 @@ class TrapezoidalMotion:
         start_position: Optional[float] = None,
         end_position: Optional[float] = None,
         displacement: Optional[float] = None,
+        accel_behaviour: AccelBehaviour = AccelBehaviour.Both,
     ):
         self._initial_config = MotionConfig(start_position, end_position, displacement, min_speed, max_speed, accel)
         self._real_config: Optional[MotionConfig] = None
         self._position = None
         self._inverted = False
+        self._accel_behaviour = accel_behaviour
 
         if start_position is not None:
             self._compute()
@@ -92,7 +101,6 @@ class TrapezoidalMotion:
             accel=abs(self._initial_config.accel),
         )
 
-        assert self._real_config.start_position != self._real_config.end_position
         assert self._real_config.min_speed <= self._real_config.max_speed
 
         self._accel_window = (self._real_config.max_speed - self._real_config.min_speed) / self._real_config.accel
@@ -110,6 +118,9 @@ class TrapezoidalMotion:
     def getSpeed(self) -> float:
         assert self._position is not None, "Position has not been set."
 
+        if self.isFinished():
+            return 0.0
+
         if self._inverted:
             s = self._real_config.start_position - self._position
         else:
@@ -118,22 +129,34 @@ class TrapezoidalMotion:
         v = 0
 
         if s < 0:
-            v = self._real_config.min_speed
+            if self._accel_behaviour == AccelBehaviour.EndOnly:
+                v = self._real_config.max_speed
+            else:
+                v = self._real_config.min_speed
         elif s < self._accel_window:
-            v = math.sqrt(
-                self._real_config.min_speed ** 2
-                + (s / self._accel_window) * (self._real_config.max_speed ** 2 - self._real_config.min_speed ** 2)
-            )
+            if self._accel_behaviour == AccelBehaviour.EndOnly:
+                v = self._real_config.max_speed
+            else:
+                v = math.sqrt(
+                    self._real_config.min_speed ** 2
+                    + (s / self._accel_window) * (self._real_config.max_speed ** 2 - self._real_config.min_speed ** 2)
+                )
         elif s < self._real_config.displacement - self._accel_window:
             v = self._real_config.max_speed
         elif s < self._real_config.displacement:
-            v = math.sqrt(
-                self._real_config.min_speed ** 2
-                + (self._real_config.displacement - s) / self._accel_window
-                * (self._real_config.max_speed ** 2 - self._real_config.min_speed ** 2)
-            )
+            if self._accel_behaviour == AccelBehaviour.StartOnly:
+                v = self._real_config.max_speed
+            else:
+                v = math.sqrt(
+                    self._real_config.min_speed ** 2
+                    + (self._real_config.displacement - s) / self._accel_window
+                    * (self._real_config.max_speed ** 2 - self._real_config.min_speed ** 2)
+                )
         else:
-            v = self._real_config.min_speed
+            if self._accel_behaviour == AccelBehaviour.StartOnly:
+                v = self._real_config.max_speed
+            else:
+                v = self._real_config.min_speed
 
         if self._inverted:
             v *= -1

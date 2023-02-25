@@ -39,7 +39,7 @@ def wrapNone(f, name):
 class SafeCommandMetaclass(commands2.CommandBase.__class__):
     def __new__(mcls, name, bases, dct):
         # if "execute" in dct:
-        #     dct["execute"] = wrap_none(dct["execute"], name)
+        #     dct["execute"] = wrapNone(dct["execute"], name)
         cls = super().__new__(mcls, name, bases, dct)
         return cls
 

@@ -1,9 +1,9 @@
 import commands2
 from commands2 import ConditionalCommand
 
-from utils.property import autoproperty
+from utils.property import autoproperty, FloatProperty, as_callable
 from utils.safecommand import SafeCommand, SafeMixin
-from utils.trapezoidalmotion import TrapezoidalMotion
+from utils.trapezoidalmotion import TrapezoidalMotion, AccelBehaviour
 from subsystems.arm import Arm
 
 
@@ -50,14 +50,17 @@ class MoveArm(SafeMixin, ConditionalCommand):
         cmd.setName(cmd.getName() + ".toTransition")
         return cmd
 
-    def __init__(self, arm: Arm, extension_end_position, elevator_end_position):
+    def __init__(self, arm: Arm, extension_end_position: FloatProperty, elevator_end_position: FloatProperty):
+        extension_end_position = as_callable(extension_end_position)
+        elevator_end_position = as_callable(elevator_end_position)
+
         def cond():
-            return arm.shouldTransition(extension_end_position, elevator_end_position)
+            return arm.shouldTransition(extension_end_position(), elevator_end_position())
 
         super().__init__(
             commands2.SequentialCommandGroup(
                 MoveArmDirect.toTransition(arm),
-                MoveArmDirect(arm, extension_end_position, elevator_end_position)
+                MoveArmDirect(arm, extension_end_position, elevator_end_position, AccelBehaviour.EndOnly)
             ),
             MoveArmDirect(arm, extension_end_position, elevator_end_position),
             cond
@@ -77,30 +80,32 @@ class MoveArmDirect(SafeCommand):
 
     @classmethod
     def toTransition(cls, arm: Arm):
-        cmd = cls(arm, lambda: properties.transition_extension, lambda: properties.transition_elevation)
+        cmd = cls(arm, lambda: properties.transition_extension, lambda: properties.transition_elevation, AccelBehaviour.StartOnly)
         cmd.setName(cmd.getName() + ".toTransition")
         return cmd
 
-    def __init__(self, arm: Arm, extension_end_position, elevator_end_position):
+    def __init__(self, arm: Arm, extension_end_position: FloatProperty, elevator_end_position: FloatProperty, extension_accel_behaviour: AccelBehaviour=AccelBehaviour.Both):
         super().__init__()
         self.arm = arm
-        self.extension_end_position = extension_end_position
-        self.elevator_end_position = elevator_end_position
+        self.extension_end_position = as_callable(extension_end_position)
+        self.elevator_end_position = as_callable(elevator_end_position)
+        self.extension_accel_behaviour = extension_accel_behaviour
 
     def initialize(self) -> None:
         self.elevator_motion = TrapezoidalMotion(
             start_position=self.arm.getElevatorPosition(),
-            end_position=self.elevator_end_position,
+            end_position=self.elevator_end_position(),
             min_speed=self.elevator_min_speed,
             max_speed=self.elevator_max_speed,
             accel=self.elevator_acceleration
         )
         self.extension_motion = TrapezoidalMotion(
             start_position=self.arm.getExtensionPosition(),
-            end_position=self.extension_end_position,
+            end_position=self.extension_end_position(),
             min_speed=self.extension_min_speed,
             max_speed=self.extension_max_speed,
-            accel=self.extension_acceleration
+            accel=self.extension_acceleration,
+            accel_behaviour=self.extension_accel_behaviour
         )
 
     def execute(self) -> None:
@@ -118,26 +123,27 @@ class MoveArmDirect(SafeCommand):
         return self.elevator_motion.isFinished() and self.extension_motion.isFinished()
 
     def end(self, interrupted: bool) -> None:
-        self.arm.setExtensionSpeed(0)
+        if self.extension_accel_behaviour == AccelBehaviour.StartOnly:
+            self.arm.setExtensionSpeed(0)
         self.arm.setElevatorSpeed(0)
 
 
 class _ClassProperties:
-    level1_extension = autoproperty(0, subtable=MoveArm.__name__)
-    level2_extension = autoproperty(0, subtable=MoveArm.__name__)
-    level3_extension = autoproperty(0, subtable=MoveArm.__name__)
-    floor_extension = autoproperty(0, subtable=MoveArm.__name__)
-    base_extension = autoproperty(0, subtable=MoveArm.__name__)
-    bin_extension = autoproperty(0, subtable=MoveArm.__name__)
-    transition_extension = autoproperty(0, subtable=MoveArm.__name__)
+    level1_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    level2_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    level3_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    floor_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    base_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    bin_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    transition_extension = autoproperty(0.0, subtable=MoveArm.__name__)
 
-    level1_elevation = autoproperty(0, subtable=MoveArm.__name__)
-    level2_elevation = autoproperty(0, subtable=MoveArm.__name__)
-    level3_elevation = autoproperty(0, subtable=MoveArm.__name__)
-    floor_elevation = autoproperty(0, subtable=MoveArm.__name__)
-    base_elevation = autoproperty(0, subtable=MoveArm.__name__)
-    bin_elevation = autoproperty(0, subtable=MoveArm.__name__)
-    transition_elevation = autoproperty(0, subtable=MoveArm.__name__)
+    level1_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    level2_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    level3_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    floor_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    base_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    bin_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    transition_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
 
 
 properties = _ClassProperties()

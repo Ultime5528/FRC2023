@@ -2,10 +2,8 @@ import math
 from typing import Optional
 
 import numpy as np
-from wpimath.geometry import Pose2d
+from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.trajectory import Trajectory
-
-from utils.property import autoproperty
 
 
 class RearWheelFeedbackController:
@@ -13,13 +11,18 @@ class RearWheelFeedbackController:
     Adapted from: https://github.com/AtsushiSakai/PythonRobotics/blob/master/PathTracking/rear_wheel_feedback/rear_wheel_feedback.py
     """
 
-    def __init__(self, trajectory: Trajectory, angle_factor=2.5, track_error_factor=30.0):
+    def __init__(self, trajectory: Trajectory, curvature_factor=1.0, angle_factor=2.5, track_error_factor=30.0):
         self.trajectory = trajectory
         self.states = trajectory.states()
         self.poses_array = np.array([(state.pose.X(), state.pose.Y()) for state in self.states])
         self.current_pose = Pose2d()
-        self.closest_t = 0
+        self.closest_t = 0.0
+        self.angle_error = Rotation2d()
+        self.error = 0.0
+        self.omega_0 = 0.0
+        self.omega_1 = 0.0
         self.closest_sample: Optional[Trajectory.State] = None
+        self.curvature_factor = curvature_factor
         self.angle_factor = angle_factor
         self.track_error_factor = track_error_factor
 
@@ -50,7 +53,10 @@ class RearWheelFeedbackController:
         self.error = dists[argmin]
         self.closest_sample = min_state
 
-    def update(self, current_pose: Pose2d, angle_factor: Optional[float] = None, track_error_factor: Optional[float] = None):
+    def update(self, current_pose: Pose2d, speed=1.0, curvature_factor: Optional[float] = None, angle_factor: Optional[float] = None, track_error_factor: Optional[float] = None):
+        if curvature_factor is not None:
+            self.curvature_factor = curvature_factor
+
         if angle_factor is not None:
             self.angle_factor = angle_factor
 
@@ -69,10 +75,13 @@ class RearWheelFeedbackController:
             self.error *= -1
 
         angle_error = self.current_pose.rotation() - self.closest_sample.pose.rotation()
+        self.angle_error = angle_error
 
-        omega = curvature * angle_error.cos() / (1.0 - curvature * self.error)
-        omega -= self.angle_factor * angle_error.radians()
-        omega -= self.track_error_factor * angle_error.sin() * self.error / angle_error.radians()
+        omega = self.curvature_factor * speed * curvature * angle_error.cos() / (1.0 - curvature * self.error)
+        self.omega_0 = omega
+        omega -= self.angle_factor * abs(speed) * angle_error.radians()
+        omega -= self.track_error_factor * speed * angle_error.sin() * self.error / angle_error.radians()
+        self.omega_1 = omega
 
         if angle_error.radians() == 0.0 or omega == 0.0:
             delta = 0
