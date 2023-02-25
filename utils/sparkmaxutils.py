@@ -9,28 +9,28 @@ __all__ = ["configureLeader", "configureFollower"]
 
 
 def configureLeader(motor: rev.CANSparkMax, mode: IdleMode, inverted: bool = False):
-    handleCanError(motor.restoreFactoryDefaults(), "restoryFactoryDefaults", motor)
+    _handleCanError(motor.restoreFactoryDefaults(), "restoryFactoryDefaults", motor)
     motor.setInverted(inverted)
-    configureMotor(motor, mode)
+    _configureMotor(motor, mode)
 
 
 def configureFollower(follower: rev.CANSparkMax, leader: rev.CANSparkMax, mode: IdleMode, inverted: bool = False):
-    handleCanError(follower.restoreFactoryDefaults(), "restoryFactoryDefaults", follower)
-    handleCanError(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus0, 1000), "set status0 rate", follower)
-    handleCanError(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus1, 1000), "set status1 rate", follower)
-    handleCanError(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus2, 1000), "set status2 rate", follower)
-    handleCanError(follower.follow(leader, inverted), "follow", follower)
-    configureMotor(follower, mode)
+    _handleCanError(follower.restoreFactoryDefaults(), "restoryFactoryDefaults", follower)
+    _handleCanError(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus0, 1000), "set status0 rate", follower)
+    _handleCanError(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus1, 1000), "set status1 rate", follower)
+    _handleCanError(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus2, 1000), "set status2 rate", follower)
+    _handleCanError(follower.follow(leader, inverted), "follow", follower)
+    _configureMotor(follower, mode)
 
 
-def configureMotor(motor: rev.CANSparkMax, mode: IdleMode):
-    handleCanError(motor.setIdleMode(idleModeToEnum(mode)), "setIdleMode", motor)
-    handleCanError(motor.burnFlash(), "burnFlash", motor)
-    handleCanError(motor.clearFaults(), "clearFaults", motor)
+def _configureMotor(motor: rev.CANSparkMax, mode: IdleMode):
+    _handleCanError(motor.setIdleMode(_idleModeToEnum(mode)), "setIdleMode", motor)
+    _handleCanError(motor.burnFlash(), "burnFlash", motor)
+    _handleCanError(motor.clearFaults(), "clearFaults", motor)
     wpilib.wait(0.250)
 
 
-def idleModeToEnum(mode: IdleMode):
+def _idleModeToEnum(mode: IdleMode):
     if mode == "brake":
         return rev.CANSparkMax.IdleMode.kBrake
     elif mode == "coast":
@@ -38,6 +38,6 @@ def idleModeToEnum(mode: IdleMode):
     raise ValueError(f"mode is not 'brake' or 'coast' : {mode}")
 
 
-def handleCanError(error: rev.REVLibError, function: str, motor: rev.CANSparkMax):
+def _handleCanError(error: rev.REVLibError, function: str, motor: rev.CANSparkMax):
     if error != rev.REVLibError.kOk:
         wpilib.reportError(f"CANError on motor ID {motor.getDeviceId()} during {function} : {error}", printTrace=True)

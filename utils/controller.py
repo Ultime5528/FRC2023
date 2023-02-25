@@ -26,10 +26,10 @@ class RearWheelFeedbackController:
         self.angle_factor = angle_factor
         self.track_error_factor = track_error_factor
 
-    def UpdateClosestScipy(self):
+    def _updateClosestScipy(self):
             from scipy import optimize
 
-            def CalcDistance(t, *args):
+            def calcDistance(t, *args):
                 pose = self.trajectory.sample(t).pose
                 x = pose.X()
                 y = pose.Y()
@@ -37,13 +37,13 @@ class RearWheelFeedbackController:
                 current_y = self.current_pose.Y()
                 return (x - current_x)**2 + (y - current_y)**2
 
-            res = optimize.minimize_scalar(CalcDistance, bounds=(0, self.trajectory.totalTime()))
+            res = optimize.minimize_scalar(calcDistance, bounds=(0, self.trajectory.totalTime()))
 
             self.closest_t = res.x
             self.error = res.fun
             self.closest_sample = self.trajectory.sample(self.closest_t)
 
-    def UpdateClosest(self):
+    def _updateClosest(self):
         current_array = np.array([self.current_pose.X(), self.current_pose.Y()])
         diffs = self.poses_array - current_array
         dists = np.linalg.norm(diffs, axis=1)
@@ -64,7 +64,7 @@ class RearWheelFeedbackController:
             self.track_error_factor = track_error_factor
 
         self.current_pose = current_pose
-        self.UpdateClosest()
+        self._updateClosest()
 
         curvature = self.closest_sample.curvature
         target_yaw = self.closest_sample.pose.rotation()
