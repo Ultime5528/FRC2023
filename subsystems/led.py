@@ -96,12 +96,6 @@ class LEDController(commands2.SubsystemBase):
 
         self.setAll(getColor)
 
-    def waves(self, color):
-        def getColor(i: int):
-            prop = 0.5 * math.cos(2 * math.pi / 20 * (self.time / 5 + i)) + 0.5
-            return interpoler(prop, color, self.black)
-
-        self.setAll(getColor)
 
     def halfWaves(self, color):
         def getColor(i: int):
@@ -165,13 +159,7 @@ class LEDController(commands2.SubsystemBase):
         return self.setAll(getColor)
 
     def setMode(self, mode: ModeLED):
-        match mode:
-            case "NONE":
-                self.mode = ModeLED.NONE
-            case "CUBE":
-                self.mode = ModeLED.CUBE
-            case "CONE":
-                self.mode = ModeLED.CONE
+        self.mode = mode
 
     def periodic(self) -> None:
         self.time += 1
@@ -183,19 +171,25 @@ class LEDController(commands2.SubsystemBase):
                     self.explode(self.getAllianceColor())
                 elif wpilib.DriverStation.getMatchTime() <= 5:
                     self.explosiveness = 1
-                    self.waves(self.getAllianceColor())
-                elif wpilib.DriverStation.getMatchTime() <= 105:
-                    if self.getAllianceColor() == self.red_hsv:
-                        self.shadeRed()
-                    elif self.getAllianceColor() == self.blue_hsv:
-                        self.shadeBlue()
+                    self.halfWaves(self.getAllianceColor())
+                elif wpilib.DriverStation.getMatchTime() <= 30:
+                    self.flash(self.getAllianceColor(), 10)
+
                 elif wpilib.DriverStation.getMatchTime() <= 135:
-                    self.flash(self.orange_hsv, 10)
+                    if (self.getAllianceColor() == self.red_hsv).all():
+                        self.shadeRed()
+                    elif (self.getAllianceColor() == self.blue_hsv).all():
+                        self.shadeBlue()
+
                 else:
                     self.pulse(self.getAllianceColor())
             else:  # game hasn't started
                 if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kInvalid:
                     self.selectTeam()
+                elif wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed:
+                    self.pulse(self.red_hsv)
+                elif wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
+                    self.pulse(self.blue_hsv)
                 else:
                     self.halfWaves(self.purple_hsv)
         elif self.mode == ModeLED.CONE:

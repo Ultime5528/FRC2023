@@ -1,9 +1,10 @@
 import math
 
 import wpilib
-from subsystems.led import LEDController
+from subsystems.led import LEDController, ModeLED
 from utils.property import autoproperty
 from utils.safecommand import SafeCommand
+
 
 
 class SignalCone(SafeCommand):
@@ -19,11 +20,11 @@ class SignalCone(SafeCommand):
         self.timer.start()
 
     def execute(self) -> None:
-        self.led_controller.setMode("CONE")
+        self.led_controller.setMode(ModeLED.CONE)
 
     def isFinished(self) -> bool:
         return self.timer.get() >= self.duration
 
     def end(self, interrupted: bool) -> None:
-        self.led_controller.setMode("NONE")
+        self.led_controller.setMode(ModeLED.NONE)
 
