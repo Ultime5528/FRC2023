@@ -76,10 +76,10 @@ class Robot(commands2.TimedCommandRobot):
 
     def setupDashboard(self):
         putCommandOnDashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
-        putCommandOnDashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(1.5, 0.5, math.radians(45)), 0.1, "relative"))
+        putCommandOnDashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(1.2, -0.7, math.radians(-33)), 0.18, "relative"), "curve")
         putCommandOnDashboard("Drivetrain", FollowTrajectory.driveStraight(self.drivetrain, 2.00, 0.1))
         putCommandOnDashboard("Drivetrain", FollowTrajectory.toLoading(self.drivetrain))
-        putCommandOnDashboard("Drivetrain", Turn(self.drivetrain, 180, 0.35))
+        putCommandOnDashboard("Drivetrain", Turn(self.drivetrain, 45, 0.28))
         putCommandOnDashboard("Drivetrain", DriveToDock(self.drivetrain))
         putCommandOnDashboard("Drivetrain", GoGrid(self.drivetrain, "7"), name="GoGrid.7")
         putCommandOnDashboard("Drivetrain", GoGrid(self.drivetrain, "8"), name="GoGrid.8")
