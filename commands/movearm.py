@@ -44,12 +44,6 @@ class MoveArm(SafeMixin, ConditionalCommand):
         cmd.setName(cmd.getName() + ".toBin")
         return cmd
 
-    @classmethod
-    def toTransition(cls, arm: Arm):
-        cmd = cls(arm, lambda: properties.transition_extension, lambda: properties.transition_elevation)
-        cmd.setName(cmd.getName() + ".toTransition")
-        return cmd
-
     def __init__(self, arm: Arm, extension_end_position: FloatProperty, elevator_end_position: FloatProperty):
         extension_end_position = as_callable(extension_end_position)
         elevator_end_position = as_callable(elevator_end_position)
@@ -59,7 +53,7 @@ class MoveArm(SafeMixin, ConditionalCommand):
 
         super().__init__(
             commands2.SequentialCommandGroup(
-                MoveArmDirect.toTransition(arm),
+                MoveArmToTransition(arm),
                 MoveArmDirect(arm, extension_end_position, elevator_end_position)
             ),
             MoveArmDirect(arm, extension_end_position, elevator_end_position),
@@ -68,16 +62,6 @@ class MoveArm(SafeMixin, ConditionalCommand):
 
 
 class MoveArmDirect(SafeCommand):
-    # Elevator Properties #
-    elevator_min_speed = autoproperty(0.1)
-    elevator_max_speed = autoproperty(0.1)
-    elevator_acceleration = autoproperty(0.001)
-
-    # Extension Properties #
-    extension_min_speed = autoproperty(0.1)
-    extension_max_speed = autoproperty(0.1)
-    extension_acceleration = autoproperty(0.001)
-
     @classmethod
     def toTransition(cls, arm: Arm):
         cmd = cls(arm, lambda: properties.transition_extension, lambda: properties.transition_elevation)
@@ -89,43 +73,168 @@ class MoveArmDirect(SafeCommand):
         self.arm = arm
         self.extension_end_position = as_callable(extension_end_position)
         self.elevator_end_position = as_callable(elevator_end_position)
+        self.addRequirements(arm)
 
     def initialize(self) -> None:
         self.elevator_motion = TrapezoidalMotion(
             start_position=self.arm.getElevatorPosition(),
             end_position=self.elevator_end_position(),
-            min_speed=self.elevator_min_speed,
-            max_speed=self.elevator_max_speed,
-            accel=self.elevator_acceleration
+            min_speed=properties.elevator_min_speed,
+            max_speed=properties.elevator_max_speed,
+            accel=properties.elevator_acceleration
         )
         self.extension_motion = TrapezoidalMotion(
             start_position=self.arm.getExtensionPosition(),
             end_position=self.extension_end_position(),
-            min_speed=self.extension_min_speed,
-            max_speed=self.extension_max_speed,
-            accel=self.extension_acceleration
+            start_speed=max(properties.extension_min_speed, abs(self.arm.getExtensionSpeed())),
+            end_speed=properties.extension_min_speed,
+            max_speed=properties.extension_max_speed,
+            accel=properties.extension_acceleration
         )
 
     def execute(self) -> None:
         # Elevation
-        current_elevation = self.arm.getElevatorPosition()
-        self.elevator_motion.setPosition(current_elevation)
-        self.arm.setElevatorSpeed(self.elevator_motion.getSpeed())
+        if self.elevator_motion.isFinished():
+            self.arm.setElevatorSpeed(0)
+        else:
+            current_elevation = self.arm.getElevatorPosition()
+            self.elevator_motion.setPosition(current_elevation)
+            self.arm.setElevatorSpeed(self.elevator_motion.getSpeed())
 
         # Extension
-        current_extension = self.arm.getExtensionPosition()
-        self.extension_motion.setPosition(current_extension)
-        self.arm.setExtensionSpeed(self.extension_motion.getSpeed())
+        if self.extension_motion.isFinished():
+            self.arm.setExtensionSpeed(0)
+        else:
+            current_extension = self.arm.getExtensionPosition()
+            self.extension_motion.setPosition(current_extension)
+            self.arm.setExtensionSpeed(self.extension_motion.getSpeed())
 
     def isFinished(self) -> bool:
         return self.elevator_motion.isFinished() and self.extension_motion.isFinished()
 
     def end(self, interrupted: bool) -> None:
+        self.arm.setElevatorSpeed(0)
         self.arm.setExtensionSpeed(0)
+
+
+class MoveArmToTransition(SafeCommand):
+    def __init__(self, arm: Arm):
+        super().__init__()
+        self.arm = arm
+        self.addRequirements(arm)
+
+    def initialize(self) -> None:
+        self.elevator_motion = TrapezoidalMotion(
+            start_position=self.arm.getElevatorPosition(),
+            end_position=properties.transition_elevation,
+            min_speed=properties.elevator_min_speed,
+            max_speed=properties.elevator_max_speed,
+            accel=properties.elevator_acceleration
+        )
+        self.extension_motion = TrapezoidalMotion(
+            start_position=self.arm.getExtensionPosition(),
+            end_position=properties.transition_extension,
+            start_speed=properties.extension_min_speed,
+            end_speed=properties.extension_min_speed,
+            max_speed=properties.extension_max_speed,
+            accel=properties.extension_acceleration
+        )
+        self._elevator_finished = False
+
+    def execute(self) -> None:
+        # Elevation
+        if self.elevator_motion.isFinished():
+            self.arm.setElevatorSpeed(0)
+            if not self._elevator_finished:
+                self._elevator_finished = True
+                self.extension_motion = TrapezoidalMotion(
+                    start_position=self.arm.getExtensionPosition(),
+                    end_position=properties.transition_extension,
+                    start_speed=max(properties.extension_min_speed, abs(self.arm.getExtensionSpeed())),
+                    end_speed=properties.extension_max_speed,
+                    max_speed=properties.extension_max_speed,
+                    accel=properties.extension_acceleration
+                )
+        else:
+            current_elevation = self.arm.getElevatorPosition()
+            self.elevator_motion.setPosition(current_elevation)
+            self.arm.setElevatorSpeed(self.elevator_motion.getSpeed())
+
+        # Extension
+        if self.extension_motion.isFinished():
+            self.arm.setExtensionSpeed(0)
+        else:
+            current_extension = self.arm.getExtensionPosition()
+            self.extension_motion.setPosition(current_extension)
+            self.arm.setExtensionSpeed(self.extension_motion.getSpeed())
+
+    def isFinished(self) -> bool:
+        return self.extension_motion.isFinished() and self.elevator_motion.isFinished()
+
+    def end(self, interrupted: bool) -> None:
+        self.arm.setElevatorSpeed(0)
+
+
+class MoveArmToTransition(SafeCommand):
+    def __init__(self, arm: Arm):
+        super().__init__()
+        self.arm = arm
+        self.addRequirements(arm)
+
+    def initialize(self) -> None:
+        self.elevator_motion = TrapezoidalMotion(
+            start_position=self.arm.getElevatorPosition(),
+            end_position=properties.transition_elevation,
+            min_speed=properties.elevator_min_speed,
+            max_speed=properties.elevator_max_speed,
+            accel=properties.elevator_acceleration
+        )
+        self.extension_motion = TrapezoidalMotion(
+            start_position=self.arm.getExtensionPosition(),
+            end_position=properties.transition_extension,
+            start_speed=properties.extension_min_speed,
+            end_speed=properties.extension_min_speed,
+            max_speed=properties.extension_max_speed,
+            accel=properties.extension_acceleration
+        )
+        self._elevator_finished = False
+
+    def execute(self) -> None:
+        # Elevation
+        if self.elevator_motion.isFinished():
+            self.arm.setElevatorSpeed(0)
+            if not self._elevator_finished:
+                self._elevator_finished = True
+                self.extension_motion = TrapezoidalMotion(
+                    start_position=self.arm.getExtensionPosition(),
+                    end_position=properties.transition_extension,
+                    start_speed=max(properties.extension_min_speed, abs(self.arm.getExtensionSpeed())),
+                    end_speed=properties.extension_max_speed,
+                    max_speed=properties.extension_max_speed,
+                    accel=properties.extension_acceleration
+                )
+        else:
+            current_elevation = self.arm.getElevatorPosition()
+            self.elevator_motion.setPosition(current_elevation)
+            self.arm.setElevatorSpeed(self.elevator_motion.getSpeed())
+
+        # Extension
+        if self.extension_motion.isFinished():
+            self.arm.setExtensionSpeed(0)
+        else:
+            current_extension = self.arm.getExtensionPosition()
+            self.extension_motion.setPosition(current_extension)
+            self.arm.setExtensionSpeed(self.extension_motion.getSpeed())
+
+    def isFinished(self) -> bool:
+        return self.extension_motion.isFinished() and self.elevator_motion.isFinished()
+
+    def end(self, interrupted: bool) -> None:
         self.arm.setElevatorSpeed(0)
 
 
 class _ClassProperties:
+    # Elevator Properties #
     level1_extension = autoproperty(0.0, subtable=MoveArm.__name__)
     level2_extension = autoproperty(0.0, subtable=MoveArm.__name__)
     level3_extension = autoproperty(0.0, subtable=MoveArm.__name__)
@@ -134,6 +243,11 @@ class _ClassProperties:
     bin_extension = autoproperty(0.0, subtable=MoveArm.__name__)
     transition_extension = autoproperty(0.0, subtable=MoveArm.__name__)
 
+    elevator_min_speed = autoproperty(0.1, subtable=MoveArmDirect.__name__)
+    elevator_max_speed = autoproperty(0.1, subtable=MoveArmDirect.__name__)
+    elevator_acceleration = autoproperty(0.001, subtable=MoveArmDirect.__name__)
+
+    # Extension Properties #
     level1_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     level2_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     level3_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
@@ -141,6 +255,10 @@ class _ClassProperties:
     base_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     bin_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     transition_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+
+    extension_min_speed = autoproperty(0.1, subtable=MoveArmDirect.__name__)
+    extension_max_speed = autoproperty(0.1, subtable=MoveArmDirect.__name__)
+    extension_acceleration = autoproperty(0.001, subtable=MoveArmDirect.__name__)
 
 
 properties = _ClassProperties()

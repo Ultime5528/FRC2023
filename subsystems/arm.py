@@ -1,7 +1,8 @@
 import rev
 import wpilib
 import wpiutil
-from wpilib import DigitalInput, RobotBase
+import wpilib
+from wpilib import DigitalInput, RobotBase, Mechanism2d, Color8Bit
 from wpilib.event import EventLoop, BooleanEvent
 from wpilib.simulation import DIOSim
 
@@ -21,7 +22,6 @@ class Arm(SafeSubsystem):
     extension_min_position = autoproperty(-10.0)
     elevator_max_position = autoproperty(10.0)
     elevator_min_position = autoproperty(-10.0)
-
 
     def __init__(self):
         super().__init__()
@@ -55,10 +55,10 @@ class Arm(SafeSubsystem):
         self._elevator_offset = 0.0
 
         self.loop = EventLoop()
-        self._min_elevation_event = BooleanEvent(
-            self.loop, self.isSwitchElevationMinOn
+        self._min_elevator_event = BooleanEvent(
+            self.loop, self.isSwitchElevatorMinOn
         ).rising()
-        self._min_elevation_event.ifHigh(self.resetElevation)
+        self._min_elevator_event.ifHigh(self.resetElevator)
 
         self._min_extension_event = BooleanEvent(
             self.loop, self.isSwitchExtensionMinOn
@@ -76,14 +76,23 @@ class Arm(SafeSubsystem):
             self.switch_extension_min_sim = DIOSim(self.switch_extension_min)
             self.switch_extension_max_sim = DIOSim(self.switch_extension_max)
             self.switch_elevator_min_sim = DIOSim(self.switch_elevator_min)
+            self.mech = Mechanism2d(350, 200)
+            self.root = self.mech.getRoot("Arm root", 340, 80)
+            support = self.root.appendLigament("Support", 50, 90)
+            self.mech_elevator = support.appendLigament("Elevator", 10, 90)
+            claw = self.mech_elevator.appendLigament("Claw", 30, 90, lineWidth=4, color=Color8Bit(255, 0, 0))
+            self.addChild("Mechanism", self.mech)
 
     def simulationPeriodic(self):
         motor_elevator_sim_increment = self.motor_elevator.get() * 0.5
-        motor_extension_sim_increment = self.motor_extension.get() * 0.5
+        motor_extension_sim_increment = self.motor_extension.get() * 4.0
         self.motor_elevator_sim.setPosition(self.motor_elevator_sim.getPosition() + motor_elevator_sim_increment)
         self.motor_extension_sim.setPosition(self.motor_extension_sim.getPosition() + motor_extension_sim_increment)
         self.switch_extension_min_sim.setValue(self.getExtensionPosition() <= 0.05)
         self.switch_extension_max_sim.setValue(self.getExtensionPosition() >= self.extension_max_position)
+        
+        self.mech_elevator.setAngle(-10 + (135 - -10) * (self.encoder_elevator.getPosition() - self.elevator_min_position) / (self.elevator_max_position - self.elevator_min_position))
+        self.mech_elevator.setLength(10 + self.encoder_extension.getPosition() - self.extension_min_position)
 
     def periodic(self):
         self.loop.poll()
@@ -91,11 +100,8 @@ class Arm(SafeSubsystem):
     def resetExtension(self):
         self._extension_offset = self.encoder_extension.getPosition()
 
-    def resetElevation(self):
+    def resetElevator(self):
         self._elevator_offset = self.encoder_elevator.getPosition()
-
-    # def maximizeExtension(self):
-    #     self._extension_offset = self.encoder_extension.getPosition() - self.extension_max_position
 
     def getElevatorPosition(self):
         return self.encoder_elevator.getPosition() - self._elevator_offset
@@ -109,25 +115,25 @@ class Arm(SafeSubsystem):
     def isSwitchExtensionMaxOn(self):
         return not self.switch_extension_max.get()
 
-    def isSwitchElevationMinOn(self):
+    def isSwitchElevatorMinOn(self):
         return not self.switch_elevator_min.get()
 
-    def isPositionExtensionMax(self):
+    def isExtensionMax(self):
         return self.getExtensionPosition() > self.extension_max_position
 
-    def isPositionExtensionMin(self):
+    def isExtensionMin(self):
         return self.getExtensionPosition() < self.extension_min_position
 
-    def isPositionElevationMax(self):
+    def isElevatorMax(self):
         return self.getElevatorPosition() > self.elevator_max_position
 
-    def isPositionElevationMin(self):
+    def isElevatorMin(self):
         return self.getElevatorPosition() < self.elevator_min_position
 
     def setElevatorSpeed(self, speed: float):
-        if self.isPositionElevationMin() and speed < 0:
+        if self.isElevatorMin() and speed < 0:
             speed = 0
-        if self.isPositionElevationMax() and speed > 0:
+        if self.isElevatorMax() and speed > 0:
             speed = 0
         self.motor_elevator.set(speed)
 
@@ -138,16 +144,21 @@ class Arm(SafeSubsystem):
             speed = 0
         self.motor_extension.set(speed)
 
+    def getExtensionSpeed(self):
+        return self.motor_extension.get()
+
     def isInDeadzone(self):
         return checkIsInDeadzone(self.getExtensionPosition())
 
-    def shouldTransition(self, extension:  float, elevation:  float):
-        return self.isInDeadzone() or checkIsInDeadzone(extension)
+    def shouldTransition(self, extension:  float, elevator:  float):
+        return self.isInDeadzone() != checkIsInDeadzone(extension)
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
         builder.addDoubleProperty("Elevator position", self.getElevatorPosition, default_setter)
         builder.addDoubleProperty("Extension position", self.getExtensionPosition, default_setter)
+        builder.addDoubleProperty("Elevator speed", self.motor_elevator.get, default_setter)
+        builder.addDoubleProperty("Extension speed", self.motor_extension.get, default_setter)
 
     def hasObject(self):
         return self.photocell.get()

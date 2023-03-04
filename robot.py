@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import math
 
 import commands2
 import wpilib
@@ -15,8 +16,9 @@ from commands.followtrajectory import FollowTrajectory
 from commands.gogrid import GoGrid
 from commands.manualelevate import ManualElevate
 from commands.manualextend import ManualExtend
-from commands.movearm import MoveArm
+from commands.movearm import MoveArm, MoveArmDirect
 from commands.openclaw import OpenClaw
+from commands.resetarm import ResetArm
 from commands.slowdrive import SlowDrive
 from commands.takeobject import TakeObject
 from commands.turn import Turn
@@ -88,18 +90,24 @@ class Robot(commands2.TimedCommandRobot):
 
     def setup_dashboard(self):
         put_command_on_dashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
-        put_command_on_dashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(5, 1, 0), 1, "absolute"))
-        put_command_on_dashboard("Drivetrain", Turn(self.drivetrain, 180, 0.5))
+        put_command_on_dashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(1.5, 0.5, math.radians(45)), 0.1, "relative"))
+        put_command_on_dashboard("Drivetrain", FollowTrajectory.driveStraight(self.drivetrain, 2.00, 0.1))
+        put_command_on_dashboard("Drivetrain", FollowTrajectory.toLoading(self.drivetrain))
+        put_command_on_dashboard("Drivetrain", Turn(self.drivetrain, 180, 0.35))
         put_command_on_dashboard("Drivetrain", DriveToDock(self.drivetrain))
+        put_command_on_dashboard("Drivetrain", GoGrid(self.drivetrain, "7"), name="GoGrid.7")
+        put_command_on_dashboard("Drivetrain", GoGrid(self.drivetrain, "8"), name="GoGrid.8")
+        put_command_on_dashboard("Drivetrain", GoGrid(self.drivetrain, "9"), name="GoGrid.9")
         put_command_on_dashboard("Claw", OpenClaw(self.claw))
         put_command_on_dashboard("Claw", CloseClaw(self.claw))
+        put_command_on_dashboard("Arm", ResetArm(self.arm))
         put_command_on_dashboard("Arm", MoveArm.toLevel1(self.arm))
         put_command_on_dashboard("Arm", MoveArm.toLevel2(self.arm))
         put_command_on_dashboard("Arm", MoveArm.toLevel3(self.arm))
         put_command_on_dashboard("Arm", MoveArm.toFloor(self.arm))
         put_command_on_dashboard("Arm", MoveArm.toBase(self.arm))
         put_command_on_dashboard("Arm", MoveArm.toBin(self.arm))
-        put_command_on_dashboard("Arm", MoveArm.toTransition(self.arm))
+        put_command_on_dashboard("Arm", MoveArmDirect.toTransition(self.arm))
         put_command_on_dashboard("ArmManual", ManualElevate.up(self.arm))
         put_command_on_dashboard("ArmManual", ManualElevate.down(self.arm))
         put_command_on_dashboard("ArmManual", ManualExtend.up(self.arm))
@@ -126,6 +134,8 @@ def put_command_on_dashboard(sub_table: str, cmd: commands2.CommandBase, name=No
 
     if name is None:
         name = cmd.getName()
+    else:
+        cmd.setName(name)
 
     wpilib.SmartDashboard.putData(sub_table + name, cmd)
 
