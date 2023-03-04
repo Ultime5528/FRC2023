@@ -1,7 +1,7 @@
 import commands2
 from commands2 import ConditionalCommand
 
-from utils.property import autoproperty, FloatProperty, as_callable
+from utils.property import autoproperty, FloatProperty, asCallable
 from utils.safecommand import SafeCommand, SafeMixin
 from utils.trapezoidalmotion import TrapezoidalMotion
 from subsystems.arm import Arm
@@ -45,8 +45,8 @@ class MoveArm(SafeMixin, ConditionalCommand):
         return cmd
 
     def __init__(self, arm: Arm, extension_end_position: FloatProperty, elevator_end_position: FloatProperty):
-        extension_end_position = as_callable(extension_end_position)
-        elevator_end_position = as_callable(elevator_end_position)
+        extension_end_position = asCallable(extension_end_position)
+        elevator_end_position = asCallable(elevator_end_position)
 
         def cond():
             return arm.shouldTransition(extension_end_position(), elevator_end_position())
@@ -71,8 +71,8 @@ class MoveArmDirect(SafeCommand):
     def __init__(self, arm: Arm, extension_end_position: FloatProperty, elevator_end_position: FloatProperty):
         super().__init__()
         self.arm = arm
-        self.extension_end_position = as_callable(extension_end_position)
-        self.elevator_end_position = as_callable(elevator_end_position)
+        self.extension_end_position = asCallable(extension_end_position)
+        self.elevator_end_position = asCallable(elevator_end_position)
         self.addRequirements(arm)
 
     def initialize(self) -> None:

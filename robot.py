@@ -24,7 +24,7 @@ from commands.turn import Turn
 from subsystems.arm import Arm
 from subsystems.claw import Claw
 from subsystems.drivetrain import Drivetrain
-from utils.property import clear_autoproperties
+from utils.property import clearAutoproperties
 
 
 class Robot(commands2.TimedCommandRobot):
@@ -43,13 +43,13 @@ class Robot(commands2.TimedCommandRobot):
 
         Trigger(self.arm.hasObject).onTrue(TakeObject(self.claw, self.arm))
 
-        self.setup_buttons()
-        self.setup_dashboard()
+        self.setupButtons()
+        self.setupDashboard()
 
         # Doit être à la fin, après que tout ait été instancié
-        clear_autoproperties()
+        clearAutoproperties()
 
-    def setup_buttons(self):
+    def setupButtons(self):
         # Pilot
         JoystickButton(self.stick, 1).whenPressed(SlowDrive(self.drivetrain, self.stick))
         JoystickButton(self.stick, 2).whenPressed(OpenClaw(self.claw))
@@ -74,38 +74,38 @@ class Robot(commands2.TimedCommandRobot):
         # JoystickButton(self.panel, 16).whenPressed(ledpourcône))
         # JoystickButton(self.panel, 17).whenPressed(Drop(self.claw)
 
-    def setup_dashboard(self):
-        put_command_on_dashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
-        put_command_on_dashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(1.2, -0.7, math.radians(-33)), 0.18, "relative"), "curve")
-        put_command_on_dashboard("Drivetrain", FollowTrajectory.driveStraight(self.drivetrain, 2.00, 0.1))
-        put_command_on_dashboard("Drivetrain", FollowTrajectory.toLoading(self.drivetrain))
-        put_command_on_dashboard("Drivetrain", Turn(self.drivetrain, 45, 0.28))
-        put_command_on_dashboard("Drivetrain", DriveToDock(self.drivetrain))
-        put_command_on_dashboard("Drivetrain", GoGrid(self.drivetrain, "7"), name="GoGrid.7")
-        put_command_on_dashboard("Drivetrain", GoGrid(self.drivetrain, "8"), name="GoGrid.8")
-        put_command_on_dashboard("Drivetrain", GoGrid(self.drivetrain, "9"), name="GoGrid.9")
-        put_command_on_dashboard("Claw", OpenClaw(self.claw))
-        put_command_on_dashboard("Claw", CloseClaw(self.claw))
-        put_command_on_dashboard("Arm", ResetArm(self.arm))
-        put_command_on_dashboard("Arm", MoveArm.toLevel1(self.arm))
-        put_command_on_dashboard("Arm", MoveArm.toLevel2(self.arm))
-        put_command_on_dashboard("Arm", MoveArm.toLevel3(self.arm))
-        put_command_on_dashboard("Arm", MoveArm.toFloor(self.arm))
-        put_command_on_dashboard("Arm", MoveArm.toBase(self.arm))
-        put_command_on_dashboard("Arm", MoveArm.toBin(self.arm))
-        put_command_on_dashboard("Arm", MoveArmDirect.toTransition(self.arm))
-        put_command_on_dashboard("ArmManual", ManualElevate.up(self.arm))
-        put_command_on_dashboard("ArmManual", ManualElevate.down(self.arm))
-        put_command_on_dashboard("ArmManual", ManualExtend.up(self.arm))
-        put_command_on_dashboard("ArmManual", ManualExtend.down(self.arm))
-        put_command_on_dashboard("Groups", Drop(self.claw, self.arm))
-        put_command_on_dashboard("Groups", TakeObject(self.claw, self.arm))
+    def setupDashboard(self):
+        putCommandOnDashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
+        putCommandOnDashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(1.2, -0.7, math.radians(-33)), 0.18, "relative"), "curve")
+        putCommandOnDashboard("Drivetrain", FollowTrajectory.driveStraight(self.drivetrain, 2.00, 0.1))
+        putCommandOnDashboard("Drivetrain", FollowTrajectory.toLoading(self.drivetrain))
+        putCommandOnDashboard("Drivetrain", Turn(self.drivetrain, 45, 0.28))
+        putCommandOnDashboard("Drivetrain", DriveToDock(self.drivetrain))
+        putCommandOnDashboard("Drivetrain", GoGrid(self.drivetrain, "7"), name="GoGrid.7")
+        putCommandOnDashboard("Drivetrain", GoGrid(self.drivetrain, "8"), name="GoGrid.8")
+        putCommandOnDashboard("Drivetrain", GoGrid(self.drivetrain, "9"), name="GoGrid.9")
+        putCommandOnDashboard("Claw", OpenClaw(self.claw))
+        putCommandOnDashboard("Claw", CloseClaw(self.claw))
+        putCommandOnDashboard("Arm", ResetArm(self.arm))
+        putCommandOnDashboard("Arm", MoveArm.toLevel1(self.arm))
+        putCommandOnDashboard("Arm", MoveArm.toLevel2(self.arm))
+        putCommandOnDashboard("Arm", MoveArm.toLevel3(self.arm))
+        putCommandOnDashboard("Arm", MoveArm.toFloor(self.arm))
+        putCommandOnDashboard("Arm", MoveArm.toBase(self.arm))
+        putCommandOnDashboard("Arm", MoveArm.toBin(self.arm))
+        putCommandOnDashboard("Arm", MoveArmDirect.toTransition(self.arm))
+        putCommandOnDashboard("ArmManual", ManualElevate.up(self.arm))
+        putCommandOnDashboard("ArmManual", ManualElevate.down(self.arm))
+        putCommandOnDashboard("ArmManual", ManualExtend.up(self.arm))
+        putCommandOnDashboard("ArmManual", ManualExtend.down(self.arm))
+        putCommandOnDashboard("Groups", Drop(self.claw, self.arm))
+        putCommandOnDashboard("Groups", TakeObject(self.claw, self.arm))
 
-        # put_command_on_dashboard("Led", ledpourcube)
-        # put_command_on_dashboard("Led", lespourtriangle)
+        # putCommandOnDashboard("Led", ledpourcube)
+        # putCommandOnDashboard("Led", lespourtriangle)
 
 
-def put_command_on_dashboard(sub_table: str, cmd: commands2.CommandBase, name=None):
+def putCommandOnDashboard(sub_table: str, cmd: commands2.CommandBase, name: str = None) -> commands2.CommandBase:
     if sub_table:
         sub_table += "/"
     else:

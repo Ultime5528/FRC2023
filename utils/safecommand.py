@@ -2,7 +2,7 @@ from functools import wraps
 
 import commands2
 
-__all__ = ["SafeCommand"]
+__all__ = ["SafeCommand", "SafeMixin"]
 
 fms = True
 exception_threshold = 3
@@ -13,7 +13,7 @@ class CommandException(Exception):
         super().__init__(msg)
 
 
-def wrap_none(f, name):
+def wrapNone(f, name):
     @wraps(f)
     def wrapped(self, *args, **kwargs):
         if wrapped._disabled:
@@ -39,7 +39,7 @@ def wrap_none(f, name):
 class SafeCommandMetaclass(commands2.CommandBase.__class__):
     def __new__(mcls, name, bases, dct):
         # if "execute" in dct:
-        #     dct["execute"] = wrap_none(dct["execute"], name)
+        #     dct["execute"] = wrapNone(dct["execute"], name)
         cls = super().__new__(mcls, name, bases, dct)
         return cls
 

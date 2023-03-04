@@ -1,4 +1,5 @@
 import rev
+import wpilib
 import wpiutil
 import wpilib
 from wpilib import DigitalInput, RobotBase, Mechanism2d, Color8Bit
@@ -6,10 +7,10 @@ from wpilib.event import EventLoop, BooleanEvent
 from wpilib.simulation import DIOSim
 
 import ports
-from utils.property import autoproperty, default_setter
+from utils.property import autoproperty, defaultSetter
 from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
-from utils.sparkmaxutils import configure_leader
+from utils.sparkmaxutils import configureLeader
 
 
 def checkIsInDeadzone(extension: float):
@@ -38,11 +39,11 @@ class Arm(SafeSubsystem):
         # Motors
         self.motor_elevator = rev.CANSparkMax(ports.arm_motor_elevator,
                                               rev.CANSparkMax.MotorType.kBrushless)
-        configure_leader(self.motor_elevator, "brake", True)
+        configureLeader(self.motor_elevator, "brake", True)
 
         self.motor_extension = rev.CANSparkMax(ports.arm_motor_extension,
                                                rev.CANSparkMax.MotorType.kBrushless)
-        configure_leader(self.motor_extension, "brake", True)
+        configureLeader(self.motor_extension, "brake", True)
 
         self.encoder_extension = self.motor_extension.getEncoder()
         self.encoder_elevator = self.motor_elevator.getEncoder()
@@ -153,10 +154,10 @@ class Arm(SafeSubsystem):
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
-        builder.addDoubleProperty("Elevator position", self.getElevatorPosition, default_setter)
-        builder.addDoubleProperty("Extension position", self.getExtensionPosition, default_setter)
-        builder.addDoubleProperty("Elevator speed", self.motor_elevator.get, default_setter)
-        builder.addDoubleProperty("Extension speed", self.motor_extension.get, default_setter)
+        builder.addDoubleProperty("Elevator position", self.getElevatorPosition, defaultSetter)
+        builder.addDoubleProperty("Extension position", self.getExtensionPosition, defaultSetter)
+        builder.addDoubleProperty("Elevator speed", self.motor_elevator.get, defaultSetter)
+        builder.addDoubleProperty("Extension speed", self.motor_extension.get, defaultSetter)
 
     def hasObject(self):
         return self.photocell.get()

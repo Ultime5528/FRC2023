@@ -10,13 +10,13 @@ registry = []
 FloatProperty = Union[float, Callable[[], float]]
 
 
-def as_callable(val: FloatProperty) -> Callable[[], float]:
+def asCallable(val: FloatProperty) -> Callable[[], float]:
     if callable(val):
         return val
     return lambda: val
 
 
-def default_setter(value):
+def defaultSetter(value):
     pass
 
 
@@ -67,7 +67,7 @@ def autoproperty(
     return _old_ntproperty(full_key, default_value, writeDefault=write, persistent=default_persistent)
 
 
-def clear_autoproperties():
+def clearAutoproperties():
     topics = NetworkTableInstance.getDefault().getTopics()
     for topic in topics:
         name = topic.getName()
