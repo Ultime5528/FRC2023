@@ -60,22 +60,23 @@ class DriveToDock(SafeCommand):
         if self.state == State.Stable:
             speed = 0
             self.timer.start()
-            if abs(pitch) > self.balancing_threshold:
-                self.state = State.Balancing
-
-        if self.state == State.Balancing:
-            speed = math.copysign(self.balancing_speed, pitch)
-            self.timer.stop()
-            self.timer.reset()
-            if abs(pitch) < self.balancing_threshold:
-                self.state = State.Stable
+        #     if abs(pitch) > self.balancing_threshold:
+        #         self.state = State.Balancing
+        #
+        # if self.state == State.Balancing:
+        #     speed = math.copysign(self.balancing_speed, pitch)
+        #     self.timer.stop()
+        #     self.timer.reset()
+        #     if abs(pitch) < self.balancing_threshold:
+        #         self.state = State.Stable
 
         self.drivetrain.arcadeDrive(speed, 0)
 
 
 
     def isFinished(self) -> bool:
-        return self.timer.get() > self.timer_threshold
+        return self.state == State.Stable
+        # return self.timer.get() > self.timer_threshold
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.arcadeDrive(0, 0)
