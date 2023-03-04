@@ -27,6 +27,12 @@ class MoveArm(SafeMixin, ConditionalCommand):
         return cmd
 
     @classmethod
+    def toLevel3Drop(cls, arm: Arm):
+        cmd = cls(arm, lambda: properties.level3_drop_extension, lambda: properties.level3_drop_elevation)
+        cmd.setName(cmd.getName() + ".toLevel3_drop")
+        return cmd
+
+    @classmethod
     def toFloor(cls, arm: Arm):
         cmd = cls(arm, lambda: properties.floor_extension, lambda: properties.floor_elevation)
         cmd.setName(cmd.getName() + ".toFloor")
@@ -180,6 +186,7 @@ class _ClassProperties:
     level1_extension = autoproperty(0.0, subtable=MoveArm.__name__)
     level2_extension = autoproperty(0.0, subtable=MoveArm.__name__)
     level3_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    level3_drop_extension = autoproperty(0.0, subtable=MoveArm.__name__)
     floor_extension = autoproperty(0.0, subtable=MoveArm.__name__)
     base_extension = autoproperty(0.0, subtable=MoveArm.__name__)
     bin_extension = autoproperty(0.0, subtable=MoveArm.__name__)
@@ -193,6 +200,7 @@ class _ClassProperties:
     level1_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     level2_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     level3_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    level3_drop_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     floor_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     base_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     bin_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
