@@ -24,8 +24,7 @@ from utils.sparkmaxutils import configure_follower, configure_leader
 
 select_gyro: Literal["navx", "adis16448", "adis16470", "adxrs", "empty"] = "adis16470"
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
-cam_to_robot = Transform3d(Translation3d(-0.375, 0, -0.3675), Rotation3d(0, 0, 0))
-
+cam_to_robot = Transform3d(Translation3d(-0.375, 0.12, -0.165), Rotation3d(0, 0, 0))
 
 
 class Drivetrain(SafeSubsystem):
