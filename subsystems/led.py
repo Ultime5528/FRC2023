@@ -32,7 +32,7 @@ class LEDController(commands2.SubsystemBase):
     black = np.array([0, 0, 0])
     white = np.array([0, 0, 255])
     beige_hsv = np.array([20, 120, 255])
-    led_number = 180
+    led_number = 50
 
     last = 0
 
