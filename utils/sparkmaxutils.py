@@ -9,13 +9,13 @@ __all__ = ["configureLeader", "configureFollower"]
 
 
 def configureLeader(motor: rev.CANSparkMax, mode: IdleMode, inverted: bool = False):
-    _handleCanError(motor.restoreFactoryDefaults(), "restoryFactoryDefaults", motor)
+    _handleCanError(motor.restoreFactoryDefaults(), "restoreFactoryDefaults", motor)
     motor.setInverted(inverted)
     _configureMotor(motor, mode)
 
 
 def configureFollower(follower: rev.CANSparkMax, leader: rev.CANSparkMax, mode: IdleMode, inverted: bool = False):
-    _handleCanError(follower.restoreFactoryDefaults(), "restoryFactoryDefaults", follower)
+    _handleCanError(follower.restoreFactoryDefaults(), "restoreFactoryDefaults", follower)
     _handleCanError(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus0, 1000), "set status0 rate", follower)
     _handleCanError(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus1, 1000), "set status1 rate", follower)
     _handleCanError(follower.setPeriodicFramePeriod(rev.CANSparkMax.PeriodicFrame.kStatus2, 1000), "set status2 rate", follower)
@@ -27,7 +27,7 @@ def _configureMotor(motor: rev.CANSparkMax, mode: IdleMode):
     _handleCanError(motor.setIdleMode(_idleModeToEnum(mode)), "setIdleMode", motor)
     _handleCanError(motor.burnFlash(), "burnFlash", motor)
     _handleCanError(motor.clearFaults(), "clearFaults", motor)
-    wpilib.wait(0.250)
+    wpilib.wait(0.350)
 
 
 def _idleModeToEnum(mode: IdleMode):
