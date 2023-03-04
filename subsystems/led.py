@@ -31,14 +31,15 @@ class LEDController(commands2.SubsystemBase):
     orange_hsv = np.array([10, 255, 255])
     black = np.array([0, 0, 0])
     white = np.array([0, 0, 255])
-    pink = np.array([15, 120, 255])
+    beige_hsv = np.array([20, 120, 255])
+    led_number = 180
 
     last = 0
 
     def __init__(self):
         super().__init__()
         self.led_strip = wpilib.AddressableLED(ports.led_strip)
-        self.buffer = [wpilib.AddressableLED.LEDData() for _ in range(300)]
+        self.buffer = [wpilib.AddressableLED.LEDData() for _ in range(self.led_number)]
         self.led_strip.setLength(len(self.buffer))
         self.time = 0
         self.explosiveness = 1
@@ -69,14 +70,6 @@ class LEDController(commands2.SubsystemBase):
         hue, saturation, _ = color
         self.setAll(lambda i: (hue, saturation, 255 - t))
 
-    def rainbow(self):
-        for i in range(len(self.buffer)):
-            pixel_hue = (self.time + int(i * 180 / len(self.buffer))) % 180
-            self.buffer[i].setHSV(pixel_hue, 255, i + 50)
-
-        self.time += 3
-        self.time %= 180
-
     def selectTeam(self):
         pixel_value = round(255 * math.cos((self.time / (18 * math.pi))))
         if pixel_value >= 0:
@@ -96,7 +89,7 @@ class LEDController(commands2.SubsystemBase):
                 return interpoler(y, color1, color2)
             elif (color == self.red_hsv).all():
                 color3 = interpoler(y, color, interpoler(y, color, self.orange_hsv))
-                color4 = interpoler(y, color, interpoler(y, color, self.pink))
+                color4 = interpoler(y, color, interpoler(y, color, self.beige_hsv))
                 return interpoler(y, color3, color4)
             else:
                 return self.black
@@ -171,7 +164,7 @@ class LEDController(commands2.SubsystemBase):
 
         return self.setAll(getColor)
 
-    def setMode(self, mode: str):
+    def setMode(self, mode: ModeLED):
         match mode:
             case "NONE":
                 self.mode = ModeLED.NONE
@@ -190,9 +183,16 @@ class LEDController(commands2.SubsystemBase):
                     self.explode(self.getAllianceColor())
                 elif wpilib.DriverStation.getMatchTime() <= 5:
                     self.explosiveness = 1
-                    self.flash(self.getAllianceColor(), 10)
-                else:
                     self.waves(self.getAllianceColor())
+                elif wpilib.DriverStation.getMatchTime() <= 105:
+                    if self.getAllianceColor() == self.red_hsv:
+                        self.shadeRed()
+                    elif self.getAllianceColor() == self.blue_hsv:
+                        self.shadeBlue()
+                elif wpilib.DriverStation.getMatchTime() <= 135:
+                    self.flash(self.orange_hsv, 10)
+                else:
+                    self.pulse(self.getAllianceColor())
             else:  # game hasn't started
                 if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kInvalid:
                     self.selectTeam()
