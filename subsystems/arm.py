@@ -138,9 +138,9 @@ class Arm(SafeSubsystem):
         self.motor_elevator.set(speed)
 
     def setExtensionSpeed(self, speed: float):
-        if self.isPositionExtensionMin() and speed < 0:
+        if self.isExtensionMin() and speed < 0:
             speed = 0
-        if self.isPositionExtensionMax() and speed > 0:
+        if self.isExtensionMax() and speed > 0:
             speed = 0
         self.motor_extension.set(speed)
 
