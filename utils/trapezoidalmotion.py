@@ -1,6 +1,5 @@
 import math
 from dataclasses import dataclass
-from enum import Enum
 from typing import Optional
 
 __all__ = ["TrapezoidalMotion"]
@@ -23,12 +22,6 @@ class MotionConfig:
             raise ValueError("'end_position' and 'displacement' cannot both be set")
 
 
-class AccelBehaviour(Enum):
-    Both = "Both"
-    StartOnly = "StartOnly"
-    EndOnly = "EndOnly"
-
-
 class TrapezoidalMotion:
     def __init__(
         self,
@@ -40,7 +33,6 @@ class TrapezoidalMotion:
         start_position: Optional[float] = None,
         end_position: Optional[float] = None,
         displacement: Optional[float] = None,
-        accel_behaviour: AccelBehaviour = AccelBehaviour.Both,
     ):
         if min_speed is None:
             assert start_speed is not None and end_speed is not None
@@ -53,7 +45,6 @@ class TrapezoidalMotion:
         self._real_config: Optional[MotionConfig] = None
         self._position = None
         self._inverted = False
-        self._accel_behaviour = accel_behaviour
 
         if start_position is not None:
             self._compute()
