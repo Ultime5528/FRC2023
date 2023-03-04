@@ -17,10 +17,7 @@ def checkIsInDeadzone(extension: float):
 
 
 class Arm(SafeSubsystem):
-    extension_max_position = autoproperty(10.0)
-    extension_min_position = autoproperty(-10.0)
     elevator_max_position = autoproperty(10.0)
-    elevator_min_position = autoproperty(-10.0)
 
     def __init__(self):
         super().__init__()
@@ -56,18 +53,18 @@ class Arm(SafeSubsystem):
         self.loop = EventLoop()
         self._min_elevator_event = BooleanEvent(
             self.loop, self.isSwitchElevatorMinOn
-        ).rising()
+        )
         self._min_elevator_event.ifHigh(self.resetElevator)
 
         self._min_extension_event = BooleanEvent(
             self.loop, self.isSwitchExtensionMinOn
-        ).rising()
+        )
         self._min_extension_event.ifHigh(self.resetExtension)
 
         self._max_extension_event = BooleanEvent(
             self.loop, self.isSwitchExtensionMaxOn
-        ).rising()
-        # self._max_extension_event.ifHigh(self.maximizeExtension)
+        )
+        self._max_extension_event.ifHigh(self.maximizeExtension)
 
         if RobotBase.isSimulation():
             self.motor_elevator_sim = SparkMaxSim(self.motor_elevator)
@@ -117,16 +114,16 @@ class Arm(SafeSubsystem):
         return not self.switch_elevator_min.get()
 
     def isExtensionMax(self):
-        return self.getExtensionPosition() > self.extension_max_position
+        return self.isSwitchExtensionMaxOn()
 
     def isExtensionMin(self):
-        return self.getExtensionPosition() < self.extension_min_position
+        return self.isSwitchExtensionMinOn()
 
     def isElevatorMax(self):
         return self.getElevatorPosition() > self.elevator_max_position
 
     def isElevatorMin(self):
-        return self.getElevatorPosition() < self.elevator_min_position
+        return self.isSwitchElevatorMinOn()
 
     def setElevatorSpeed(self, speed: float):
         if self.isElevatorMin() and speed < 0:
