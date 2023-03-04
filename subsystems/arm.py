@@ -61,10 +61,10 @@ class Arm(SafeSubsystem):
         )
         self._min_extension_event.ifHigh(self.resetExtension)
 
-        self._max_extension_event = BooleanEvent(
-            self.loop, self.isSwitchExtensionMaxOn
-        )
-        self._max_extension_event.ifHigh(self.maximizeExtension)
+        # self._max_extension_event = BooleanEvent(
+        #     self.loop, self.isSwitchExtensionMaxOn
+        # ).rising()
+        # self._max_extension_event.ifHigh(self.maximizeExtension)
 
         if RobotBase.isSimulation():
             self.motor_elevator_sim = SparkMaxSim(self.motor_elevator)
