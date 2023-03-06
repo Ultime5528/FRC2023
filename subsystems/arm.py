@@ -7,10 +7,10 @@ from wpilib.event import EventLoop, BooleanEvent
 from wpilib.simulation import DIOSim
 
 import ports
-from utils.property import autoproperty, default_setter
+from utils.property import autoproperty, defaultSetter
 from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
-from utils.sparkmaxutils import configure_leader
+from utils.sparkmaxutils import configureLeader
 
 
 def checkIsInDeadzone(extension: float):
@@ -18,10 +18,7 @@ def checkIsInDeadzone(extension: float):
 
 
 class Arm(SafeSubsystem):
-    extension_max_position = autoproperty(10.0)
-    extension_min_position = autoproperty(-10.0)
     elevator_max_position = autoproperty(10.0)
-    elevator_min_position = autoproperty(-10.0)
 
     def __init__(self):
         super().__init__()
@@ -39,11 +36,11 @@ class Arm(SafeSubsystem):
         # Motors
         self.motor_elevator = rev.CANSparkMax(ports.arm_motor_elevator,
                                               rev.CANSparkMax.MotorType.kBrushless)
-        configure_leader(self.motor_elevator, "brake", True)
+        configureLeader(self.motor_elevator, "brake", True)
 
         self.motor_extension = rev.CANSparkMax(ports.arm_motor_extension,
                                                rev.CANSparkMax.MotorType.kBrushless)
-        configure_leader(self.motor_extension, "brake", True)
+        configureLeader(self.motor_extension, "brake", True)
 
         self.encoder_extension = self.motor_extension.getEncoder()
         self.encoder_elevator = self.motor_elevator.getEncoder()
@@ -57,17 +54,17 @@ class Arm(SafeSubsystem):
         self.loop = EventLoop()
         self._min_elevator_event = BooleanEvent(
             self.loop, self.isSwitchElevatorMinOn
-        ).rising()
+        )
         self._min_elevator_event.ifHigh(self.resetElevator)
 
         self._min_extension_event = BooleanEvent(
             self.loop, self.isSwitchExtensionMinOn
-        ).rising()
+        )
         self._min_extension_event.ifHigh(self.resetExtension)
 
-        self._max_extension_event = BooleanEvent(
-            self.loop, self.isSwitchExtensionMaxOn
-        ).rising()
+        # self._max_extension_event = BooleanEvent(
+        #     self.loop, self.isSwitchExtensionMaxOn
+        # ).rising()
         # self._max_extension_event.ifHigh(self.maximizeExtension)
 
         if RobotBase.isSimulation():
@@ -119,16 +116,16 @@ class Arm(SafeSubsystem):
         return not self.switch_elevator_min.get()
 
     def isExtensionMax(self):
-        return self.getExtensionPosition() > self.extension_max_position
+        return self.isSwitchExtensionMaxOn()
 
     def isExtensionMin(self):
-        return self.getExtensionPosition() < self.extension_min_position
+        return self.isSwitchExtensionMinOn()
 
     def isElevatorMax(self):
         return self.getElevatorPosition() > self.elevator_max_position
 
     def isElevatorMin(self):
-        return self.getElevatorPosition() < self.elevator_min_position
+        return self.isSwitchElevatorMinOn()
 
     def setElevatorSpeed(self, speed: float):
         if self.isElevatorMin() and speed < 0:
@@ -155,10 +152,10 @@ class Arm(SafeSubsystem):
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
-        builder.addDoubleProperty("Elevator position", self.getElevatorPosition, default_setter)
-        builder.addDoubleProperty("Extension position", self.getExtensionPosition, default_setter)
-        builder.addDoubleProperty("Elevator speed", self.motor_elevator.get, default_setter)
-        builder.addDoubleProperty("Extension speed", self.motor_extension.get, default_setter)
+        builder.addDoubleProperty("Elevator position", self.getElevatorPosition, defaultSetter)
+        builder.addDoubleProperty("Extension position", self.getExtensionPosition, defaultSetter)
+        builder.addDoubleProperty("Elevator speed", self.motor_elevator.get, defaultSetter)
+        builder.addDoubleProperty("Extension speed", self.motor_extension.get, defaultSetter)
 
     def hasObject(self):
         return self.photocell.get()

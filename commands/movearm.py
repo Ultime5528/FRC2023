@@ -1,7 +1,7 @@
 import commands2
 from commands2 import ConditionalCommand
 
-from utils.property import autoproperty, FloatProperty, as_callable
+from utils.property import autoproperty, FloatProperty, asCallable
 from utils.safecommand import SafeCommand, SafeMixin
 from utils.trapezoidalmotion import TrapezoidalMotion
 from subsystems.arm import Arm
@@ -27,6 +27,12 @@ class MoveArm(SafeMixin, ConditionalCommand):
         return cmd
 
     @classmethod
+    def toLevel3Drop(cls, arm: Arm):
+        cmd = cls(arm, lambda: properties.level3_drop_extension, lambda: properties.level3_drop_elevation)
+        cmd.setName(cmd.getName() + ".toLevel3_drop")
+        return cmd
+
+    @classmethod
     def toFloor(cls, arm: Arm):
         cmd = cls(arm, lambda: properties.floor_extension, lambda: properties.floor_elevation)
         cmd.setName(cmd.getName() + ".toFloor")
@@ -45,8 +51,8 @@ class MoveArm(SafeMixin, ConditionalCommand):
         return cmd
 
     def __init__(self, arm: Arm, extension_end_position: FloatProperty, elevator_end_position: FloatProperty):
-        extension_end_position = as_callable(extension_end_position)
-        elevator_end_position = as_callable(elevator_end_position)
+        extension_end_position = asCallable(extension_end_position)
+        elevator_end_position = asCallable(elevator_end_position)
 
         def cond():
             return arm.shouldTransition(extension_end_position(), elevator_end_position())
@@ -71,8 +77,8 @@ class MoveArmDirect(SafeCommand):
     def __init__(self, arm: Arm, extension_end_position: FloatProperty, elevator_end_position: FloatProperty):
         super().__init__()
         self.arm = arm
-        self.extension_end_position = as_callable(extension_end_position)
-        self.elevator_end_position = as_callable(elevator_end_position)
+        self.extension_end_position = asCallable(extension_end_position)
+        self.elevator_end_position = asCallable(elevator_end_position)
         self.addRequirements(arm)
 
     def initialize(self) -> None:
@@ -180,6 +186,7 @@ class _ClassProperties:
     level1_extension = autoproperty(0.0, subtable=MoveArm.__name__)
     level2_extension = autoproperty(0.0, subtable=MoveArm.__name__)
     level3_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    level3_drop_extension = autoproperty(0.0, subtable=MoveArm.__name__)
     floor_extension = autoproperty(0.0, subtable=MoveArm.__name__)
     base_extension = autoproperty(0.0, subtable=MoveArm.__name__)
     bin_extension = autoproperty(0.0, subtable=MoveArm.__name__)
@@ -193,6 +200,7 @@ class _ClassProperties:
     level1_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     level2_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     level3_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    level3_drop_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     floor_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     base_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     bin_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
