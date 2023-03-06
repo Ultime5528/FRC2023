@@ -86,9 +86,9 @@ class Arm(SafeSubsystem):
         self.motor_elevator_sim.setPosition(self.motor_elevator_sim.getPosition() + motor_elevator_sim_increment)
         self.motor_extension_sim.setPosition(self.motor_extension_sim.getPosition() + motor_extension_sim_increment)
         self.switch_extension_min_sim.setValue(self.getExtensionPosition() <= 0.05)
-        self.switch_extension_max_sim.setValue(self.getExtensionPosition() >= self.extension_max_position)
-        self.mech_elevator.setAngle(-10 + (135 - -10) * (self.encoder_elevator.getPosition() - self.elevator_min_position) / (self.elevator_max_position - self.elevator_min_position))
-        self.mech_elevator.setLength(10 + self.encoder_extension.getPosition() - self.extension_min_position)
+        self.switch_extension_max_sim.setValue(self.getExtensionPosition() >= 227.0)
+        self.mech_elevator.setAngle((135 - -10) * (self.encoder_elevator.getPosition()) / self.elevator_max_position)
+        self.mech_elevator.setLength(self.encoder_extension.getPosition())
 
     def periodic(self):
         self.loop.poll()
