@@ -8,7 +8,7 @@ from utils.safecommand import SafeCommand
 
 
 class SignalCone(SafeCommand):
-    duration = autoproperty(2.0)
+    duration = autoproperty(5.0)
     def __init__(self, led_controller: LEDController):
         super().__init__()
         self.led_controller = led_controller

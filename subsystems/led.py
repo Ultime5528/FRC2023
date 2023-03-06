@@ -49,18 +49,6 @@ class LEDController(commands2.SubsystemBase):
     def setHSV(self, i: int, color: Color):
         self.buffer[i].setHSV(*color)
 
-    def cone(self):
-        def getColor(i: int):
-            y = -((math.sin(0.1 * (self.time))) ** 40) + 1
-            return (30, 255, int(y * 255))
-        return self.setAll(getColor)
-
-    def cube(self):
-        def getColor(i: int):
-            y = -((math.sin(0.1 * (self.time))) ** 40) + 1
-            return (150, 255, int(y * 255))
-        return self.setAll(getColor)
-
     def setAll(self, color_func: Callable[[int], Color]):
         for i in range(len(self.buffer)):
             self.setHSV(i, color_func(i))
@@ -169,9 +157,9 @@ class LEDController(commands2.SubsystemBase):
             elif wpilib.DriverStation.isTeleopEnabled():  # teleop
                 if wpilib.DriverStation.getMatchTime() <= 1:
                     self.explode(self.getAllianceColor())
-                elif wpilib.DriverStation.getMatchTime() <= 5:
+                elif wpilib.DriverStation.getMatchTime() <= 10:
                     self.explosiveness = 1
-                    self.halfWaves(self.getAllianceColor())
+                    self.halfWaves(self.purple_hsv)
                 elif wpilib.DriverStation.getMatchTime() <= 30:
                     self.flash(self.getAllianceColor(), 10)
 
@@ -193,9 +181,9 @@ class LEDController(commands2.SubsystemBase):
                 else:
                     self.halfWaves(self.purple_hsv)
         elif self.mode == ModeLED.CONE:
-            self.cone()
+            self.setAll(lambda i: self.yellow_hsv)
         elif self.mode == ModeLED.CUBE:
-            self.cube()
+            self.setAll(lambda i: self.purple_hsv)
 
 
 
