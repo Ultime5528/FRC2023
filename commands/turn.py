@@ -1,7 +1,7 @@
 import wpiutil
 
 from subsystems.drivetrain import Drivetrain
-from utils.property import autoproperty, default_setter
+from utils.property import autoproperty, defaultSetter
 from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
 
@@ -57,6 +57,6 @@ class Turn(SafeCommand):
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
-        builder.addDoubleProperty("cumul", lambda: self.cumul, default_setter)
-        builder.addDoubleProperty("previous", lambda: self.previous_rotation.degrees(), default_setter)
-        builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, default_setter)
+        builder.addDoubleProperty("cumul", lambda: self.cumul, defaultSetter)
+        builder.addDoubleProperty("previous", lambda: self.previous_rotation.degrees(), defaultSetter)
+        builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, defaultSetter)
