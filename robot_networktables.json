@@ -130,7 +130,7 @@
   {
     "name": "/Properties/MoveArm/level1_extension",
     "type": "double",
-    "value": 0.0,
+    "value": 70.0,
     "properties": {
       "persistent": true
     }
@@ -138,7 +138,7 @@
   {
     "name": "/Properties/MoveArm/level2_extension",
     "type": "double",
-    "value": 156.0,
+    "value": 155.0,
     "properties": {
       "persistent": true
     }
@@ -146,7 +146,7 @@
   {
     "name": "/Properties/MoveArm/level3_extension",
     "type": "double",
-    "value": 220.0,
+    "value": 232.0,
     "properties": {
       "persistent": true
     }
@@ -202,7 +202,7 @@
   {
     "name": "/Properties/MoveArmDirect/elevator_max_speed",
     "type": "double",
-    "value": 0.35,
+    "value": 0.8,
     "properties": {
       "persistent": true
     }
@@ -210,7 +210,7 @@
   {
     "name": "/Properties/MoveArmDirect/elevator_acceleration",
     "type": "double",
-    "value": 0.02,
+    "value": 0.03,
     "properties": {
       "persistent": true
     }
@@ -218,7 +218,7 @@
   {
     "name": "/Properties/MoveArm/level1_elevation",
     "type": "double",
-    "value": 0.0,
+    "value": 60.0,
     "properties": {
       "persistent": true
     }
@@ -226,7 +226,7 @@
   {
     "name": "/Properties/MoveArm/level2_elevation",
     "type": "double",
-    "value": 50.0,
+    "value": 60.0,
     "properties": {
       "persistent": true
     }
@@ -290,7 +290,7 @@
   {
     "name": "/Properties/MoveArmDirect/extension_max_speed",
     "type": "double",
-    "value": 0.6,
+    "value": 0.8,
     "properties": {
       "persistent": true
     }
