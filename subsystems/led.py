@@ -42,7 +42,7 @@ class LEDController(commands2.SubsystemBase):
         self.buffer = [wpilib.AddressableLED.LEDData() for _ in range(self.led_number)]
         self.led_strip.setLength(len(self.buffer))
         self.time = 0
-        self.explosiveness = 1
+        self.explosiveness = 0.0
         self.led_strip.start()
         self.mode = ModeLED.NONE
 
@@ -128,11 +128,13 @@ class LEDController(commands2.SubsystemBase):
 
     def shadeRed(self):
         def getColor(i: int):
-            y = -255 * ((math.sin(0.1 * (i - 0.8 * self.time))) ** 40) + 255
-            s = abs(1.2 * (math.sin(1 - 0.3 * self.time) + 8 * math.sin(i - 0.4 * self.time) + math.sin(
-                ((i - 0.6 * self.time) ** 2) / math.factorial(4))) + math.sin(
-                ((i - 0.9 * self.time) ** 3) / math.factorial(27)))
-            return (int(s) - 1, int(y) + 3, 255)
+            y = math.sin(0.1 * (i - self.time)) ** 40
+            # y = -255 * ((math.sin(0.1 * (i - 0.8 * self.time))) ** 40) + 255
+            # s = abs(1.2 * (math.sin(1 - 0.3 * self.time) + 8 * math.sin(i - 0.4 * self.time) + math.sin(
+            #     ((i - 0.6 * self.time) ** 2) / math.factorial(4))) + math.sin(
+            #     ((i - 0.9 * self.time) ** 3) / math.factorial(27)))
+            # return (int(s) - 1, int(y) + 3, 255)
+            return interpoler(y, self.getAllianceColor(), self.white)
 
         return self.setAll(getColor)
 
@@ -151,15 +153,18 @@ class LEDController(commands2.SubsystemBase):
 
     def periodic(self) -> None:
         self.time += 1
-        if self.mode == ModeLED.NONE:
+        if self.explosiveness > 0.0:
+            self.explode(self.getAllianceColor())
+        elif self.mode == ModeLED.NONE:
             if wpilib.DriverStation.isAutonomousEnabled():  # auto
                 self.gradient()
             elif wpilib.DriverStation.isTeleopEnabled():  # teleop
                 if wpilib.DriverStation.getMatchTime() <= 1:
-                    self.explode(self.getAllianceColor())
-                elif wpilib.DriverStation.getMatchTime() <= 10:
+                    # if self.explosiveness <= 0.0:
                     self.explosiveness = 1
-                    self.halfWaves(self.purple_hsv)
+                    self.explode(self.getAllianceColor())
+                elif wpilib.DriverStation.getMatchTime() <= 25:
+                    self.halfWaves(self.getAllianceColor())
                 elif wpilib.DriverStation.getMatchTime() <= 30:
                     self.flash(self.getAllianceColor(), 10)
 
