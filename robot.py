@@ -7,7 +7,8 @@ from commands2 import Trigger
 from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
 
-from commands.autonomous import placeandgetobject, placeandgetobjectandchargingstation
+from commands.autonomous import autoline
+from commands.autonomous.autoline import AutoLine
 from commands.closeclaw import CloseClaw
 from commands.drive import Drive
 from commands.drivetodock import DriveToDock
@@ -120,8 +121,8 @@ class Robot(commands2.TimedCommandRobot):
         self.autoCommand: commands2.CommandBase = None
         self.autoChooser = wpilib.SendableChooser()
         self.autoChooser.setDefaultOption("Rien", None)
-        self.autoChooser.addOption("Placer et prendre", placeandgetobject.PlaceAndGetObject(self.drivetrain, self.claw, self.arm))
-        self.autoChooser.addOption("Placer, prendre et station de charge", placeandgetobjectandchargingstation.PlaceAndGetObjectAndChargingStation(self.drivetrain, self.claw, self.arm))
+        self.autoChooser.addOption("AutoLine drop", AutoLine(self.drivetrain, self.claw, self.arm, True))
+        self.autoChooser.addOption("AutoLine no drop", AutoLine(self.drivetrain, self.claw, self.arm, False))
 
         wpilib.SmartDashboard.putData("ModeAutonome", self.autoChooser)
 
