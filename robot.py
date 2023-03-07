@@ -23,6 +23,7 @@ from commands.resetarm import ResetArm
 from commands.slowdrive import SlowDrive
 from commands.takeobject import TakeObject
 from commands.turn import Turn
+from commands.autonomous.autotraversedock import AutoTraverseDock
 from subsystems.arm import Arm
 from subsystems.claw import Claw
 from subsystems.drivetrain import Drivetrain
@@ -123,6 +124,7 @@ class Robot(commands2.TimedCommandRobot):
         self.autoChooser.setDefaultOption("Rien", None)
         self.autoChooser.addOption("AutoLine drop", AutoLine(self.drivetrain, self.claw, self.arm, True))
         self.autoChooser.addOption("AutoLine no drop", AutoLine(self.drivetrain, self.claw, self.arm, False))
+        self.autoChooser.addOption("AutoTraverseDock", AutoTraverseDock(self.drivetrain, self.claw, self.arm, False))
 
         wpilib.SmartDashboard.putData("ModeAutonome", self.autoChooser)
 

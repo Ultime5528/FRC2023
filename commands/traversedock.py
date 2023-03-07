@@ -15,10 +15,10 @@ class State(Enum):
     End = "end"
 
 
-class TraversDock(SafeCommand):
-    start_speed = autoproperty(0.15)
-    up_speed = autoproperty(0.1)
-    down_speed = autoproperty(0.0)
+class TraverseDock(SafeCommand):
+    start_speed = autoproperty(-0.15)
+    up_speed = autoproperty(-0.1)
+    down_speed = autoproperty(-0.0)
     up_threshold = autoproperty(0.5)
     end_threshold = autoproperty(0.5)
 
