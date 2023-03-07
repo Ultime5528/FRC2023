@@ -4,6 +4,7 @@ from wpimath.geometry import Pose2d
 from commands.autonomous.autodrop import AutoDrop
 from commands.drivetodock import DriveToDock
 from commands.drop import Drop
+from commands.traversedock import TraverseDock
 from subsystems.drivetrain import Drivetrain
 from subsystems.claw import Claw
 from subsystems.arm import Arm
@@ -15,10 +16,9 @@ from commands.closeclaw import CloseClaw
 from commands.openclaw import OpenClaw
 
 
-class AutoDock(commands2.SequentialCommandGroup):
-    backwards_distance = autoproperty(10.0)
+class AutoTraverse(commands2.SequentialCommandGroup):
     def __init__(self, drivetrain: Drivetrain, claw: Claw, arm: Arm, drop: bool):
-        commands = [DriveToDock(drivetrain, True)]
+        commands = [TraverseDock(drivetrain)]
 
         if drop:
             commands.insert(0, AutoDrop(claw, arm))
