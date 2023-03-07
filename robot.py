@@ -8,7 +8,9 @@ from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
 
 from commands.autonomous import autoline
+from commands.autonomous.autodock import AutoDock
 from commands.autonomous.autoline import AutoLine
+from commands.autonomous.autotraverse import AutoTraverse
 from commands.closeclaw import CloseClaw
 from commands.drive import Drive
 from commands.drivetodock import DriveToDock
@@ -124,7 +126,12 @@ class Robot(commands2.TimedCommandRobot):
         self.autoChooser.setDefaultOption("Rien", None)
         self.autoChooser.addOption("AutoLine drop", AutoLine(self.drivetrain, self.claw, self.arm, True))
         self.autoChooser.addOption("AutoLine no drop", AutoLine(self.drivetrain, self.claw, self.arm, False))
-        self.autoChooser.addOption("AutoTraverseDock", AutoTraverseDock(self.drivetrain, self.claw, self.arm, False))
+        self.autoChooser.addOption("AutoTraverseDock drop", AutoTraverseDock(self.drivetrain, self.claw, self.arm, True))
+        self.autoChooser.addOption("AutoTraverseDock no drop", AutoTraverseDock(self.drivetrain, self.claw, self.arm, False))
+        self.autoChooser.addOption("AutoTraverse drop", AutoTraverse(self.drivetrain, self.claw, self.arm, True))
+        self.autoChooser.addOption("AutoTraverse no drop", AutoTraverse(self.drivetrain, self.claw, self.arm, False))
+        self.autoChooser.addOption("AutoDock drop", AutoDock(self.drivetrain, self.claw, self.arm, True))
+        self.autoChooser.addOption("AutoDock no drop", AutoDock(self.drivetrain, self.claw, self.arm, False))
 
         wpilib.SmartDashboard.putData("ModeAutonome", self.autoChooser)
 
