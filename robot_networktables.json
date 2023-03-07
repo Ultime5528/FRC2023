@@ -1,5 +1,13 @@
 [
   {
+    "name": "/Properties/ADIS16470/pitch_offset",
+    "type": "double",
+    "value": 4.4,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
     "name": "/Properties/Drivetrain/encoder_conversion_factor",
     "type": "double",
     "value": 0.056,
@@ -26,7 +34,7 @@
   {
     "name": "/Properties/Drive/deadzone_x",
     "type": "double",
-    "value": 0.05,
+    "value": 0.1,
     "properties": {
       "persistent": true
     }
@@ -34,21 +42,53 @@
   {
     "name": "/Properties/Drive/deadzone_y",
     "type": "double",
-    "value": 0.05,
+    "value": 0.1,
     "properties": {
       "persistent": true
     }
   },
   {
-    "name": "/Properties/DriveToDock/minimal_drive_speed",
+    "name": "/Properties/DriveToDock/start_speed",
     "type": "double",
-    "value": 0.25,
+    "value": 0.28,
     "properties": {
       "persistent": true
     }
   },
   {
-    "name": "/Properties/DriveToDock/angle_threshold",
+    "name": "/Properties/DriveToDock/climbing_speed",
+    "type": "double",
+    "value": 0.18,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/DriveToDock/balancing_speed",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/DriveToDock/climbing_threshold",
+    "type": "double",
+    "value": 15.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/DriveToDock/ontop_threshold",
+    "type": "double",
+    "value": 6.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/DriveToDock/balancing_threshold",
     "type": "double",
     "value": 0.5,
     "properties": {
@@ -57,40 +97,8 @@
   },
   {
     "name": "/Properties/DriveToDock/timer_threshold",
-    "type": "int",
-    "value": 2,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Properties/DriveToDock/pitch_weight",
     "type": "double",
-    "value": 0.008,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Properties/DriveToDock/pitch_threshold",
-    "type": "int",
-    "value": 10,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Properties/Arm/extension_max_position",
-    "type": "double",
-    "value": 227.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Properties/Arm/extension_min_position",
-    "type": "double",
-    "value": -6.0,
+    "value": 2.0,
     "properties": {
       "persistent": true
     }
@@ -104,17 +112,9 @@
     }
   },
   {
-    "name": "/Properties/Arm/elevator_min_position",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
     "name": "/Properties/Arm/deadzone_extension",
     "type": "double",
-    "value": 100.0,
+    "value": 60.0,
     "properties": {
       "persistent": true
     }
@@ -138,7 +138,7 @@
   {
     "name": "/Properties/MoveArm/level2_extension",
     "type": "double",
-    "value": 150.0,
+    "value": 156.0,
     "properties": {
       "persistent": true
     }
@@ -146,7 +146,15 @@
   {
     "name": "/Properties/MoveArm/level3_extension",
     "type": "double",
-    "value": 227.0,
+    "value": 220.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/MoveArm/level3_drop_extension",
+    "type": "double",
+    "value": 226.0,
     "properties": {
       "persistent": true
     }
@@ -154,7 +162,7 @@
   {
     "name": "/Properties/MoveArm/floor_extension",
     "type": "double",
-    "value": 75.0,
+    "value": 80.0,
     "properties": {
       "persistent": true
     }
@@ -162,7 +170,7 @@
   {
     "name": "/Properties/MoveArm/base_extension",
     "type": "double",
-    "value": 0.0,
+    "value": 15.0,
     "properties": {
       "persistent": true
     }
@@ -170,7 +178,7 @@
   {
     "name": "/Properties/MoveArm/bin_extension",
     "type": "double",
-    "value": -6.0,
+    "value": 0.0,
     "properties": {
       "persistent": true
     }
@@ -178,7 +186,7 @@
   {
     "name": "/Properties/MoveArm/transition_extension",
     "type": "double",
-    "value": 100.0,
+    "value": 60.0,
     "properties": {
       "persistent": true
     }
@@ -186,7 +194,7 @@
   {
     "name": "/Properties/MoveArmDirect/elevator_min_speed",
     "type": "double",
-    "value": 0.1,
+    "value": 0.2,
     "properties": {
       "persistent": true
     }
@@ -218,7 +226,7 @@
   {
     "name": "/Properties/MoveArm/level2_elevation",
     "type": "double",
-    "value": 120.0,
+    "value": 50.0,
     "properties": {
       "persistent": true
     }
@@ -226,7 +234,15 @@
   {
     "name": "/Properties/MoveArm/level3_elevation",
     "type": "double",
-    "value": 60.0,
+    "value": 50.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/MoveArm/level3_drop_elevation",
+    "type": "double",
+    "value": 65.0,
     "properties": {
       "persistent": true
     }
@@ -234,7 +250,7 @@
   {
     "name": "/Properties/MoveArm/floor_elevation",
     "type": "double",
-    "value": 230.0,
+    "value": 210.0,
     "properties": {
       "persistent": true
     }
@@ -266,7 +282,7 @@
   {
     "name": "/Properties/MoveArmDirect/extension_min_speed",
     "type": "double",
-    "value": 0.1,
+    "value": 0.2,
     "properties": {
       "persistent": true
     }
@@ -283,6 +299,14 @@
     "name": "/Properties/MoveArmDirect/extension_acceleration",
     "type": "double",
     "value": 0.02,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/Drop/level3_arm_threshold",
+    "type": "double",
+    "value": 5.0,
     "properties": {
       "persistent": true
     }
@@ -386,7 +410,7 @@
   {
     "name": "/Properties/GoGrid/before_offset",
     "type": "double",
-    "value": 0.2,
+    "value": 0.1,
     "properties": {
       "persistent": true
     }
