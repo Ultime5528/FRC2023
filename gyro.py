@@ -8,7 +8,7 @@ from wpilib.simulation import SimDeviceSim
 from wpimath.geometry import Rotation2d
 from wpiutil import Sendable, SendableBuilder
 
-from utils.property import defaultSetter
+from utils.property import defaultSetter, autoproperty
 
 
 class AbstractSendableMetaclass(type(ABC), type(Sendable)):
@@ -95,6 +95,7 @@ class ADIS16448(Gyro):
 
 
 class ADIS16470(Gyro):
+    pitch_offset = autoproperty(5.0)
     def __init__(self):
         self.gyro = wpilib.ADIS16470_IMU()
         super().__init__()
@@ -106,7 +107,7 @@ class ADIS16470(Gyro):
         return math.remainder(self.gyro.getAngle(), 360.0)
 
     def getPitch(self):
-        return math.remainder(self.gyro.getYComplementaryAngle(), 360.0)
+        return math.remainder(self.gyro.getYComplementaryAngle() + self.pitch_offset, 360.0)
 
     def setSimAngle(self, angle: float):
         self._gyro_sim_angle.set(angle)
