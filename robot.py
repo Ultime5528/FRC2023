@@ -7,6 +7,8 @@ from commands2 import Trigger
 from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
 
+from commands.autonomous import autoline
+from commands.autonomous.autoline import AutoLine
 from commands.closeclaw import CloseClaw
 from commands.drive import Drive
 from commands.drivetodock import DriveToDock
@@ -21,9 +23,11 @@ from commands.resetarm import ResetArm
 from commands.slowdrive import SlowDrive
 from commands.takeobject import TakeObject
 from commands.turn import Turn
+from commands.autonomous.autotraversedock import AutoTraverseDock
 from subsystems.arm import Arm
 from subsystems.claw import Claw
 from subsystems.drivetrain import Drivetrain
+from utils.safecommand import SafeCommand
 from utils.property import clearAutoproperties
 
 
@@ -40,7 +44,9 @@ class Robot(commands2.TimedCommandRobot):
         self.claw = Claw()
 
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
+        #JoystickButton(self.stick, 1).whenPressed(MoveArm(self.arm, 2, 2))
 
+        
         Trigger(self.arm.hasObject).onTrue(TakeObject(self.claw, self.arm))
 
         self.setupButtons()
@@ -49,6 +55,15 @@ class Robot(commands2.TimedCommandRobot):
         # Doit être à la fin, après que tout ait été instancié
         clearAutoproperties()
 
+    def autonomousInit(self) -> None:
+        self.autoCommand = self.autoChooser.getSelected()
+
+        if self.autoCommand:
+            self.autoCommand.schedule()
+
+    def teleopInit(self) -> None:
+        if self.autoCommand:
+            self.autoCommand.cancel()
     def setupButtons(self):
         # Pilot
         JoystickButton(self.stick, 1).whenPressed(SlowDrive(self.drivetrain, self.stick))
@@ -103,6 +118,15 @@ class Robot(commands2.TimedCommandRobot):
         putCommandOnDashboard("ArmManual", ManualExtend.down(self.arm))
         putCommandOnDashboard("Groups", Drop(self.claw, self.arm))
         putCommandOnDashboard("Groups", TakeObject(self.claw, self.arm))
+
+        self.autoCommand: commands2.CommandBase = None
+        self.autoChooser = wpilib.SendableChooser()
+        self.autoChooser.setDefaultOption("Rien", None)
+        self.autoChooser.addOption("AutoLine drop", AutoLine(self.drivetrain, self.claw, self.arm, True))
+        self.autoChooser.addOption("AutoLine no drop", AutoLine(self.drivetrain, self.claw, self.arm, False))
+        self.autoChooser.addOption("AutoTraverseDock", AutoTraverseDock(self.drivetrain, self.claw, self.arm, False))
+
+        wpilib.SmartDashboard.putData("ModeAutonome", self.autoChooser)
 
         # putCommandOnDashboard("Led", ledpourcube)
         # putCommandOnDashboard("Led", lespourtriangle)
