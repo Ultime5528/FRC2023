@@ -7,6 +7,7 @@ import wpilib
 import ports
 import numpy as np
 
+from utils.property import autoproperty
 from utils.safesubsystem import SafeSubsystem
 
 
@@ -36,6 +37,9 @@ class LEDController(SafeSubsystem):
     white = np.array([0, 0, 255])
     beige_hsv = np.array([20, 120, 255])
     led_number = 50
+    speed = autoproperty(1.25)
+    white_length = autoproperty(6.0)
+    color_period = autoproperty(20.0)
 
     last = 0
 
@@ -138,14 +142,10 @@ class LEDController(SafeSubsystem):
             return self.getAllianceColor()
 
     def teleop(self):
-        speed = 2.0
-        L = 10.0
-        P = 20.0
-
-        a = 1 / (1 - math.cos(math.pi * L / P))
+        a = 1 / (1 - math.cos(math.pi * self.white_length / self.color_period))
         k = 1 - a
         def getColor(i: int):
-            y = a * math.sin(2 * math.pi / P * (i - speed * self.time)) + k
+            y = a * math.sin(2 * math.pi / self.color_period * (i - self.speed * self.time)) + k
             y = max(y, 0)
             return interpoler(y, self.getModeColor(), self.white)
 
@@ -171,10 +171,8 @@ class LEDController(SafeSubsystem):
                     self.halfWaves(self.getAllianceColor())
                 elif wpilib.DriverStation.getMatchTime() <= 30:
                     self.flash(self.getAllianceColor(), 10)
-
                 elif wpilib.DriverStation.getMatchTime() <= 135:
                     self.teleop()
-
                 else:
                     self.pulse(self.getAllianceColor())
             else:  # game hasn't started
