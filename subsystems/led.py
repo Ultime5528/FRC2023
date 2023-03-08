@@ -7,6 +7,9 @@ import wpilib
 import ports
 import numpy as np
 
+from utils.safesubsystem import SafeSubsystem
+
+
 def interpoler(t, color1, color2):
     assert 0 <= t <= 1
     return ((1 - t) * color1 + t * color2).astype(int)
@@ -21,7 +24,7 @@ class ModeLED(Enum):
     CUBE = "cube"
 
 
-class LEDController(commands2.SubsystemBase):
+class LEDController(SafeSubsystem):
     # HSV: [Hue(color 0 to 180), Saturation( amount of gray 0 to 255), Value(brightness 0 to 255)
     red_hsv = np.array([0, 255, 255])
     blue_hsv = np.array([120, 255, 255])
@@ -126,27 +129,28 @@ class LEDController(commands2.SubsystemBase):
             color = self.blue_hsv
         return color
 
-    def shadeRed(self):
+    def getModeColor(self):
+        if self.mode == ModeLED.CUBE:
+            return self.purple_hsv
+        elif self.mode == ModeLED.CONE:
+            return self.yellow_hsv
+        else:
+            return self.getAllianceColor()
+
+    def teleop(self):
+        speed = 2.0
+        L = 10.0
+        P = 20.0
+
+        a = 1 / (1 - math.cos(math.pi * L / P))
+        k = 1 - a
         def getColor(i: int):
-            y = math.sin(0.1 * (i - self.time)) ** 40
-            # y = -255 * ((math.sin(0.1 * (i - 0.8 * self.time))) ** 40) + 255
-            # s = abs(1.2 * (math.sin(1 - 0.3 * self.time) + 8 * math.sin(i - 0.4 * self.time) + math.sin(
-            #     ((i - 0.6 * self.time) ** 2) / math.factorial(4))) + math.sin(
-            #     ((i - 0.9 * self.time) ** 3) / math.factorial(27)))
-            # return (int(s) - 1, int(y) + 3, 255)
-            return interpoler(y, self.getAllianceColor(), self.white)
+            y = a * math.sin(2 * math.pi / P * (i - speed * self.time)) + k
+            y = max(y, 0)
+            return interpoler(y, self.getModeColor(), self.white)
 
         return self.setAll(getColor)
 
-    def shadeBlue(self):
-        def getColor(i: int):
-            y = -255 * ((math.sin(0.1 * (i - 0.8 * self.time))) ** 40) + 255
-            s = abs(1.2 * (math.sin(1 - 0.3 * self.time) + 8 * math.sin(i - 0.4 * self.time) + math.sin(
-                ((i - 0.6 * self.time) ** 2) / math.factorial(4))) + math.sin(
-                ((i - 0.9 * self.time) ** 3) / math.factorial(27)))
-            return (int(s) + 125, int(y) + 3, 255)
-
-        return self.setAll(getColor)
 
     def setMode(self, mode: ModeLED):
         self.mode = mode
@@ -155,7 +159,7 @@ class LEDController(commands2.SubsystemBase):
         self.time += 1
         if self.explosiveness > 0.0:
             self.explode(self.getAllianceColor())
-        elif self.mode == ModeLED.NONE:
+        else:
             if wpilib.DriverStation.isAutonomousEnabled():  # auto
                 self.gradient()
             elif wpilib.DriverStation.isTeleopEnabled():  # teleop
@@ -169,10 +173,7 @@ class LEDController(commands2.SubsystemBase):
                     self.flash(self.getAllianceColor(), 10)
 
                 elif wpilib.DriverStation.getMatchTime() <= 135:
-                    if (self.getAllianceColor() == self.red_hsv).all():
-                        self.shadeRed()
-                    elif (self.getAllianceColor() == self.blue_hsv).all():
-                        self.shadeBlue()
+                    self.teleop()
 
                 else:
                     self.pulse(self.getAllianceColor())
@@ -185,11 +186,5 @@ class LEDController(commands2.SubsystemBase):
                     self.pulse(self.blue_hsv)
                 else:
                     self.halfWaves(self.purple_hsv)
-        elif self.mode == ModeLED.CONE:
-            self.setAll(lambda i: self.yellow_hsv)
-        elif self.mode == ModeLED.CUBE:
-            self.setAll(lambda i: self.purple_hsv)
-
-
 
         self.led_strip.setData(self.buffer)

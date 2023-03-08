@@ -1,28 +1,15 @@
-import math
-
-import wpilib
 from subsystems.led import LEDController, ModeLED
-from utils.property import autoproperty
 from utils.safecommand import SafeCommand
 
 
 class SignalCube(SafeCommand):
-    duration = autoproperty(5.0)
-
     def __init__(self, led_controller: LEDController):
         super().__init__()
         self.led_controller = led_controller
-        self.timer = wpilib.Timer()
+        self.addRequirements(self.led_controller)
 
     def initialize(self) -> None:
-        self.timer.reset()
-        self.timer.start()
-
-    def execute(self) -> None:
         self.led_controller.setMode(ModeLED.CUBE)
-
-    def isFinished(self) -> bool:
-        return self.timer.get() >= self.duration
 
     def end(self, interrupted: bool) -> None:
         self.led_controller.setMode(ModeLED.NONE)
