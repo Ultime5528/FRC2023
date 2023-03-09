@@ -9,6 +9,7 @@ from wpimath.geometry import Pose2d
 
 from commands.closeclaw import CloseClaw
 from commands.drive import Drive
+from commands.drivestraight import DriveStraight
 from commands.drivetodock import DriveToDock
 from commands.drop import Drop
 from commands.followtrajectory import FollowTrajectory
@@ -79,6 +80,7 @@ class Robot(commands2.TimedCommandRobot):
         putCommandOnDashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(1.2, -0.7, math.radians(-33)), 0.18, "relative"), "curve")
         putCommandOnDashboard("Drivetrain", FollowTrajectory.driveStraight(self.drivetrain, 2.00, 0.1))
         putCommandOnDashboard("Drivetrain", FollowTrajectory.toLoading(self.drivetrain))
+        putCommandOnDashboard("Drivetrain", DriveStraight(self.drivetrain, -1, 0.1), "DriveStraight")
         putCommandOnDashboard("Drivetrain", Turn(self.drivetrain, 45, 0.28))
         putCommandOnDashboard("Drivetrain", DriveToDock(self.drivetrain))
         putCommandOnDashboard("Drivetrain", GoGrid(self.drivetrain, "4"), name="GoGrid.4")
