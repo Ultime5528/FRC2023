@@ -10,6 +10,7 @@ from wpimath.geometry import Pose2d
 from commands.autonomous import autoline
 from commands.autonomous.autodock import AutoDock
 from commands.autonomous.autoline import AutoLine
+from commands.traversedock import TraverseDock
 from commands.autonomous.autotraverse import AutoTraverse
 from commands.closeclaw import CloseClaw
 from commands.drive import Drive
@@ -55,7 +56,7 @@ class Robot(commands2.TimedCommandRobot):
         self.setupDashboard()
 
         # Doit être à la fin, après que tout ait été instancié
-        clearAutoproperties()
+        # clearAutoproperties()
 
     def autonomousInit(self) -> None:
         self.autoCommand = self.autoChooser.getSelected()
@@ -98,6 +99,8 @@ class Robot(commands2.TimedCommandRobot):
         putCommandOnDashboard("Drivetrain", FollowTrajectory.toLoading(self.drivetrain))
         putCommandOnDashboard("Drivetrain", Turn(self.drivetrain, 45, 0.28))
         putCommandOnDashboard("Drivetrain", DriveToDock(self.drivetrain))
+        putCommandOnDashboard("Drivetrain", DriveToDock(self.drivetrain, True), "DriveToDock Backwards")
+        putCommandOnDashboard("Drivetrain", TraverseDock(self.drivetrain))
         putCommandOnDashboard("Drivetrain", GoGrid(self.drivetrain, "4"), name="GoGrid.4")
         putCommandOnDashboard("Drivetrain", GoGrid(self.drivetrain, "5"), name="GoGrid.5")
         putCommandOnDashboard("Drivetrain", GoGrid(self.drivetrain, "6"), name="GoGrid.6")

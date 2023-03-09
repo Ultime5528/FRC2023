@@ -33,7 +33,8 @@ class TraverseDock(SafeCommand):
 
     def execute(self) -> None:
         pitch = -self.drivetrain.getPitch()
-        speed = -self.start_speed
+        speed = self.start_speed
+
         if pitch > self.up_threshold:
             self.state = State.Up
 
@@ -47,7 +48,8 @@ class TraverseDock(SafeCommand):
             if abs(pitch) < self.end_threshold:
                 self.state = State.End
 
-        self.drivetrain.arcadeDrive(speed, 0)
+        self.drivetrain.arcadeDrive(-speed, 0)
+        print(self.state)
 
     def isFinished(self) -> bool:
         return self.state == State.End

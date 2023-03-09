@@ -1,11 +1,15 @@
 import math
 
+import commands2
 import wpilib
+from wpimath.geometry import Pose2d
 
+from commands.followtrajectory import FollowTrajectory
 from subsystems.drivetrain import Drivetrain
 from utils.property import autoproperty
-from utils.safecommand import SafeCommand
+from utils.safecommand import SafeCommand, SafeMixin
 from enum import Enum
+
 
 class State(Enum):
     Start = "start"
@@ -13,14 +17,28 @@ class State(Enum):
     Stable = "stable"
     Balancing = "balancing"
 
-class DriveToDock(SafeCommand):
-    start_speed = autoproperty(0.15)
-    climbing_speed = autoproperty(0.1)
-    balancing_speed = autoproperty(0.0)
-    climbing_threshold = autoproperty(0.5)
-    ontop_threshold = autoproperty(0.5)
-    balancing_threshold = autoproperty(0.5)
-    timer_threshold = autoproperty(2.0)
+
+class DriveToDock(SafeMixin, commands2.SequentialCommandGroup):
+    def __init__(self, drivetrain: Drivetrain, backwards: bool = False):
+        if backwards:
+            drive_cmd = FollowTrajectory.driveStraight(drivetrain, 0.2, 0.1)
+        else:
+            drive_cmd = FollowTrajectory(drivetrain, Pose2d(-0.2, 0, math.radians(180)), -0.1, "relative", "backward")
+
+        super().__init__(
+            _DriveToDock(drivetrain, backwards)
+            # drive_cmd
+        )
+
+
+class _DriveToDock(SafeCommand):
+    start_speed = autoproperty(0.15, subtable=DriveToDock.__name__)
+    climbing_speed = autoproperty(0.1, subtable=DriveToDock.__name__)
+    balancing_speed = autoproperty(0.0, subtable=DriveToDock.__name__)
+    climbing_threshold = autoproperty(0.5, subtable=DriveToDock.__name__)
+    ontop_threshold = autoproperty(0.5, subtable=DriveToDock.__name__)
+    balancing_threshold = autoproperty(0.5, subtable=DriveToDock.__name__)
+    timer_threshold = autoproperty(2.0, subtable=DriveToDock.__name__)
 
     def __init__(self, drivetrain: Drivetrain, backwards: bool = False):
         super().__init__()
@@ -58,8 +76,10 @@ class DriveToDock(SafeCommand):
         if self.state == State.Stable:
             speed = 0
             self.timer.start()
+
         if self.backwards:
             speed *= -1
+
         self.drivetrain.arcadeDrive(speed, 0)
 
     def isFinished(self) -> bool:
