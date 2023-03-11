@@ -176,10 +176,8 @@ class LEDController(SafeSubsystem):
                     # if self.explosiveness <= 0.0:
                     self.explosiveness = 1
                     self.explode(self.getAllianceColor())
-                elif wpilib.DriverStation.getMatchTime() <= 15:
-                    self.halfWaves(self.violet_hsv)
                 elif wpilib.DriverStation.getMatchTime() <= 25:
-                    self.halfWaves(self.getAllianceColor())
+                    self.halfWaves(self.getModeColor())
                 elif wpilib.DriverStation.getMatchTime() <= 30:
                     self.flash(self.getAllianceColor(), 10)
                 elif wpilib.DriverStation.getMatchTime() <= 135:
