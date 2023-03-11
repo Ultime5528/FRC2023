@@ -1,27 +1,98 @@
-from ntcore import NetworkTable
-from ntcore.util import ntproperty
-persistent = True
-from utils.property import autoproperty
+import argparse
+import json
+import subprocess
+
+from ntcore import NetworkTableInstance
+
+from robot import Robot
+from utils.property import registry
 
 
-class _CommonProperties:
-    """
-    Respect the naming convention : "subsystem/command" _ "variable type" _ "precision"
+def clear():
+    inst = NetworkTableInstance.getDefault()
+    inst.stopLocal()
+    inst.startClient4("clear")
+    inst.setServerTeam(5528)
+    inst.startDSClient()
 
-    Example:
-        my_variable_name = autoproperty(0.5)  # Default value is 0.5
-    """
+    robot = Robot()
+    robot.robotInit()
+
+    topics = NetworkTableInstance.getDefault().getTopics()
+    registry_keys = list(map(lambda x: x.key, registry))
+    for topic in topics:
+        name = topic.getName()
+        if name.startswith("/Properties/"):
+            if name not in registry_keys:
+                topic.setPersistent(False)
+                print("Deleted unused persistent property:", name)
 
 
-common = _CommonProperties()
+def save_loop():
+    pass
 
 
-def clear_properties():
-    for entry in NetworkTable.getEntry("/Properties/"):
-        name: str = entry.getName()
-        assert name.startswith("/Properties/")
-        name = name.replace("/Properties/", "")
-        if not hasattr(values, name):
-            entry.clearPersistent()
-            entry.delete()
-            print("Deleted", name)
+def save_once():
+    print("Connecting to robot...")
+    proc = subprocess.run(
+        "scp -o StrictHostKeyChecking=no -o ConnectTimeout=3 lvuser@10.55.28.2:/home/lvuser/networktables.ini robot_networktables.json"
+    )
+
+    if proc.returncode != 0:
+        return
+
+    print("Saved properties to robot_networktables.json")
+
+    update_files()
+
+
+def update_files():
+    with open("robot_networktables.json", "r") as f:
+        data = json.load(f)
+
+    for entry in data:
+        matched_prop = next((prop for prop in registry if prop.key == entry["name"]), None)
+        if matched_prop:
+            print("Updating", entry["value"])
+            with open(matched_prop.filename, "r") as f:
+                lines = f.readlines()
+            line = lines[matched_prop.line_no]
+            idx_start = line.index("(", matched_prop.col_offset) + 1
+            idx_end = line.index(")", matched_prop.col_offset)
+            try:
+                idx_end = line.index(",", matched_prop.col_offset)
+            except ValueError:
+                pass
+            line = line[:idx_start] + str(entry["name"]) + line[idx_end:]
+            lines[matched_prop.line_no] = line
+            with open(matched_prop.filename, "w") as f:
+                f.writelines(lines)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(required=True, help="Enter the command to be executed.")
+
+    # Clean
+    parser_clear = subparsers.add_parser(
+        "clear",
+        help="Clear real robot's NetworkTables of persistent properties that no longer exist."
+    )
+    parser_clear.set_defaults(func=clear)
+
+    # Save once
+    parser_save_once = subparsers.add_parser(
+        "saveonce",
+        help="Save real robot's NetworkTables properties to local file."
+    )
+    parser_save_once.set_defaults(func=save_once)
+
+    # Update files
+    parser_update_files = subparsers.add_parser(
+        "updatefiles",
+        help="Update files autoproperties values with robot_networktables.json values."
+    )
+    parser_update_files.set_defaults(func=update_files)
+
+    args = parser.parse_args()
+    args.func()
