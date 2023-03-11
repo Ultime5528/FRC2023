@@ -29,11 +29,11 @@ class FollowTrajectory(SafeCommand):
     Example of a command:
     FollowTrajectory(self.drivetrain, [self.drivetrain.getPose(), Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5)
     """
-    start_speed = autoproperty(0.1)
-    accel = autoproperty(0.5)
-    curvature_factor = autoproperty(1.0)
-    angle_factor = autoproperty(1.0)
-    track_error_factor = autoproperty(0.01)
+    start_speed = autoproperty(0.12)
+    accel = autoproperty(0.55)
+    curvature_factor = autoproperty(0.1)
+    angle_factor = autoproperty(5.0)
+    track_error_factor = autoproperty(2.5)
 
     @classmethod
     def toLoading(cls, drivetrain: Drivetrain):

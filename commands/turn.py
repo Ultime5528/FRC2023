@@ -8,7 +8,7 @@ from utils.trapezoidalmotion import TrapezoidalMotion
 
 class Turn(SafeCommand):
     min_speed = autoproperty(0.15)
-    accel = autoproperty(0.002)
+    accel = autoproperty(0.0005)
 
     def __init__(self, drivetrain: Drivetrain, angle: float, speed: float):
         """

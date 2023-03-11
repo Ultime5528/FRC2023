@@ -14,11 +14,11 @@ class State(Enum):
     Balancing = "balancing"
 
 class DriveToDock(SafeCommand):
-    start_speed = autoproperty(0.15)
-    climbing_speed = autoproperty(0.1)
+    start_speed = autoproperty(0.25)
+    climbing_speed = autoproperty(0.25)
     balancing_speed = autoproperty(0.0)
-    climbing_threshold = autoproperty(0.5)
-    ontop_threshold = autoproperty(0.5)
+    climbing_threshold = autoproperty(15.0)
+    ontop_threshold = autoproperty(5.0)
     balancing_threshold = autoproperty(0.5)
     timer_threshold = autoproperty(2.0)
     # minimal_drive_speed = autoproperty(0.1)  # /1
