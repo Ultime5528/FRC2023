@@ -5,48 +5,37 @@
     <title>Fancy Web Dashboard</title>
     <script src="jquery-2.2.2.min.js"></script>
     <script src="/networktables/camera.js"></script>
-	<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <frc-dashboard onload="ntLoaded()">
-        <div style="display: flex;align-items: center;justify-content: center;">
-            <br>
-            <div style="display: inline-block; margin-right: 36px;">
-                NetworkTables websocket: <span id="connectstate">Unknown state</span><br/>
-                Robot: <span id="robotstate">Unknown state</span> @ <span id="robotAddress">disconnected</span>
-            </div>
-            <frc-basic-fms-info></frc-basic-fms-info>
-            <img src="Ultime-5528-Monochrome-Rouge.svg" width="100px" height="100px"/>
+<frc-dashboard onload="ntLoaded()">
+    <div style="display: flex;align-items: center;justify-content: center;">
+        <br>
+        <div style="display: inline-block; margin-right: 36px;">
+            NetworkTables websocket: <span id="connectstate">Unknown state</span><br/>
+            Robot: <span id="robotstate">Unknown state</span> @ <span id="robotAddress">disconnected</span>
         </div>
-        <hr/>
+        <frc-basic-fms-info></frc-basic-fms-info>
+        <img src="Ultime-5528-Monochrome-Rouge.svg" width="100px" height="100px"/>
+    </div>
+    <hr/>
 
-        <div style="display: flex; flex-wrap: wrap;justify-content: center;">
-            <div style="width: min(100%, 640px); margin-right: 3%;">
-                <h2 class="secondary-text">Photonvision</h2>
-                <div id="photonvision" style="width: 100%"></div>
-            </div>
+    <div style="display: flex; flex-wrap: wrap;justify-content: center;">
+        <div style="width: min(100%, 640px); margin-right: 3%;">
+            <h2 class="secondary-text">Photonvision</h2>
+            <div id="photonvision" style="width: 100%"></div>
         </div>
-        <!-- SIDE BAR -->
-        <div style="display: flex;">
-            <div style="margin-right:5%;">
-                <h2 class="secondary-text">Mode autonome</h2>
-                <frc-combo-box name="Mode Auto" default="Rien" options='["Rien","2 Ballons", "4 Ballons"]' source-key="/SmartDashboard/ModeAutonome"></frc-combo-box>
-                <frc-custom-slider min="-100" max="100" block-increment="1" source-key="/Properties/shooter_speed_multiplier"></frc-custom-slider>
-                <div class="boolean-box-title">
-                    <h2 class="secondary-text">Aide au pilotage</h2>
-                    <frc-boolean-box true-color="var(--lumo-primary-color)" false-color="var(--lumo-primary-color-10pct)" source-key="/SmartDashboard/Vision/PiloterAide/running"></frc-boolean-box>
-                    <div></div>
-                </div>
-            </div>
-            <!-- MAIN PAGE -->
-            <div>
-                <h2 class="secondary-text">Commandes</h2>
-                <h3 class="secondary-text">Déplacer</h3>
-                <frc-robot-command label="FollowTrajectory" source-key="/SmartDashboard/Déplacer/FollowTrajectory"></frc-robot-command>
-            </div>
+    </div>
+    <!-- SIDE BAR -->
+    <div style="display: flex;">
+        <div style="margin-right:5%;">
+            <h2 class="secondary-text">Mode autonome</h2>
+            <frc-combo-box name="Mode Auto" default="Rien" options='["Nothing","AutoLine drop", "AutoLine no drop", "AutoTraverseDock drop", "AutoTraverseDock no drop", "AutoTraverse drop", "AutoTraverse no drop", "AutoDock drop", "AutoDock no drop"]' source-key="/SmartDashboard/ModeAutonome"></frc-combo-box>
         </div>
-        <script>
+        <!-- MAIN PAGE -->
+    </div>
+    <script>
             function onRobotConnection(connected) {
                 document.getElementById("robotstate").innerHTML = connected ? "Connected!" : "Disconnected";
                 document.getElementById("robotAddress").innerHTML = connected ? NetworkTables.getRobotAddress() : "disconnected";
@@ -64,7 +53,7 @@
                 loadCameraOnConnect({
                     container: '#photonvision', // where to put the img tag
                     proto: null,                    // optional, defaults to http://
-                    host: "127.0.0.1",                     // optional, if null will use robot's autodetected IP address
+                    host: "10.55.28.11",                     // optional, if null will use robot's autodetected IP address
                     port: 1182,                     // webserver port
                     image_url: '/stream.mjpg',   // mjpg stream of camera
                     data_url: '/settings.json',      // used to test if connection is up
@@ -76,10 +65,20 @@
                     }
                 });
             }
-        </script>
 
-        <script src="./frc-web-components.js"></script>
-        <script src="/components/customslider.js"></script>
+
+
+
+
+
+
+
+
+
+    </script>
+
+    <script src="./frc-web-components.js"></script>
+    <script src="/components/customslider.js"></script>
 
 
 </body>

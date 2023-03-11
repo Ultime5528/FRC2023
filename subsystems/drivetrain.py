@@ -24,23 +24,27 @@ from utils.sparkmaxutils import configureFollower, configureLeader
 
 select_gyro: Literal["navx", "adis16448", "adis16470", "adxrs", "empty"] = "adis16470"
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
-cam_to_robot = Transform3d(Translation3d(-0.375, 0.12, -0.165), Rotation3d(0, 0, 0))
+cam_to_robot = Transform3d(Translation3d(-0.375, 0.0, -0.165), Rotation3d(0, 0, 0))
+
 
 class Drivetrain(SafeSubsystem):
     encoder_conversion_factor = autoproperty(0.056)
 
     def __init__(self) -> None:
         super().__init__()
+
         # Motors
         self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_front_left, rev.CANSparkMax.MotorType.kBrushless)
         configureLeader(self._motor_left, "brake")
+
         self._motor_left_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_left,
                                                     rev.CANSparkMax.MotorType.kBrushless)
         configureFollower(self._motor_left_follower, self._motor_left, "brake")
 
         self._motor_right = rev.CANSparkMax(ports.drivetrain_motor_front_right,
                                             rev.CANSparkMax.MotorType.kBrushless)
-        configureLeader(self._motor_right, "brake")
+        configureLeader(self._motor_right, "brake", True)
+
         self._motor_right_follower = rev.CANSparkMax(ports.drivetrain_motor_rear_right,
                                                      rev.CANSparkMax.MotorType.kBrushless)
         configureFollower(self._motor_right_follower, self._motor_right, "brake")
