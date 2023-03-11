@@ -11,6 +11,12 @@ from utils.property import registry
 
 
 def clear():
+    """
+    Clear real robot's NetworkTables of persistent properties that no longer exist.
+
+    It is dangerous to run this in Robot.robotInit(): if another branch's code is ru2n on the robot where
+    new autoproperties do not exist yet, they will be deleted and set values will be lost.
+    """
     inst = NetworkTableInstance.getDefault()
     inst.stopLocal()
     inst.startClient4("clear")
