@@ -34,6 +34,7 @@ class Robot(commands2.TimedCommandRobot):
     def robotInit(self):
         wpilib.LiveWindow.enableAllTelemetry()
         wpilib.LiveWindow.setEnabled(True)
+        wpilib.DriverStation.silenceJoystickConnectionWarning(True)
 
         self.stick = wpilib.Joystick(0)
         self.panel = wpilib.Joystick(1)
@@ -51,7 +52,7 @@ class Robot(commands2.TimedCommandRobot):
         self.setup_dashboard()
 
         # Doit être à la fin, après que tout ait été instancié
-        clear_autoproperties()
+        # clear_autoproperties()
 
     def setup_buttons(self):
         # Pilot

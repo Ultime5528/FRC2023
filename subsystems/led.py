@@ -28,7 +28,9 @@ class ModeLED(Enum):
 class LEDController(SafeSubsystem):
     # HSV: [Hue(color 0 to 180), Saturation( amount of gray 0 to 255), Value(brightness 0 to 255)
     red_hsv = np.array([0, 255, 255])
+    red_rgb = np.array([255, 0, 0])
     blue_hsv = np.array([120, 255, 255])
+    blue_rgb = np.array([0, 0, 255])
     sky_blue_hsv = np.array([120, 60, 255])
     purple_hsv = np.array([150, 255, 150])
     violet_hsv = np.array([150, 255, 240])
@@ -37,7 +39,7 @@ class LEDController(SafeSubsystem):
     black = np.array([0, 0, 0])
     white = np.array([0, 0, 255])
     beige_hsv = np.array([20, 120, 255])
-    led_number = 50
+    led_number = 203
     speed = autoproperty(1.25)
     white_length = autoproperty(6.0)
     color_period = autoproperty(20.0)
@@ -57,22 +59,28 @@ class LEDController(SafeSubsystem):
     def setHSV(self, i: int, color: Color):
         self.buffer[i].setHSV(*color)
 
+    def setRGB(self, i: int, color: Color):
+        self.buffer[i].setRGB(*color)
+
     def setAll(self, color_func: Callable[[int], Color]):
         for i in range(len(self.buffer)):
             self.setHSV(i, color_func(i))
 
+    def setAllRGB(self, color_func: Callable[[int], Color]):
+        for i in range(len(self.buffer)):
+            self.setRGB(i, color_func(i))
+
     def pulse(self, color):
-        t = round(254 * abs(math.cos(self.time * 2 * math.pi / 300) ** 3))
-        hue, saturation, _ = color
-        self.setAll(lambda i: (hue, saturation, 255 - t))
+        t = abs(math.cos(self.time * 2 * math.pi / 300) ** 3)
+        self.setAllRGB(lambda i: interpoler(1 - t, color, self.black))
 
     def selectTeam(self):
         pixel_value = round(255 * math.cos((self.time / (18 * math.pi))))
         if pixel_value >= 0:
-            color = (125, 255, pixel_value)
+            color = (pixel_value, 0, 0)
         else:
-            color = (0, 255, abs(pixel_value))
-        self.setAll(lambda i: color)
+            color = (0, 0, abs(pixel_value))
+        self.setAllRGB(lambda i: color)
 
     def gradient(self):
         color = self.getAllianceColor()
@@ -182,9 +190,9 @@ class LEDController(SafeSubsystem):
                 if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kInvalid:
                     self.selectTeam()
                 elif wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed:
-                    self.pulse(self.red_hsv)
+                    self.pulse(self.red_rgb)
                 elif wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
-                    self.pulse(self.blue_hsv)
+                    self.pulse(self.blue_rgb)
                 else:
                     self.halfWaves(self.purple_hsv)
 
