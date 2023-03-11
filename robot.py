@@ -24,7 +24,6 @@ from commands.turn import Turn
 from subsystems.arm import Arm
 from subsystems.claw import Claw
 from subsystems.drivetrain import Drivetrain
-from utils.property import clearAutoproperties
 
 
 class Robot(commands2.TimedCommandRobot):
@@ -45,9 +44,6 @@ class Robot(commands2.TimedCommandRobot):
 
         self.setupButtons()
         self.setupDashboard()
-
-        # Doit être à la fin, après que tout ait été instancié
-        clearAutoproperties()
 
     def setupButtons(self):
         # Pilot
