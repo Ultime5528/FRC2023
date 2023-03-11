@@ -314,7 +314,7 @@
   {
     "name": "/Properties/DriveToDock/start_speed",
     "type": "double",
-    "value": 0.25,
+    "value": 0.35,
     "properties": {
       "persistent": true
     }
@@ -322,7 +322,7 @@
   {
     "name": "/Properties/DriveToDock/climbing_speed",
     "type": "double",
-    "value": 0.2,
+    "value": 0.18,
     "properties": {
       "persistent": true
     }
@@ -338,7 +338,7 @@
   {
     "name": "/Properties/DriveToDock/climbing_threshold",
     "type": "double",
-    "value": 10.0,
+    "value": 17.0,
     "properties": {
       "persistent": true
     }
@@ -346,7 +346,7 @@
   {
     "name": "/Properties/DriveToDock/ontop_threshold",
     "type": "double",
-    "value": 3.0,
+    "value": 6.0,
     "properties": {
       "persistent": true
     }

@@ -13,9 +13,9 @@ from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
 
 
-blue_offset = Transform2d(Translation2d(-1, 0), Rotation2d(0))
+blue_offset = Transform2d(Translation2d(2, -1), Rotation2d.fromDegrees(270))
 blue_loading_pose = april_tag_field.getTagPose(4).toPose2d().transformBy(blue_offset)
-red_offset = Transform2d(Translation2d(1, 0), Rotation2d.fromDegrees(180))
+red_offset = Transform2d(Translation2d(2, 1), Rotation2d.fromDegrees(90))
 red_loading_pose = april_tag_field.getTagPose(5).toPose2d().transformBy(red_offset)
 
 
