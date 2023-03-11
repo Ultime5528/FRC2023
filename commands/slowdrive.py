@@ -1,9 +1,5 @@
 import wpilib
 from wpimath.filter import LinearFilter
-import properties
-from utils.safecommand import SafeCommand
-from subsystems.drivetrain import Drivetrain
-from utils.safecommand import SafeCommand
 
 from subsystems.drivetrain import Drivetrain
 from utils.property import autoproperty

@@ -45,9 +45,9 @@ blue_poses = {
 
 class GoGrid(SafeCommand):
     turn_speed = autoproperty(0.3)
-    traj_speed = autoproperty(0.5)
+    traj_speed = autoproperty(0.1)
     straight_distance = autoproperty(0.3)
-    straight_speed = autoproperty(0.5)
+    straight_speed = autoproperty(0.1)
     before_offset = autoproperty(0.4)
 
     def __init__(self, drivetrain: Drivetrain, grid_number: Literal["1", "2", "3", "4", "5", "6", "7", "8", "9"]):

@@ -18,7 +18,7 @@ def checkIsInDeadzone(extension: float):
 
 
 class Arm(SafeSubsystem):
-    elevator_max_position = autoproperty(10.0)
+    elevator_max_position = autoproperty(235.0)
 
     # Simulation
     elevator_min_position = autoproperty(0.0)
@@ -168,7 +168,7 @@ class Arm(SafeSubsystem):
 
 
 class _ClassProperties:
-    deadzone_extension = autoproperty(1.0, subtable=Arm.__name__)
+    deadzone_extension = autoproperty(60.0, subtable=Arm.__name__)
 
 
 properties = _ClassProperties()

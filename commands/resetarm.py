@@ -4,8 +4,8 @@ from utils.safecommand import SafeCommand
 
 
 class ResetArm(SafeCommand):
-    elevator_speed = autoproperty(0.1)
-    extension_speed = autoproperty(0.1)
+    elevator_speed = autoproperty(0.25)
+    extension_speed = autoproperty(0.25)
 
     def __init__(self, arm: Arm):
         super().__init__()
