@@ -20,7 +20,7 @@ arm_motor_elevator = 4
 arm_motor_extension = 5
 
 # PWM
-...
+led_strip = 0
 
 # DIO
 arm_switch_extension_min = 1

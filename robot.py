@@ -27,11 +27,14 @@ from commands.resetarm import ResetArm
 from commands.slowdrive import SlowDrive
 from commands.takeobject import TakeObject
 from commands.stoparm import StopArm
+from commands.signalcone import SignalCone
+from commands.signalcube import SignalCube
 from commands.turn import Turn
 from commands.autonomous.autotraversedock import AutoTraverseDock
 from subsystems.arm import Arm
 from subsystems.claw import Claw
 from subsystems.drivetrain import Drivetrain
+from subsystems.led import LEDController
 
 
 class Robot(commands2.TimedCommandRobot):
@@ -48,6 +51,7 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain = Drivetrain()
         self.arm = Arm()
         self.claw = Claw()
+        self.led_controller = LEDController()
 
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
         self.arm.setDefaultCommand(StopArm(self.arm))
@@ -88,8 +92,8 @@ class Robot(commands2.TimedCommandRobot):
         JoystickButton(self.panel, 12).whenPressed(MoveArm.toLevel3(self.arm))
         JoystickButton(self.panel, 13).whenPressed(MoveArm.toFloor(self.arm))
         JoystickButton(self.panel, 14).whenPressed(MoveArm.toBase(self.arm))
-        # JoystickButton(self.panel, 15).whenPressed(ledpourcube))
-        # JoystickButton(self.panel, 16).whenPressed(ledpourcône))
+        JoystickButton(self.panel, 15).toggleWhenPressed(SignalCone(self.led_controller))
+        JoystickButton(self.panel, 16).toggleWhenPressed(SignalCube(self.led_controller))
         # JoystickButton(self.panel, 17).whenPressed(Drop(self.claw)
 
     def setupDashboard(self):
@@ -124,6 +128,8 @@ class Robot(commands2.TimedCommandRobot):
         putCommandOnDashboard("ArmManual", ManualExtend.down(self.arm))
         putCommandOnDashboard("Groups", Drop(self.claw, self.arm))
         putCommandOnDashboard("Groups", TakeObject(self.claw, self.arm))
+        putCommandOnDashboard("Led", SignalCone(self.led_controller))
+        putCommandOnDashboard("Led", SignalCube(self.led_controller))
 
         self.autoCommand: commands2.CommandBase = None
         self.autoChooser = wpilib.SendableChooser()
