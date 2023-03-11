@@ -20,10 +20,15 @@ def checkIsInDeadzone(extension: float):
 class Arm(SafeSubsystem):
     elevator_max_position = autoproperty(235.0)
 
+    # Simulation
+    elevator_min_position = autoproperty(0.0)
+    extension_max_position = autoproperty(10.0)
+    extension_min_position = autoproperty(0.0)
+
     def __init__(self):
         super().__init__()
-
         # Switches
+        self.is_reset = False
         self.switch_extension_min = DigitalInput(ports.arm_switch_extension_min)
         self.addChild("switch_extension_min", self.switch_extension_min)
 
@@ -127,18 +132,20 @@ class Arm(SafeSubsystem):
         return self.isSwitchElevatorMinOn()
 
     def setElevatorSpeed(self, speed: float):
-        if self.isElevatorMin() and speed < 0:
-            speed = 0
-        if self.isElevatorMax() and speed > 0:
-            speed = 0
-        self.motor_elevator.set(speed)
+        if self.is_reset:
+            if self.isElevatorMin() and speed < 0:
+                speed = 0
+            if self.isElevatorMax() and speed > 0:
+                speed = 0
+            self.motor_elevator.set(speed)
 
     def setExtensionSpeed(self, speed: float):
-        if self.isExtensionMin() and speed < 0:
-            speed = 0
-        if self.isExtensionMax() and speed > 0:
-            speed = 0
-        self.motor_extension.set(speed)
+        if self.is_reset:
+            if self.isExtensionMin() and speed < 0:
+                speed = 0
+            if self.isExtensionMax() and speed > 0:
+                speed = 0
+            self.motor_extension.set(speed)
 
     def getExtensionSpeed(self):
         return self.motor_extension.get()
@@ -146,7 +153,7 @@ class Arm(SafeSubsystem):
     def isInDeadzone(self):
         return checkIsInDeadzone(self.getExtensionPosition())
 
-    def shouldTransition(self, extension:  float, elevator:  float):
+    def shouldTransition(self, extension: float, elevator: float):
         return self.isInDeadzone() != checkIsInDeadzone(extension)
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:

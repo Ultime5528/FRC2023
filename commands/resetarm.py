@@ -12,13 +12,14 @@ class ResetArm(SafeCommand):
         self.arm = arm
         self.addRequirements(self.arm)
 
+    def initialize(self) -> None:
+        self.arm.is_reset = True
+
     def execute(self) -> None:
         if not self.arm.isSwitchElevatorMinOn():
             self.arm.setElevatorSpeed(-self.elevator_speed)
-        else:
+        elif not self.arm.isSwitchExtensionMinOn():
             self.arm.setElevatorSpeed(0.0)
-
-        if not self.arm.isSwitchExtensionMinOn():
             self.arm.setExtensionSpeed(-self.extension_speed)
         else:
             self.arm.setExtensionSpeed(0.0)
@@ -27,5 +28,7 @@ class ResetArm(SafeCommand):
         return self.arm.isSwitchElevatorMinOn() and self.arm.isSwitchExtensionMinOn()
 
     def end(self, interrupted: bool) -> None:
+        if interrupted:
+            self.arm.is_reset = False
         self.arm.setElevatorSpeed(0.0)
         self.arm.setExtensionSpeed(0.0)
