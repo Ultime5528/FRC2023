@@ -126,7 +126,7 @@ class Robot(commands2.TimedCommandRobot):
 
         self.autoCommand: commands2.CommandBase = None
         self.autoChooser = wpilib.SendableChooser()
-        self.autoChooser.setDefaultOption("Rien", None)
+        self.autoChooser.setDefaultOption("Nothing", None)
         self.autoChooser.addOption("AutoLine drop", AutoLine(self.drivetrain, self.claw, self.arm, True))
         self.autoChooser.addOption("AutoLine no drop", AutoLine(self.drivetrain, self.claw, self.arm, False))
         self.autoChooser.addOption("AutoTraverseDock drop", AutoTraverseDock(self.drivetrain, self.claw, self.arm, True))
