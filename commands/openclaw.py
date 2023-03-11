@@ -5,7 +5,7 @@ from utils.property import autoproperty
 
 
 class OpenClaw(SafeCommand):
-    duration = autoproperty(1)
+    duration = autoproperty(1.0)
 
     def __init__(self, claw: Claw):
         super().__init__()

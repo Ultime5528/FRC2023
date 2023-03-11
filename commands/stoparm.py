@@ -4,7 +4,7 @@ from subsystems.arm import Arm
 
 class StopArm(SafeCommand):
     def __init__(self, arm: Arm):
-        super.__init__()
+        super().__init__()
         self.arm = arm
         self.addRequirements(arm)
 
