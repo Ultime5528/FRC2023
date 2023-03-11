@@ -10,6 +10,11 @@ from utils.property import autoproperty
 from utils.safecommand import SafeCommand, SafeMixin
 from enum import Enum
 
+class State(Enum):
+    Start = "start"
+    Climbing = "climbing"
+    Stable = "stable"
+    Balancing = "balancing"
 
 class State(Enum):
     Start = "start"

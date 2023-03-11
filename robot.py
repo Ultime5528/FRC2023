@@ -14,6 +14,7 @@ from commands.traversedock import TraverseDock
 from commands.autonomous.autotraverse import AutoTraverse
 from commands.closeclaw import CloseClaw
 from commands.drive import Drive
+from commands.drivestraight import DriveStraight
 from commands.drivetodock import DriveToDock
 from commands.drop import Drop
 from commands.followtrajectory import FollowTrajectory
@@ -25,6 +26,7 @@ from commands.openclaw import OpenClaw
 from commands.resetarm import ResetArm
 from commands.slowdrive import SlowDrive
 from commands.takeobject import TakeObject
+from commands.stoparm import StopArm
 from commands.turn import Turn
 from commands.autonomous.autotraversedock import AutoTraverseDock
 from subsystems.arm import Arm
@@ -47,7 +49,7 @@ class Robot(commands2.TimedCommandRobot):
         self.claw = Claw()
 
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
-        #JoystickButton(self.stick, 1).whenPressed(MoveArm(self.arm, 2, 2))
+        self.arm.setDefaultCommand(StopArm(self.arm))
 
         
         Trigger(self.arm.hasObject).onTrue(TakeObject(self.claw, self.arm))
@@ -97,6 +99,7 @@ class Robot(commands2.TimedCommandRobot):
         putCommandOnDashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(1.2, -0.7, math.radians(-33)), 0.18, "relative"), "curve")
         putCommandOnDashboard("Drivetrain", FollowTrajectory.driveStraight(self.drivetrain, 2.00, 0.1))
         putCommandOnDashboard("Drivetrain", FollowTrajectory.toLoading(self.drivetrain))
+        putCommandOnDashboard("Drivetrain", DriveStraight(self.drivetrain, -1, 0.1), "DriveStraight")
         putCommandOnDashboard("Drivetrain", Turn(self.drivetrain, 45, 0.28))
         putCommandOnDashboard("Drivetrain", DriveToDock(self.drivetrain))
         putCommandOnDashboard("Drivetrain", DriveToDock(self.drivetrain, True), "DriveToDock Backwards")
