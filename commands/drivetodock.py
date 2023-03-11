@@ -37,11 +37,11 @@ class DriveToDock(SafeMixin, commands2.SequentialCommandGroup):
 
 
 class _DriveToDock(SafeCommand):
-    start_speed = autoproperty(0.15, subtable=DriveToDock.__name__)
-    climbing_speed = autoproperty(0.1, subtable=DriveToDock.__name__)
+    start_speed = autoproperty(0.35, subtable=DriveToDock.__name__)
+    climbing_speed = autoproperty(0.18, subtable=DriveToDock.__name__)
     balancing_speed = autoproperty(0.0, subtable=DriveToDock.__name__)
-    climbing_threshold = autoproperty(0.5, subtable=DriveToDock.__name__)
-    ontop_threshold = autoproperty(0.5, subtable=DriveToDock.__name__)
+    climbing_threshold = autoproperty(17.0, subtable=DriveToDock.__name__)
+    ontop_threshold = autoproperty(6.0, subtable=DriveToDock.__name__)
     balancing_threshold = autoproperty(0.5, subtable=DriveToDock.__name__)
     timer_threshold = autoproperty(2.0, subtable=DriveToDock.__name__)
 

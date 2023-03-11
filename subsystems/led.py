@@ -32,9 +32,9 @@ class LEDController(SafeSubsystem):
     blue_hsv = np.array([120, 255, 255])
     blue_rgb = np.array([0, 0, 255])
     sky_blue_hsv = np.array([120, 60, 255])
-    purple_hsv = np.array([150, 255, 150])
+    purple_hsv = np.array([150, 255, 120])
     violet_hsv = np.array([150, 255, 240])
-    yellow_hsv = np.array([30, 255, 255])
+    yellow_hsv = np.array([30, 255, 200])
     orange_hsv = np.array([10, 255, 255])
     black = np.array([0, 0, 0])
     white = np.array([0, 0, 255])
@@ -172,18 +172,15 @@ class LEDController(SafeSubsystem):
             if wpilib.DriverStation.isAutonomousEnabled():  # auto
                 self.gradient()
             elif wpilib.DriverStation.isTeleopEnabled():  # teleop
-                if wpilib.DriverStation.getMatchTime() <= 1:
-                    # if self.explosiveness <= 0.0:
+                if wpilib.DriverStation.getMatchTime() == -1.0 or wpilib.DriverStation.getMatchTime() > 30:
+                    self.teleop()
+                elif wpilib.DriverStation.getMatchTime() > 25:
+                    self.flash(self.getAllianceColor(), 10)
+                elif wpilib.DriverStation.getMatchTime() > 1:
+                    self.halfWaves(self.getModeColor())
+                else:
                     self.explosiveness = 1
                     self.explode(self.getAllianceColor())
-                elif wpilib.DriverStation.getMatchTime() <= 25:
-                    self.halfWaves(self.getModeColor())
-                elif wpilib.DriverStation.getMatchTime() <= 30:
-                    self.flash(self.getAllianceColor(), 10)
-                elif wpilib.DriverStation.getMatchTime() <= 135:
-                    self.teleop()
-                else:
-                    self.pulse(self.getAllianceColor())
             else:  # game hasn't started
                 if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kInvalid:
                     self.selectTeam()

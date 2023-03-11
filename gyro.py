@@ -95,7 +95,7 @@ class ADIS16448(Gyro):
 
 
 class ADIS16470(Gyro):
-    pitch_offset = autoproperty(5.0)
+    pitch_offset = autoproperty(4.1)
     def __init__(self):
         self.gyro = wpilib.ADIS16470_IMU()
         super().__init__()

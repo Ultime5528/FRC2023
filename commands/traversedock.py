@@ -16,10 +16,10 @@ class State(Enum):
 
 
 class TraverseDock(SafeCommand):
-    start_speed = autoproperty(0.15)
-    up_speed = autoproperty(0.1)
-    down_speed = autoproperty(0.0)
-    up_threshold = autoproperty(0.5)
+    start_speed = autoproperty(0.32)
+    up_speed = autoproperty(0.25)
+    down_speed = autoproperty(0.25)
+    up_threshold = autoproperty(10.0)
     end_threshold = autoproperty(0.5)
 
     def __init__(self, drivetrain: Drivetrain):

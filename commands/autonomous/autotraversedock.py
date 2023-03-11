@@ -16,10 +16,23 @@ from utils.safecommand import SafeMixin
 
 
 class AutoTraverseDock(SafeMixin, commands2.SequentialCommandGroup):
-    def __init__(self, drivetrain: Drivetrain, claw: Claw, arm: Arm, drop_object: bool):
-        commands = [TraverseDock(drivetrain), DriveToDock(drivetrain)]
-        if drop_object:
+    def __init__(self, drivetrain: Drivetrain, claw: Claw, arm: Arm, drop: bool):
+        commands = [
+            commands2.ParallelCommandGroup(
+                commands2.SequentialCommandGroup(
+                    MoveArm.toLevel2(arm),
+                    commands2.WaitCommand(1),
+                    MoveArm.toBase(arm)
+                ),
+                commands2.SequentialCommandGroup(
+                    TraverseDock(drivetrain),
+                    DriveToDock(drivetrain)
+                )
+            )
+        ]
+
+        if drop:
             commands.insert(0, AutoDrop(claw, arm))
         super().__init__(
-            commands
+            *commands
         )

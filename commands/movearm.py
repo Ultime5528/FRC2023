@@ -186,7 +186,7 @@ class _ClassProperties:
     level1_extension = autoproperty(70.0, subtable=MoveArm.__name__)
     level2_extension = autoproperty(155.0, subtable=MoveArm.__name__)
     level3_extension = autoproperty(232.0, subtable=MoveArm.__name__)
-    level3_drop_extension = autoproperty(0.0, subtable=MoveArm.__name__)
+    level3_drop_extension = autoproperty(232.0, subtable=MoveArm.__name__)
     floor_extension = autoproperty(80.0, subtable=MoveArm.__name__)
     base_extension = autoproperty(15.0, subtable=MoveArm.__name__)
     bin_extension = autoproperty(0.0, subtable=MoveArm.__name__)
@@ -198,17 +198,17 @@ class _ClassProperties:
 
     # Extension Properties #
     level1_elevation = autoproperty(60.0, subtable=MoveArm.__name__)
-    level2_elevation = autoproperty(60.0, subtable=MoveArm.__name__)
+    level2_elevation = autoproperty(62.0, subtable=MoveArm.__name__)
     level3_elevation = autoproperty(50.0, subtable=MoveArm.__name__)
-    level3_drop_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
+    level3_drop_elevation = autoproperty(70.0, subtable=MoveArm.__name__)
     floor_elevation = autoproperty(210.0, subtable=MoveArm.__name__)
     base_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     bin_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     transition_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
 
-    extension_min_speed = autoproperty(0.2, subtable=MoveArmDirect.__name__)
-    extension_max_speed = autoproperty(0.8, subtable=MoveArmDirect.__name__)
-    extension_acceleration = autoproperty(0.02, subtable=MoveArmDirect.__name__)
+    extension_min_speed = autoproperty(0.3, subtable=MoveArmDirect.__name__)
+    extension_max_speed = autoproperty(0.95, subtable=MoveArmDirect.__name__)
+    extension_acceleration = autoproperty(0.035, subtable=MoveArmDirect.__name__)
 
 
 properties = _ClassProperties()
