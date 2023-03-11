@@ -8,7 +8,6 @@ from commands2 import Trigger
 from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
 
-from commands.autonomous import autoline
 from commands.autonomous.autodock import AutoDock
 from commands.autonomous.autoline import AutoLine
 from commands.traversedock import TraverseDock
@@ -33,8 +32,6 @@ from commands.autonomous.autotraversedock import AutoTraverseDock
 from subsystems.arm import Arm
 from subsystems.claw import Claw
 from subsystems.drivetrain import Drivetrain
-from utils.safecommand import SafeCommand
-from utils.property import clearAutoproperties
 
 
 class Robot(commands2.TimedCommandRobot):
@@ -55,14 +52,10 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
         self.arm.setDefaultCommand(StopArm(self.arm))
 
-
         Trigger(self.arm.hasObject).onTrue(TakeObject(self.claw, self.arm))
 
         self.setupButtons()
         self.setupDashboard()
-
-        # Doit être à la fin, après que tout ait été instancié
-        # clearAutoproperties()
 
     def autonomousInit(self) -> None:
         self.autoCommand: commands2.CommandBase = self.autoChooser.getSelected()
