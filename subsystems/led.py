@@ -30,7 +30,8 @@ class LEDController(SafeSubsystem):
     red_hsv = np.array([0, 255, 255])
     blue_hsv = np.array([120, 255, 255])
     sky_blue_hsv = np.array([120, 60, 255])
-    purple_hsv = np.array([150, 255, 255])
+    purple_hsv = np.array([150, 255, 150])
+    violet_hsv = np.array([150, 255, 240])
     yellow_hsv = np.array([30, 255, 255])
     orange_hsv = np.array([10, 255, 255])
     black = np.array([0, 0, 0])
@@ -77,7 +78,7 @@ class LEDController(SafeSubsystem):
         color = self.getAllianceColor()
 
         def getColor(i: int):
-            y = 0.5 * math.sin(2 * math.pi ** 2 * (i - 0.85 * self.time) / 200) + 0.5
+            y = 0.5 * math.sin(2 * math.pi ** 2 * (i - 2 * self.time) / 200) + 0.5
             if (color == self.blue_hsv).all():
                 color1 = interpoler(y, color, interpoler(y, color, self.purple_hsv))
                 color2 = interpoler(y, color, interpoler(y, color, self.sky_blue_hsv))
@@ -167,6 +168,8 @@ class LEDController(SafeSubsystem):
                     # if self.explosiveness <= 0.0:
                     self.explosiveness = 1
                     self.explode(self.getAllianceColor())
+                elif wpilib.DriverStation.getMatchTime() <= 15:
+                    self.halfWaves(self.violet_hsv)
                 elif wpilib.DriverStation.getMatchTime() <= 25:
                     self.halfWaves(self.getAllianceColor())
                 elif wpilib.DriverStation.getMatchTime() <= 30:
