@@ -45,7 +45,7 @@ class Robot(commands2.TimedCommandRobot):
 
         self.autoCommand: Optional[commands2.CommandBase] = None
 
-        self.stick = wpilib.Joystick(0)
+        self.stick = commands2.button.CommandJoystick(0)
         self.panel1 = commands2.button.CommandJoystick(1)
         self.panel2 = commands2.button.CommandJoystick(2)
 
@@ -75,8 +75,9 @@ class Robot(commands2.TimedCommandRobot):
     def setupButtons(self):
         # Pilot
         self.stick.button(1).whenPressed(SlowDrive(self.drivetrain, self.stick))
-        self.stick.button(2).whenPressed(OpenClaw(self.claw))
+        self.stick.button(4).whenPressed(OpenClaw(self.claw))
         self.stick.button(3).whenPressed(CloseClaw(self.claw))
+        self.stick.button(6).whenPressed(ResetArm(self.arm))
 
         # Copilot
         self.panel1.button(8).whenPressed(GoGrid(self.drivetrain, "1"))
@@ -88,15 +89,15 @@ class Robot(commands2.TimedCommandRobot):
         self.panel1.button(2).whenPressed(GoGrid(self.drivetrain, "7"))
         self.panel1.button(1).whenPressed(GoGrid(self.drivetrain, "8"))
         self.panel1.button(9).whenPressed(GoGrid(self.drivetrain, "9"))
-        
-        self.panel2.button(10).whenPressed(MoveArm.toLevel1(self.arm))
-        self.panel2.button(11).whenPressed(MoveArm.toLevel2(self.arm))
-        self.panel2.button(12).whenPressed(MoveArm.toLevel3(self.arm))
-        self.panel2.button(13).whenPressed(MoveArm.toFloor(self.arm))
-        self.panel2.button(14).whenPressed(MoveArm.toBase(self.arm))
-        self.panel2.button(15).whenPressed(SignalCube(self.led_controller))
-        self.panel2.button(16).whenPressed(SignalCone(self.led_controller))
-        self.panel2.button(17).whenPressed(Drop(self.claw, self.arm))
+
+        self.panel2.button(2).whenPressed(MoveArm.toLevel1(self.arm))
+        self.panel2.button(1).whenPressed(MoveArm.toLevel2(self.arm))
+        self.panel2.button(7).whenPressed(MoveArm.toLevel3(self.arm))
+        self.panel2.button(4).whenPressed(MoveArm.toFloor(self.arm))
+        self.panel2.button(3).whenPressed(MoveArm.toBase(self.arm))
+        self.panel2.button(6).whenPressed(SignalCube(self.led_controller))
+        self.panel2.button(5).whenPressed(SignalCone(self.led_controller))
+        self.panel2.button(8).whenPressed(Drop(self.claw, self.arm))
 
     def setupDashboard(self):
         putCommandOnDashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
