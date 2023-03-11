@@ -30,6 +30,7 @@ class Robot(commands2.TimedCommandRobot):
     def robotInit(self):
         wpilib.LiveWindow.enableAllTelemetry()
         wpilib.LiveWindow.setEnabled(True)
+        wpilib.DriverStation.silenceJoystickConnectionWarning(True)
 
         self.stick = wpilib.Joystick(0)
         self.panel = wpilib.Joystick(1)

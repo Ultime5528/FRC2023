@@ -1,6 +1,8 @@
 import argparse
 import json
 import subprocess
+import time
+from datetime import datetime
 
 from ntcore import NetworkTableInstance
 
@@ -29,15 +31,18 @@ def clear():
 
 
 def save_loop():
-    pass
+    while True:
+        save_once()
+        time.sleep(30.0)
 
 
 def save_once():
-    print("Connecting to robot...")
+    print(f"[{datetime.now().time().replace(microsecond=0).isoformat()}] Connecting to robot...")
     proc = subprocess.run(
         "scp -o StrictHostKeyChecking=no -o ConnectTimeout=3 lvuser@10.55.28.2:/home/lvuser/networktables.ini robot_networktables.json"
     )
 
+    # Error code
     if proc.returncode != 0:
         return
 
@@ -52,19 +57,32 @@ def update_files():
 
     for entry in data:
         matched_prop = next((prop for prop in registry if prop.key == entry["name"]), None)
+
         if matched_prop:
-            print("Updating", entry["value"])
+            print("Updating", entry["name"])
+
             with open(matched_prop.filename, "r") as f:
                 lines = f.readlines()
+
             line = lines[matched_prop.line_no]
+
+            # Replace characters after (
             idx_start = line.index("(", matched_prop.col_offset) + 1
+
+            # Replace before ) or ,
             idx_end = line.index(")", matched_prop.col_offset)
             try:
                 idx_end = line.index(",", matched_prop.col_offset)
             except ValueError:
                 pass
-            line = line[:idx_start] + str(entry["name"]) + line[idx_end:]
+
+            # Replace old value by new
+            line = line[:idx_start] + str(entry["value"]) + line[idx_end:]
+
+            # Replace line
             lines[matched_prop.line_no] = line
+
+            # Rewrite file
             with open(matched_prop.filename, "w") as f:
                 f.writelines(lines)
 
@@ -83,9 +101,16 @@ if __name__ == '__main__':
     # Save once
     parser_save_once = subparsers.add_parser(
         "saveonce",
-        help="Save real robot's NetworkTables properties to local file."
+        help="Save once real robot's NetworkTables properties to local file."
     )
     parser_save_once.set_defaults(func=save_once)
+
+    # Save loop
+    parser_save_loop = subparsers.add_parser(
+        "saveloop",
+        help="Save periodically real robot's NetworkTables properties to local file."
+    )
+    parser_save_loop.set_defaults(func=save_loop)
 
     # Update files
     parser_update_files = subparsers.add_parser(
