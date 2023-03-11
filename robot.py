@@ -74,30 +74,30 @@ class Robot(commands2.TimedCommandRobot):
 
     def setupButtons(self):
         # Pilot
-        self.stick.button(1).whenPressed(SlowDrive(self.drivetrain, self.stick))
-        self.stick.button(4).whenPressed(OpenClaw(self.claw))
-        self.stick.button(3).whenPressed(CloseClaw(self.claw))
-        self.stick.button(6).whenPressed(ResetArm(self.arm))
+        self.stick.button(1).onTrue(SlowDrive(self.drivetrain, self.stick))
+        self.stick.button(4).onTrue(OpenClaw(self.claw))
+        self.stick.button(3).onTrue(CloseClaw(self.claw))
+        self.stick.button(6).onTrue(ResetArm(self.arm))
 
         # Copilot
-        self.panel1.button(8).whenPressed(GoGrid(self.drivetrain, "1"))
-        self.panel1.button(7).whenPressed(GoGrid(self.drivetrain, "2"))
-        self.panel1.button(6).whenPressed(GoGrid(self.drivetrain, "3"))
-        self.panel1.button(5).whenPressed(GoGrid(self.drivetrain, "4"))
-        self.panel1.button(4).whenPressed(GoGrid(self.drivetrain, "5"))
-        self.panel1.button(3).whenPressed(GoGrid(self.drivetrain, "6"))
-        self.panel1.button(2).whenPressed(GoGrid(self.drivetrain, "7"))
-        self.panel1.button(1).whenPressed(GoGrid(self.drivetrain, "8"))
-        self.panel1.button(9).whenPressed(GoGrid(self.drivetrain, "9"))
+        self.panel1.button(8).onTrue(GoGrid(self.drivetrain, "1"))
+        self.panel1.button(7).onTrue(GoGrid(self.drivetrain, "2"))
+        self.panel1.button(6).onTrue(GoGrid(self.drivetrain, "3"))
+        self.panel1.button(5).onTrue(GoGrid(self.drivetrain, "4"))
+        self.panel1.button(4).onTrue(GoGrid(self.drivetrain, "5"))
+        self.panel1.button(3).onTrue(GoGrid(self.drivetrain, "6"))
+        self.panel1.button(2).onTrue(GoGrid(self.drivetrain, "7"))
+        self.panel1.button(1).onTrue(GoGrid(self.drivetrain, "8"))
+        self.panel1.button(9).onTrue(GoGrid(self.drivetrain, "9"))
 
-        self.panel2.button(2).whenPressed(MoveArm.toLevel1(self.arm))
-        self.panel2.button(1).whenPressed(MoveArm.toLevel2(self.arm))
-        self.panel2.button(7).whenPressed(MoveArm.toLevel3(self.arm))
-        self.panel2.button(4).whenPressed(MoveArm.toFloor(self.arm))
-        self.panel2.button(3).whenPressed(MoveArm.toBase(self.arm))
-        self.panel2.button(6).whenPressed(SignalCube(self.led_controller))
-        self.panel2.button(5).whenPressed(SignalCone(self.led_controller))
-        self.panel2.button(8).whenPressed(Drop(self.claw, self.arm))
+        self.panel2.button(2).onTrue(MoveArm.toLevel1(self.arm))
+        self.panel2.button(1).onTrue(MoveArm.toLevel2(self.arm))
+        self.panel2.button(7).onTrue(MoveArm.toLevel3(self.arm))
+        self.panel2.button(4).onTrue(MoveArm.toFloor(self.arm))
+        self.panel2.button(3).onTrue(MoveArm.toBase(self.arm))
+        self.panel2.button(6).toggleOnTrue(SignalCube(self.led_controller))
+        self.panel2.button(5).toggleOnTrue(SignalCone(self.led_controller))
+        self.panel2.button(8).onTrue(Drop(self.claw, self.arm))
 
     def setupDashboard(self):
         putCommandOnDashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
@@ -147,6 +147,7 @@ class Robot(commands2.TimedCommandRobot):
         self.autoChooser.addOption("AutoDock no drop", AutoDock(self.drivetrain, self.claw, self.arm, False))
 
         wpilib.SmartDashboard.putData("ModeAutonome", self.autoChooser)
+
 
 def putCommandOnDashboard(sub_table: str, cmd: commands2.CommandBase, name: str = None) -> commands2.CommandBase:
     if sub_table:
