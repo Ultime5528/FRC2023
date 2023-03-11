@@ -21,6 +21,7 @@ from commands.openclaw import OpenClaw
 from commands.resetarm import ResetArm
 from commands.slowdrive import SlowDrive
 from commands.takeobject import TakeObject
+from commands.stoparm import StopArm
 from commands.turn import Turn
 from subsystems.arm import Arm
 from subsystems.claw import Claw
@@ -41,6 +42,7 @@ class Robot(commands2.TimedCommandRobot):
         self.claw = Claw()
 
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
+        self.arm.setDefaultCommand(StopArm(self.arm))
 
         Trigger(self.arm.hasObject).onTrue(TakeObject(self.claw, self.arm))
 
