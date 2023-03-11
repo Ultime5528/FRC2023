@@ -8,7 +8,7 @@ from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
 from subsystems.drivetrain import Drivetrain, april_tag_field
 from utils.controller import RearWheelFeedbackController
-from utils.property import autoproperty, FloatProperty, as_callable, default_setter
+from utils.property import autoproperty, FloatProperty, asCallable, defaultSetter
 from utils.safecommand import SafeCommand
 from utils.trapezoidalmotion import TrapezoidalMotion
 
@@ -29,11 +29,11 @@ class FollowTrajectory(SafeCommand):
     Example of a command:
     FollowTrajectory(self.drivetrain, [self.drivetrain.getPose(), Pose2d(0, 3, 90), Pose2d(3, 3, 0)], 0.5)
     """
-    start_speed = autoproperty(0.1)
-    accel = autoproperty(0.5)
-    curvature_factor = autoproperty(1.0)
-    angle_factor = autoproperty(1.0)
-    track_error_factor = autoproperty(0.01)
+    start_speed = autoproperty(0.12)
+    accel = autoproperty(0.55)
+    curvature_factor = autoproperty(0.1)
+    angle_factor = autoproperty(5.0)
+    track_error_factor = autoproperty(2.5)
 
     @classmethod
     def toLoading(cls, drivetrain: Drivetrain):
@@ -63,7 +63,7 @@ class FollowTrajectory(SafeCommand):
         self.waypoints = waypoints if isinstance(waypoints, Iterable) else [waypoints]
         self.drivetrain = drivetrain
         self.addRequirements(drivetrain)
-        self.speed = as_callable(speed)
+        self.speed = asCallable(speed)
         self.path_reversed = (direction == "backward")
         self.config = TrajectoryConfig(10, 10)
         self.config.setReversed(self.path_reversed)
@@ -115,16 +115,16 @@ class FollowTrajectory(SafeCommand):
 
     def initSendable(self, builder: wpiutil.SendableBuilder) -> None:
         super().initSendable(builder)
-        builder.addDoubleProperty("closest_t", lambda: self._controller.closest_t if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("curvature", lambda: self._controller.closest_sample.curvature if self._controller and self._controller.closest_sample else 0.0, default_setter)
-        builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, default_setter)
-        builder.addDoubleProperty("delta", lambda: self._delta, default_setter)
-        builder.addDoubleProperty("angle_error", lambda: self._controller.angle_error.degrees() if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("angle_error_cos", lambda: self._controller.angle_error.cos() if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("angle_error_sin", lambda: self._controller.angle_error.sin() if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("error", lambda: self._controller.error if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("omega_0", lambda: self._controller.omega_0 if self._controller else 0.0, default_setter)
-        builder.addDoubleProperty("omega_1", lambda: self._controller.omega_1 if self._controller else 0.0, default_setter)
+        builder.addDoubleProperty("closest_t", lambda: self._controller.closest_t if self._controller else 0.0, defaultSetter)
+        builder.addDoubleProperty("curvature", lambda: self._controller.closest_sample.curvature if self._controller and self._controller.closest_sample else 0.0, defaultSetter)
+        builder.addDoubleProperty("computed_speed", lambda: self._computed_speed, defaultSetter)
+        builder.addDoubleProperty("delta", lambda: self._delta, defaultSetter)
+        builder.addDoubleProperty("angle_error", lambda: self._controller.angle_error.degrees() if self._controller else 0.0, defaultSetter)
+        builder.addDoubleProperty("angle_error_cos", lambda: self._controller.angle_error.cos() if self._controller else 0.0, defaultSetter)
+        builder.addDoubleProperty("angle_error_sin", lambda: self._controller.angle_error.sin() if self._controller else 0.0, defaultSetter)
+        builder.addDoubleProperty("error", lambda: self._controller.error if self._controller else 0.0, defaultSetter)
+        builder.addDoubleProperty("omega_0", lambda: self._controller.omega_0 if self._controller else 0.0, defaultSetter)
+        builder.addDoubleProperty("omega_1", lambda: self._controller.omega_1 if self._controller else 0.0, defaultSetter)
 
 
 class _ClassProperties:

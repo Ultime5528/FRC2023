@@ -7,7 +7,7 @@ from subsystems.arm import Arm
 
 
 class ManualElevate(SafeCommand):
-    speed = autoproperty(0.25)
+    speed = autoproperty(0.15)
 
     @classmethod
     def up(cls, arm: Arm):
