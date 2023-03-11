@@ -20,6 +20,11 @@ def checkIsInDeadzone(extension: float):
 class Arm(SafeSubsystem):
     elevator_max_position = autoproperty(10.0)
 
+    # Simulation
+    elevator_min_position = autoproperty(0.0)
+    extension_max_position = autoproperty(10.0)
+    extension_min_position = autoproperty(0.0)
+
     def __init__(self):
         super().__init__()
         # Switches
