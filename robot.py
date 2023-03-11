@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import math
+from typing import Optional
 
 import commands2
 import wpilib
@@ -42,6 +43,8 @@ class Robot(commands2.TimedCommandRobot):
         wpilib.LiveWindow.setEnabled(True)
         wpilib.DriverStation.silenceJoystickConnectionWarning(True)
 
+        self.autoCommand: Optional[commands2.CommandBase] = None
+
         self.stick = wpilib.Joystick(0)
         self.panel = wpilib.Joystick(1)
 
@@ -52,7 +55,7 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
         self.arm.setDefaultCommand(StopArm(self.arm))
 
-        
+
         Trigger(self.arm.hasObject).onTrue(TakeObject(self.claw, self.arm))
 
         self.setupButtons()
@@ -62,7 +65,7 @@ class Robot(commands2.TimedCommandRobot):
         # clearAutoproperties()
 
     def autonomousInit(self) -> None:
-        self.autoCommand = self.autoChooser.getSelected()
+        self.autoCommand: commands2.CommandBase = self.autoChooser.getSelected()
 
         if self.autoCommand:
             self.autoCommand.schedule()
@@ -70,6 +73,7 @@ class Robot(commands2.TimedCommandRobot):
     def teleopInit(self) -> None:
         if self.autoCommand:
             self.autoCommand.cancel()
+
     def setupButtons(self):
         # Pilot
         JoystickButton(self.stick, 1).whenPressed(SlowDrive(self.drivetrain, self.stick))
