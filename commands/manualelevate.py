@@ -28,7 +28,7 @@ class ManualElevate(SafeCommand):
         self.addRequirements(self.arm)
 
     def execute(self) -> None:
-        self.arm.setElevatorSpeed(math.copysign(self.speed, 1.0 if self.direction == "up" else -1.0))
+        self.arm.motor_elevator.set(math.copysign(self.speed, 1.0 if self.direction == "up" else -1.0))
 
     def end(self, interrupted: bool) -> None:
         self.arm.setElevatorSpeed(0.0)

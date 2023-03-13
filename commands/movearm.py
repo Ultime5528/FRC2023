@@ -206,7 +206,7 @@ class _ClassProperties:
     bin_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
     transition_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
 
-    extension_min_speed = autoproperty(0.3, subtable=MoveArmDirect.__name__)
+    extension_min_speed = autoproperty(0.1, subtable=MoveArmDirect.__name__)
     extension_max_speed = autoproperty(0.95, subtable=MoveArmDirect.__name__)
     extension_acceleration = autoproperty(0.035, subtable=MoveArmDirect.__name__)
 
