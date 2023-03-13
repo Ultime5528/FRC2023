@@ -14,12 +14,8 @@ class State(Enum):
     Start = "start"
     Climbing = "climbing"
     Stable = "stable"
-    Balancing = "balancing"
-
-class State(Enum):
-    Start = "start"
-    Climbing = "climbing"
-    Stable = "stable"
+    Ontop = "ontop"
+    Checking = "checking"
     Balancing = "balancing"
 
 
@@ -39,10 +35,10 @@ class DriveToDock(SafeMixin, commands2.SequentialCommandGroup):
 class _DriveToDock(SafeCommand):
     start_speed = autoproperty(0.35, subtable=DriveToDock.__name__)
     climbing_speed = autoproperty(0.18, subtable=DriveToDock.__name__)
-    balancing_speed = autoproperty(0.0, subtable=DriveToDock.__name__)
+    balancing_speed = autoproperty(0.05, subtable=DriveToDock.__name__)
     climbing_threshold = autoproperty(17.0, subtable=DriveToDock.__name__)
     ontop_threshold = autoproperty(6.0, subtable=DriveToDock.__name__)
-    balancing_threshold = autoproperty(0.5, subtable=DriveToDock.__name__)
+    balancing_threshold = autoproperty(5.0, subtable=DriveToDock.__name__)
     timer_threshold = autoproperty(2.0, subtable=DriveToDock.__name__)
 
     def __init__(self, drivetrain: Drivetrain, backwards: bool = False):
@@ -76,15 +72,33 @@ class _DriveToDock(SafeCommand):
             pitch_difference = self.max_pitch - pitch
             speed = self.climbing_speed
             if pitch_difference > self.ontop_threshold:
+                self.state = State.Ontop
+
+        if self.state == State.Ontop:
+            speed = 0
+            self.timer.start()
+            if self.timer.get() > 1:
+                self.state = State.Checking
+
+        if self.state == State.Checking:
+            self.timer.stop()
+            self.timer.reset()
+            if abs(pitch) > self.balancing_threshold:
+                self.state = State.Balancing
+            else:
                 self.state = State.Stable
+
+        if self.state == State.Balancing:
+            speed = math.copysign(self.balancing_speed, pitch)
+            self.state = State.Ontop
 
         if self.state == State.Stable:
             speed = 0
-            self.timer.start()
 
         if self.backwards:
             speed *= -1
 
+        wpilib.SmartDashboard.putString("Climbing State", self.state.value)
         self.drivetrain.arcadeDrive(speed, 0)
 
     def isFinished(self) -> bool:
