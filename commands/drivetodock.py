@@ -89,8 +89,10 @@ class _DriveToDock(SafeCommand):
                 self.state = State.Stable
 
         if self.state == State.Balancing:
-            speed = math.copysign(self.balancing_speed, pitch)
-            self.state = State.Ontop
+            if abs(pitch) > self.balancing_threshold:
+                speed = math.copysign(self.balancing_speed, pitch)
+            else:
+                self.state = State.Ontop
 
         if self.state == State.Stable:
             speed = 0
