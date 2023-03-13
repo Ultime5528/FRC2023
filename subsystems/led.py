@@ -26,7 +26,7 @@ class ModeLED(Enum):
 
 
 class LEDController(SafeSubsystem):
-    led_brightness = autoproperty(1.0)
+    brightness = autoproperty(1.0)
     # HSV: [Hue(color 0 to 180), Saturation( amount of gray 0 to 255), Value(brightness 0 to 255)
     red_hsv = np.array([0, 255, 255])
     red_rgb = np.array([255, 0, 0])
@@ -59,11 +59,18 @@ class LEDController(SafeSubsystem):
 
     def setHSV(self, i: int, color: Color):
         h, s, v = color
-        v *= max(min(1, self.led_brightness), 0)
+        v = self.dim(v)
         self.buffer[i].setHSV(h, s, round(v))
 
     def setRGB(self, i: int, color: Color):
-        self.buffer[i].setRGB(*color)
+        r, g, b = color
+        r = self.dim(r)
+        g = self.dim(g)
+        b = self.dim(b)
+        self.buffer[i].setRGB(r, g, b)
+
+    def dim(self, x):
+        return round(x * max(min(1, self.brightness), 0))
 
     def setAll(self, color_func: Callable[[int], Color]):
         for i in range(len(self.buffer)):
