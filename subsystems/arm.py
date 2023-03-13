@@ -46,6 +46,7 @@ class Arm(SafeSubsystem):
         self.motor_extension = rev.CANSparkMax(ports.arm_motor_extension,
                                                rev.CANSparkMax.MotorType.kBrushless)
         configureLeader(self.motor_extension, "brake", True)
+        self.motor_extension.setSmartCurrentLimit(15, 30)
 
         self.encoder_extension = self.motor_extension.getEncoder()
         self.encoder_elevator = self.motor_elevator.getEncoder()
