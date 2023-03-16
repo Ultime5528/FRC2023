@@ -12,6 +12,7 @@ from enum import Enum
 
 class State(Enum):
     Start = "start"
+    Jumping = "jumping"
     Climbing = "climbing"
     Stable = "stable"
     Ontop = "ontop"
@@ -36,7 +37,9 @@ class _DriveToDock(SafeCommand):
     start_speed = autoproperty(0.35, subtable=DriveToDock.__name__)
     climbing_speed = autoproperty(0.18, subtable=DriveToDock.__name__)
     balancing_speed = autoproperty(0.05, subtable=DriveToDock.__name__)
-    climbing_threshold = autoproperty(17.0, subtable=DriveToDock.__name__)
+    jumping_angle = autoproperty(30.0, subtable=DriveToDock.__name__)
+    climbing_angle = autoproperty(14.0, subtable=DriveToDock.__name__)
+    climbing_threshold = autoproperty(5.0, subtable=DriveToDock.__name__)
     ontop_threshold = autoproperty(6.0, subtable=DriveToDock.__name__)
     balancing_threshold = autoproperty(5.0, subtable=DriveToDock.__name__)
     timer_threshold = autoproperty(2.0, subtable=DriveToDock.__name__)
@@ -64,7 +67,12 @@ class _DriveToDock(SafeCommand):
 
         if self.state == State.Start:
             speed = self.start_speed
-            if pitch > self.climbing_threshold:
+            if pitch > self.jumping_angle:
+                self.state = State.Jumping
+
+        if self.state == State.Jumping:
+            climbing_error = abs(pitch - self.climbing_threshold)
+            if climbing_error < self.climbing_angle:
                 self.state = State.Climbing
 
         if self.state == State.Climbing:

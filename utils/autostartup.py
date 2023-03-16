@@ -36,16 +36,14 @@ while not DriverStation:
         time.sleep(1)
 
 DriverStation.moveTo(-8, -8)
-time.sleep(0.75)
+time.sleep(3)
 DriverStation.maximize()
 
 # Dashboard
 
 dashboard_path = str(Path(os.getcwd() + r"\.dashboard"))
-if RobotBase.isReal():
-    subprocess.Popen("pynetworktables2js.exe --team 5528", shell=True, cwd=dashboard_path)
-else:
-    subprocess.Popen("pynetworktables2js.exe --robot 127.0.0.1", shell=True, cwd=dashboard_path)
+subprocess.Popen("pynetworktables2js.exe --team 5528", shell=True, cwd=dashboard_path)
+# subprocess.Popen("pynetworktables2js.exe --robot 127.0.0.1", shell=True, cwd=dashboard_path)
 
 dashboard_url = "http://localhost:8888"
 

@@ -58,7 +58,7 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
         self.arm.setDefaultCommand(StopArm(self.arm))
 
-        Trigger(self.arm.hasObject).onTrue(TakeObject(self.claw, self.arm))
+        Trigger(lambda: self.arm.hasObject() and not self.claw.is_closed).onTrue(TakeObject(self.claw, self.arm))
 
         self.setupButtons()
         self.setupDashboard()
