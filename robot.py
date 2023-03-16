@@ -9,6 +9,7 @@ from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
 
 from commands.autonomous.autodock import AutoDock
+from commands.autonomous.autodroponly import AutoDropOnly
 from commands.autonomous.autoline import AutoLine
 from commands.traversedock import TraverseDock
 from commands.autonomous.autotraverse import AutoTraverse
@@ -145,6 +146,7 @@ class Robot(commands2.TimedCommandRobot):
         self.autoChooser.addOption("AutoTraverse no drop", AutoTraverse(self.drivetrain, self.claw, self.arm, False))
         self.autoChooser.addOption("AutoDock drop", AutoDock(self.drivetrain, self.claw, self.arm, True))
         self.autoChooser.addOption("AutoDock no drop", AutoDock(self.drivetrain, self.claw, self.arm, False))
+        self.autoChooser.addOption("AutoDropOnly", AutoDropOnly(self.claw, self.arm))
 
         wpilib.SmartDashboard.putData("ModeAutonome", self.autoChooser)
 

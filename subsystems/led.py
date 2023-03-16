@@ -81,7 +81,7 @@ class LEDController(SafeSubsystem):
             self.setRGB(i, color_func(i))
 
     def pulse(self, color):
-        t = abs(math.cos(self.time * 2 * math.pi / 300) ** 3)
+        t = abs(math.cos(self.time * 2 * math.pi / 150) ** 3)
         self.setAllRGB(lambda i: interpoler(1 - t, color, self.black))
 
     def selectTeam(self):
