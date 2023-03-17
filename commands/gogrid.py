@@ -58,6 +58,7 @@ class GoGrid(SafeCommand):
         Number of the grid cell from left to right
         """
         super().__init__()
+        self.addRequirements(drivetrain)
         self.drivetrain = drivetrain
         self.grid_number = grid_number
 
