@@ -79,6 +79,7 @@ class Robot(commands2.TimedCommandRobot):
         self.stick.button(4).onTrue(OpenClaw(self.claw))
         self.stick.button(3).onTrue(CloseClaw(self.claw))
         self.stick.button(6).onTrue(ResetArm(self.arm))
+        self.stick.button(12).onTrue(Drive(self.drivetrain, self.stick))
 
         # Copilot
         self.panel1.button(8).onTrue(GoGrid(self.drivetrain, "1"))
