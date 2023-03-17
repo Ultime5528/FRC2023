@@ -26,7 +26,7 @@ class ModeLED(Enum):
 
 
 class LEDController(SafeSubsystem):
-    brightness = autoproperty(1.0)
+    brightness = autoproperty(0.2)
     # HSV: [Hue(color 0 to 180), Saturation( amount of gray 0 to 255), Value(brightness 0 to 255)
     red_hsv = np.array([0, 255, 255])
     red_rgb = np.array([255, 0, 0])

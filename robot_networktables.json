@@ -322,7 +322,7 @@
   {
     "name": "/Properties/DriveToDock/climbing_speed",
     "type": "double",
-    "value": 0.18,
+    "value": 0.3,
     "properties": {
       "persistent": true
     }
@@ -330,7 +330,23 @@
   {
     "name": "/Properties/DriveToDock/balancing_speed",
     "type": "double",
-    "value": 0.0,
+    "value": 0.1,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/DriveToDock/jumping_angle",
+    "type": "double",
+    "value": 15.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/DriveToDock/climbing_angle",
+    "type": "double",
+    "value": 10.0,
     "properties": {
       "persistent": true
     }
@@ -338,7 +354,7 @@
   {
     "name": "/Properties/DriveToDock/climbing_threshold",
     "type": "double",
-    "value": 17.0,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }
@@ -346,7 +362,7 @@
   {
     "name": "/Properties/DriveToDock/ontop_threshold",
     "type": "double",
-    "value": 6.0,
+    "value": 5.0,
     "properties": {
       "persistent": true
     }
@@ -354,7 +370,7 @@
   {
     "name": "/Properties/DriveToDock/balancing_threshold",
     "type": "double",
-    "value": 0.5,
+    "value": 5.0,
     "properties": {
       "persistent": true
     }
@@ -362,7 +378,7 @@
   {
     "name": "/Properties/DriveToDock/timer_threshold",
     "type": "double",
-    "value": 2.0,
+    "value": 4.0,
     "properties": {
       "persistent": true
     }
@@ -568,6 +584,14 @@
     }
   },
   {
+    "name": "/Properties/LEDController/brightness",
+    "type": "double",
+    "value": 0.2,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
     "name": "/Properties/LEDController/speed",
     "type": "double",
     "value": 1.25,
@@ -587,102 +611,6 @@
     "name": "/Properties/LEDController/color_period",
     "type": "double",
     "value": 20.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Properties/LEDController/led_brightness",
-    "type": "double",
-    "value": 1.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Properties/DriveToDock/minimal_drive_speed",
-    "type": "double",
-    "value": 0.25,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Properties/DriveToDock/angle_threshold",
-    "type": "double",
-    "value": 0.5,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Properties/DriveToDock/pitch_weight",
-    "type": "double",
-    "value": 0.008,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Properties/DriveToDock/pitch_threshold",
-    "type": "int",
-    "value": 10,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/DriveToDock/_DriveToDock/start_speed",
-    "type": "double",
-    "value": 0.15,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/DriveToDock/_DriveToDock/climbing_speed",
-    "type": "double",
-    "value": 0.1,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/DriveToDock/_DriveToDock/balancing_speed",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/DriveToDock/_DriveToDock/climbing_threshold",
-    "type": "double",
-    "value": 0.5,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/DriveToDock/_DriveToDock/ontop_threshold",
-    "type": "double",
-    "value": 0.5,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/DriveToDock/_DriveToDock/balancing_threshold",
-    "type": "double",
-    "value": 0.5,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/DriveToDock/_DriveToDock/timer_threshold",
-    "type": "double",
-    "value": 2.0,
     "properties": {
       "persistent": true
     }
