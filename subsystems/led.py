@@ -59,14 +59,14 @@ class LEDController(SafeSubsystem):
 
     def setHSV(self, i: int, color: Color):
         h, s, v = color
-        v = self.dim(v)
-        self.buffer[i].setHSV(h, s, round(v))
+        # v = self.dim(v)
+        self.buffer[i].setHSV(h, s, v)
 
     def setRGB(self, i: int, color: Color):
         r, g, b = color
-        r = self.dim(r)
-        g = self.dim(g)
-        b = self.dim(b)
+        # r = self.dim(r)
+        # g = self.dim(g)
+        # b = self.dim(b)
         self.buffer[i].setRGB(r, g, b)
 
     def dim(self, x):
@@ -82,7 +82,8 @@ class LEDController(SafeSubsystem):
 
     def pulse(self, color):
         t = abs(math.cos(self.time * 2 * math.pi / 150) ** 3)
-        self.setAllRGB(lambda i: interpoler(1 - t, color, self.black))
+        color = interpoler(1 - t, color, self.black)
+        self.setAllRGB(lambda i: color)
 
     def selectTeam(self):
         pixel_value = round(255 * math.cos((self.time / (18 * math.pi))))
