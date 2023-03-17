@@ -76,31 +76,38 @@ class _DriveToDock(SafeCommand):
                 self.state = State.Climbing
 
         if self.state == State.Climbing:
-            self.max_pitch = max(self.max_pitch, pitch)
-            pitch_difference = self.max_pitch - pitch
-            speed = self.climbing_speed
-            if pitch_difference > self.ontop_threshold:
-                self.state = State.Ontop
-
-        if self.state == State.Ontop:
-            speed = 0
             self.timer.start()
-            if self.timer.get() > 1:
-                self.state = State.Checking
-
-        if self.state == State.Checking:
-            self.timer.stop()
-            self.timer.reset()
-            if abs(pitch) > self.balancing_threshold:
-                self.state = State.Balancing
+            move_time = 0.3
+            wait = 1
+            time = self.timer.get() % (move_time + wait)
+            if time < move_time:
+                speed = math.copysign(self.climbing_speed, pitch)
             else:
-                self.state = State.Stable
+                speed = math.copysign(0.05, pitch)
 
-        if self.state == State.Balancing:
-            if abs(pitch) > self.balancing_threshold:
-                speed = math.copysign(self.balancing_speed, pitch)
-            else:
-                self.state = State.Ontop
+                if abs(pitch) < self.ontop_threshold:
+                    self.state = State.Stable
+
+
+        # if self.state == State.Ontop:
+        #     speed = 0
+        #     self.timer.start()
+        #     if self.timer.get() > 1:
+        #         self.state = State.Checking
+        #
+        # if self.state == State.Checking:
+        #     self.timer.stop()
+        #     self.timer.reset()
+        #     if abs(pitch) > self.balancing_threshold:
+        #         self.state = State.Balancing
+        #     else:
+        #         self.state = State.Stable
+        #
+        # if self.state == State.Balancing:
+        #     if abs(pitch) > self.balancing_threshold:
+        #         speed = math.copysign(self.balancing_speed, pitch)
+        #     else:
+        #         self.state = State.Ontop
 
         if self.state == State.Stable:
             speed = 0
