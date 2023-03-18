@@ -60,16 +60,23 @@ class _DriveToDock(SafeCommand):
         self.timer.stop()
         self.timer.reset()
         self.max_pitch = 0
+        self.time = 0
+        self.pitch = 0
 
     def execute(self) -> None:
-        pitch = self.drivetrain.getPitch()
+        last_pitch = self.pitch
+        last_time = self.time
+        self.pitch = self.drivetrain.getPitch()
+        self.time = wpilib.getTime()
+        d = (self.pitch - last_pitch) / (self.time - last_time)
+
         if self.backwards:
-            pitch *= -1
+            self.pitch *= -1
         speed = 0
 
         if self.state == State.Start:
             speed = self.start_speed
-            if pitch > self.jumping_angle:
+            if self.pitch > self.jumping_angle:
                 self.state = State.Jumping
 
         if self.state == State.Jumping:
@@ -81,11 +88,8 @@ class _DriveToDock(SafeCommand):
                 self.state = State.Climbing
 
         if self.state == State.Climbing:
-            self.max_pitch = max(self.max_pitch, pitch)
-            pitch_difference = self.max_pitch - pitch
-            print(f"{self.max_pitch:.3f} {pitch_difference:.3f}")
             speed = self.climbing_speed
-            if pitch_difference > self.ontop_threshold:
+            if abs(d) > self.ontop_threshold:
                 self.state = State.Stable
 
         if self.state == State.Stable:
