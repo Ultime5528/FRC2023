@@ -80,18 +80,11 @@ class _DriveToDock(SafeCommand):
                 self.state = State.Climbing
 
         if self.state == State.Climbing:
-            self.timer.start()
-            move_time = 0.3
-            wait = 1
-            time = self.timer.get() % (move_time + wait)
-            climbing_speed = min(self.climbing_speed, max(self.climbing_speed * (abs(pitch) / self.climbing_angle), 0.1))
-            if time < move_time:
-                speed = math.copysign(climbing_speed, pitch)
-            else:
-                speed = math.copysign(0.05, pitch)
-
-                if abs(pitch) < self.ontop_threshold and time > 1.2:
-                    self.state = State.Stable
+            self.max_pitch = max(self.max_pitch, pitch)
+            pitch_difference = self.max_pitch - pitch
+            speed = self.climbing_speed
+            if pitch_difference > self.ontop_threshold:
+                self.state = State.Stable
 
         if self.state == State.Stable:
             speed = 0
