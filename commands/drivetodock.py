@@ -35,16 +35,16 @@ class DriveToDock(SafeMixin, commands2.SequentialCommandGroup):
 
 class _DriveToDock(SafeCommand):
     start_speed = autoproperty(0.35, subtable=DriveToDock.__name__)
-    climbing_speed = autoproperty(0.3, subtable=DriveToDock.__name__)
+    climbing_speed = autoproperty(0.17, subtable=DriveToDock.__name__)
     balancing_speed = autoproperty(0.1, subtable=DriveToDock.__name__)
     jumping_angle = autoproperty(15.0, subtable=DriveToDock.__name__)
-    climbing_angle = autoproperty(10.0, subtable=DriveToDock.__name__)
+    climbing_angle = autoproperty(14.0, subtable=DriveToDock.__name__)
     climbing_threshold = autoproperty(1.0, subtable=DriveToDock.__name__)
-    ontop_threshold = autoproperty(5.0, subtable=DriveToDock.__name__)
+    ontop_threshold = autoproperty(2.5, subtable=DriveToDock.__name__)
     balancing_threshold = autoproperty(5.0, subtable=DriveToDock.__name__)
     timer_threshold = autoproperty(4.0, subtable=DriveToDock.__name__)
-    jumping_time = autoproperty(0.5, subtable=DriveToDock.__name__)
-    jumping_speed = autoproperty(0.2, subtable=DriveToDock.__name__)
+    jumping_time = autoproperty(1.6, subtable=DriveToDock.__name__)
+    jumping_speed = autoproperty(0.15, subtable=DriveToDock.__name__)
 
     def __init__(self, drivetrain: Drivetrain, backwards: bool = False):
         super().__init__()
@@ -77,11 +77,13 @@ class _DriveToDock(SafeCommand):
             self.timer.start()
             if self.timer.get() > self.jumping_time:
                 self.timer.reset()
+                self.timer.stop()
                 self.state = State.Climbing
 
         if self.state == State.Climbing:
             self.max_pitch = max(self.max_pitch, pitch)
             pitch_difference = self.max_pitch - pitch
+            print(f"{self.max_pitch:.3f} {pitch_difference:.3f}")
             speed = self.climbing_speed
             if pitch_difference > self.ontop_threshold:
                 self.state = State.Stable
