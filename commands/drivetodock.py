@@ -35,14 +35,16 @@ class DriveToDock(SafeMixin, commands2.SequentialCommandGroup):
 
 class _DriveToDock(SafeCommand):
     start_speed = autoproperty(0.35, subtable=DriveToDock.__name__)
-    climbing_speed = autoproperty(0.18, subtable=DriveToDock.__name__)
-    balancing_speed = autoproperty(0.05, subtable=DriveToDock.__name__)
-    jumping_angle = autoproperty(30.0, subtable=DriveToDock.__name__)
-    climbing_angle = autoproperty(14.0, subtable=DriveToDock.__name__)
-    climbing_threshold = autoproperty(5.0, subtable=DriveToDock.__name__)
-    ontop_threshold = autoproperty(6.0, subtable=DriveToDock.__name__)
+    climbing_speed = autoproperty(0.3, subtable=DriveToDock.__name__)
+    balancing_speed = autoproperty(0.1, subtable=DriveToDock.__name__)
+    jumping_angle = autoproperty(15.0, subtable=DriveToDock.__name__)
+    climbing_angle = autoproperty(10.0, subtable=DriveToDock.__name__)
+    climbing_threshold = autoproperty(1.0, subtable=DriveToDock.__name__)
+    ontop_threshold = autoproperty(5.0, subtable=DriveToDock.__name__)
     balancing_threshold = autoproperty(5.0, subtable=DriveToDock.__name__)
-    timer_threshold = autoproperty(2.0, subtable=DriveToDock.__name__)
+    timer_threshold = autoproperty(4.0, subtable=DriveToDock.__name__)
+    jumping_time = autoproperty(0.5, subtable=DriveToDock.__name__)
+    jumping_speed = autoproperty(0.2, subtable=DriveToDock.__name__)
 
     def __init__(self, drivetrain: Drivetrain, backwards: bool = False):
         super().__init__()
@@ -71,36 +73,25 @@ class _DriveToDock(SafeCommand):
                 self.state = State.Jumping
 
         if self.state == State.Jumping:
-            climbing_error = abs(pitch - self.climbing_threshold)
-            if climbing_error < self.climbing_angle:
+            speed = self.jumping_speed
+            self.timer.start()
+            if self.timer.get() > self.jumping_time:
+                self.timer.reset()
                 self.state = State.Climbing
 
         if self.state == State.Climbing:
-            self.max_pitch = max(self.max_pitch, pitch)
-            pitch_difference = self.max_pitch - pitch
-            speed = self.climbing_speed
-            if pitch_difference > self.ontop_threshold:
-                self.state = State.Ontop
-
-        if self.state == State.Ontop:
-            speed = 0
             self.timer.start()
-            if self.timer.get() > 1:
-                self.state = State.Checking
-
-        if self.state == State.Checking:
-            self.timer.stop()
-            self.timer.reset()
-            if abs(pitch) > self.balancing_threshold:
-                self.state = State.Balancing
+            move_time = 0.3
+            wait = 1
+            time = self.timer.get() % (move_time + wait)
+            climbing_speed = min(self.climbing_speed, max(self.climbing_speed * (abs(pitch) / self.climbing_angle), 0.1))
+            if time < move_time:
+                speed = math.copysign(climbing_speed, pitch)
             else:
-                self.state = State.Stable
+                speed = math.copysign(0.05, pitch)
 
-        if self.state == State.Balancing:
-            if abs(pitch) > self.balancing_threshold:
-                speed = math.copysign(self.balancing_speed, pitch)
-            else:
-                self.state = State.Ontop
+                if abs(pitch) < self.ontop_threshold and time > 1.2:
+                    self.state = State.Stable
 
         if self.state == State.Stable:
             speed = 0
