@@ -59,18 +59,11 @@ class LEDController(SafeSubsystem):
 
     def setHSV(self, i: int, color: Color):
         h, s, v = color
-        # v = self.dim(v)
         self.buffer[i].setHSV(h, s, v)
 
     def setRGB(self, i: int, color: Color):
         r, g, b = color
-        # r = self.dim(r)
-        # g = self.dim(g)
-        # b = self.dim(b)
         self.buffer[i].setRGB(r, g, b)
-
-    def dim(self, x):
-        return round(x * max(min(1, self.brightness), 0))
 
     def setAll(self, color_func: Callable[[int], Color]):
         for i in range(len(self.buffer)):
@@ -80,18 +73,35 @@ class LEDController(SafeSubsystem):
         for i in range(len(self.buffer)):
             self.setRGB(i, color_func(i))
 
-    def pulse(self, color):
-        t = abs(math.cos(self.time * 2 * math.pi / 150) ** 3)
-        color = interpoler(1 - t, color, self.black)
-        self.setAllRGB(lambda i: color)
+    def pulse(self):
+        pixel_value = abs(round(255 * math.cos((self.time / (18 * math.pi)))))
+
+        if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed:
+            r = pixel_value
+            g = 0
+            b = 0
+        else:
+            r = 0
+            g = 0
+            b = pixel_value
+
+        for i in range(self.led_number):
+            self.buffer[i].setRGB(r, g, b)
 
     def selectTeam(self):
         pixel_value = round(255 * math.cos((self.time / (18 * math.pi))))
+
         if pixel_value >= 0:
-            color = (pixel_value, 0, 0)
+            r = pixel_value
+            g = 0
+            b = 0
         else:
-            color = (0, 0, abs(pixel_value))
-        self.setAllRGB(lambda i: color)
+            r = 0
+            g = 0
+            b = abs(pixel_value)
+
+        for i in range(self.led_number):
+            self.buffer[i].setRGB(r, g, b)
 
     def gradient(self):
         color = self.getAllianceColor()
@@ -164,12 +174,18 @@ class LEDController(SafeSubsystem):
     def teleop(self):
         a = 1 / (1 - math.cos(math.pi * self.white_length / self.color_period))
         k = 1 - a
-        def getColor(i: int):
-            y = a * math.sin(2 * math.pi / self.color_period * (i - self.speed * self.time)) + k
-            y = max(y, 0)
-            return interpoler(y, self.getModeColor(), self.white)
 
-        return self.setAll(getColor)
+        i_values = np.arange(self.led_number)
+        y_values = a * np.sin(2 * math.pi / self.color_period * (i_values - self.speed * self.time)) + k
+        y_values = np.maximum(y_values, 0)
+        y_values = np.round(255 * y_values).astype(int)
+
+        if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed:
+            for i, y in enumerate(y_values):
+                self.buffer[i].setRGB(255, y, y)
+        else:
+            for i, y in enumerate(y_values):
+                self.buffer[i].setRGB(y, y, 255)
 
     def e_stopped(self):
         interval = 10
@@ -189,6 +205,8 @@ class LEDController(SafeSubsystem):
         self.mode = mode
 
     def periodic(self) -> None:
+        start_time = wpilib.getTime()
+
         self.time += 1
         if wpilib.DriverStation.isEStopped():
             self.e_stopped()
@@ -208,11 +226,10 @@ class LEDController(SafeSubsystem):
                     self.explosiveness = 1
                     self.explode(self.getAllianceColor())
             else:  # game hasn't started
-                if wpilib.DriverStation.isDSAttached() and wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed:
-                    self.pulse(self.red_rgb)
-                elif wpilib.DriverStation.isDSAttached() and wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
-                    self.pulse(self.blue_rgb)
+                if wpilib.DriverStation.isDSAttached():
+                    self.pulse()
                 else:
                     self.selectTeam()
 
         self.led_strip.setData(self.buffer)
+        wpilib.SmartDashboard.putNumber("led_time", wpilib.getTime() - start_time)
