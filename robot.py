@@ -40,6 +40,8 @@ from subsystems.led import LEDController
 
 class Robot(commands2.TimedCommandRobot):
     def robotInit(self):
+        wpilib.DataLogManager.start()
+        wpilib.DriverStation.startDataLog(wpilib.DataLogManager.getLog())
         wpilib.LiveWindow.enableAllTelemetry()
         wpilib.LiveWindow.setEnabled(True)
         wpilib.DriverStation.silenceJoystickConnectionWarning(True)
@@ -65,7 +67,9 @@ class Robot(commands2.TimedCommandRobot):
 
     def autonomousInit(self) -> None:
         self.autoCommand: commands2.CommandBase = self.autoChooser.getSelected()
-
+        for name, command in self.autos.items():
+            if command is self.autoCommand:
+                wpilib.reportWarning("Starting auto: " + name)
         if self.autoCommand:
             self.autoCommand.schedule()
 
@@ -103,6 +107,17 @@ class Robot(commands2.TimedCommandRobot):
         self.panel2.button(8).onTrue(Drop(self.claw, self.arm))
 
     def setupDashboard(self):
+        self.autos = {
+            "AutoLine drop": AutoLine(self.drivetrain, self.claw, self.arm, True),
+            "AutoLine no drop": AutoLine(self.drivetrain, self.claw, self.arm, False),
+            "AutoTraverseDock drop": AutoTraverseDock(self.drivetrain, self.claw, self.arm, True),
+            "AutoTraverseDock no drop": AutoTraverseDock(self.drivetrain, self.claw, self.arm, False),
+            "AutoTraverse drop": AutoTraverse(self.drivetrain, self.claw, self.arm, True),
+            "AutoTraverse no drop": AutoTraverse(self.drivetrain, self.claw, self.arm, False),
+            "AutoDock drop": AutoDock(self.drivetrain, self.claw, self.arm, True),
+            "AutoDock no drop": AutoDock(self.drivetrain, self.claw, self.arm, False),
+            "AutoDropOnly": AutoDropOnly(self.claw, self.arm)
+        }
         putCommandOnDashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
         putCommandOnDashboard("Drivetrain", FollowTrajectory(self.drivetrain, Pose2d(1.2, -0.7, math.radians(-33)), 0.18, "relative"), "curve")
         putCommandOnDashboard("Drivetrain", FollowTrajectory.driveStraight(self.drivetrain, 2.00, 0.1))
@@ -140,15 +155,8 @@ class Robot(commands2.TimedCommandRobot):
         self.autoCommand = None
         self.autoChooser = wpilib.SendableChooser()
         self.autoChooser.setDefaultOption("Nothing", None)
-        self.autoChooser.addOption("AutoLine drop", AutoLine(self.drivetrain, self.claw, self.arm, True))
-        self.autoChooser.addOption("AutoLine no drop", AutoLine(self.drivetrain, self.claw, self.arm, False))
-        self.autoChooser.addOption("AutoTraverseDock drop", AutoTraverseDock(self.drivetrain, self.claw, self.arm, True))
-        self.autoChooser.addOption("AutoTraverseDock no drop", AutoTraverseDock(self.drivetrain, self.claw, self.arm, False))
-        self.autoChooser.addOption("AutoTraverse drop", AutoTraverse(self.drivetrain, self.claw, self.arm, True))
-        self.autoChooser.addOption("AutoTraverse no drop", AutoTraverse(self.drivetrain, self.claw, self.arm, False))
-        self.autoChooser.addOption("AutoDock drop", AutoDock(self.drivetrain, self.claw, self.arm, True))
-        self.autoChooser.addOption("AutoDock no drop", AutoDock(self.drivetrain, self.claw, self.arm, False))
-        self.autoChooser.addOption("AutoDropOnly", AutoDropOnly(self.claw, self.arm))
+        for name, command in self.autos.items():
+            self.autoChooser.addOption(name, command)
 
         wpilib.SmartDashboard.putData("ModeAutonome", self.autoChooser)
 
