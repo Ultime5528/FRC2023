@@ -14,7 +14,7 @@ from utils.safesubsystem import SafeSubsystem
 
 def interpoler(t, color1, color2):
     assert 0 <= t <= 1
-    return np.interp(t, color1, color2)
+    return np.add(np.multiply(1 - t, color1), np.multiply(t, color2)).astype(int)
 
 
 Color = Union[np.ndarray, Tuple[int, int, int], List[int]]
@@ -31,7 +31,7 @@ class LEDController(SafeSubsystem):
     # HSV: [Hue(color 0 to 180), Saturation( amount of gray 0 to 255), Value(brightness 0 to 255)
     red_rgb = np.array([255, 0, 0])
     blue_rgb = np.array([0, 0, 255])
-    sky_blue_rgb = np.array([51, 51, 255])
+    sky_blue_rgb = np.array([100, 100, 255])
     purple_rgb = np.array([280, 255, 255])
     violet_rgb = np.array([300, 255, 255])
     yellow_rgb = np.array([255, 255, 0])
@@ -64,6 +64,7 @@ class LEDController(SafeSubsystem):
         a = np.arange(len(self.buffer))
         for i in np.nditer(a):
             self.setRGB(i, color_func(i))
+        self.buffer
 
     def pulse(self):
         pixel_value = abs(round(255 * math.cos((self.time / (18 * math.pi)))))
@@ -98,20 +99,23 @@ class LEDController(SafeSubsystem):
     def gradient(self):
         color = self.getAllianceColor()
 
-        def getColor(i: int):
-            y = 0.5 * np.sin(2 * np.pi ** 2 * (i - 2 * self.time) / 200) + 0.5
-            if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
+        i_values = np.arange(self.led_number)
+        y_values = 0.5 * np.sin(2 * math.pi ** 2 * (i_values - 2 * self.time) / 200) + 0.5
+
+        if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
+            for i, y in enumerate(y_values):
                 color1 = interpoler(y, color, interpoler(y, color, self.purple_rgb))
                 color2 = interpoler(y, color, interpoler(y, color, self.sky_blue_rgb))
-                return interpoler(y, color1, color2)
-            elif wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed:
-                color3 = interpoler(y, color, interpoler(y, color, self.orange_rgb))
-                color4 = interpoler(y, color, interpoler(y, color, self.beige_rgb))
-                return interpoler(y, color3, color4)
-            else:
-                return self.black
-
-        self.setAll(getColor)
+                final_color = interpoler(y, color1, color2)
+                self.buffer[i].setRGB(*final_color)
+        elif wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed:
+            for i, y in enumerate(y_values):
+                color1 = interpoler(y, color, interpoler(y, color, self.orange_rgb))
+                color2 = interpoler(y, color, interpoler(y, color, self.beige_rgb))
+                final_color = interpoler(y, color1, color2)
+                self.buffer[i].setRGB(*final_color)
+        else:
+            return self.black
 
     def halfWaves(self, color):
         def getColor(i: int):
@@ -126,23 +130,24 @@ class LEDController(SafeSubsystem):
         self.setAll(getColor)
 
     def flash(self, color, speed):
+        i_values = np.arange(self.led_number)
         if self.time % speed == 0:
             if self.time % (speed * 2) == 0:
-                self.setAll(lambda i: color)
+                for i in i_values:
+                    self.buffer[i].setRGB(color)
             else:
-                self.setAll(lambda i: self.black)
+                for i in i_values:
+                    self.buffer[i].setRGB(color)
 
     def explode(self, color):
         if self.time % 3 == 0:
-            def getColor(i: int):
-                y = random.random()
+            y_values = np.random.randn(1, self.led_number)
+            for i, y in enumerate(y_values):
                 if y <= self.explosiveness:
-                    return interpoler(y / self.explosiveness, color, np.array([color[0], 0, 255]))
+                    self.buffer[i].setRGB(interpoler(y / self.explosiveness, color, np.array([color[0], 0, 255])))
                 else:
-                    return self.black
-
-            self.explosiveness -= 0.02
-            self.setAll(getColor)
+                    self.buffer[i].setRGB(0,0,0)
+                self.explosiveness -= 0.02
 
     def getAllianceColor(self):
         alliance = wpilib.DriverStation.getAlliance()
@@ -172,11 +177,11 @@ class LEDController(SafeSubsystem):
         y_values = np.round(255 * y_values).astype(int)
 
         if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed:
-            for i, y in np.ndenumerate(y_values):
-                self.buffer[i[0]].setRGB(255, y, y)
+            for i, y in enumerate(y_values):
+                self.buffer[i].setRGB(255, y, y)
         else:
-            for i, y in np.ndenumerate(y_values):
-                self.buffer[i[0]].setRGB(y, y, 255)
+            for i, y in enumerate(y_values):
+                self.buffer[i].setRGB(y, y, 255)
 
     def e_stopped(self):
         interval = 10
