@@ -134,8 +134,8 @@ class Robot(commands2.TimedCommandRobot):
         putCommandOnDashboard("ArmManual", ManualExtend.down(self.arm))
         putCommandOnDashboard("Groups", Drop(self.claw, self.arm))
         putCommandOnDashboard("Groups", TakeObject(self.claw, self.arm))
-        # putCommandOnDashboard("Led", SignalCone(self.led_controller))
-        # putCommandOnDashboard("Led", SignalCube(self.led_controller))
+        putCommandOnDashboard("Led", SignalCone(self.led_controller))
+        putCommandOnDashboard("Led", SignalCube(self.led_controller))
 
         self.autoCommand = None
         self.autoChooser = wpilib.SendableChooser()

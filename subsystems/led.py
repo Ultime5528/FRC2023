@@ -12,9 +12,14 @@ from utils.property import autoproperty
 from utils.safesubsystem import SafeSubsystem
 
 
-def interpoler(t, color1, color2):
+def interpolate(t, color1, color2):
     assert 0 <= t <= 1
-    return np.add(np.multiply(1 - t, color1), np.multiply(t, color2)).astype(int)
+    return ((1 - t) * color1 + t * color2).astype(int)
+
+
+def numpy_interpolation(t: np.ndarray, color1: np.ndarray, color2: np.ndarray):
+    assert 0 <= t.min() and t.max() <= 1
+    return ((1 - t)[:, np.newaxis] * color1 + t[:, np.newaxis] * color2).astype(int)
 
 
 Color = Union[np.ndarray, Tuple[int, int, int], List[int]]
@@ -103,51 +108,56 @@ class LEDController(SafeSubsystem):
         y_values = 0.5 * np.sin(2 * math.pi ** 2 * (i_values - 2 * self.time) / 200) + 0.5
 
         if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
-            for i, y in enumerate(y_values):
-                color1 = interpoler(y, color, interpoler(y, color, self.purple_rgb))
-                color2 = interpoler(y, color, interpoler(y, color, self.sky_blue_rgb))
-                final_color = interpoler(y, color1, color2)
-                self.buffer[i].setRGB(*final_color)
+            color1 = numpy_interpolation(y_values, color, numpy_interpolation(y_values, color, self.purple_rgb))
+            color2 = numpy_interpolation(y_values, color, numpy_interpolation(y_values, color, self.sky_blue_rgb))
+            final_color = numpy_interpolation(y_values, color1, color2)
+            for i, y in enumerate(final_color):
+                self.buffer[i].setRGB(*y)
         elif wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed:
-            for i, y in enumerate(y_values):
-                color1 = interpoler(y, color, interpoler(y, color, self.orange_rgb))
-                color2 = interpoler(y, color, interpoler(y, color, self.beige_rgb))
-                final_color = interpoler(y, color1, color2)
-                self.buffer[i].setRGB(*final_color)
+            color1 = numpy_interpolation(y_values, color, numpy_interpolation(y_values, color, self.orange_rgb))
+            color2 = numpy_interpolation(y_values, color, numpy_interpolation(y_values, color, self.beige_rgb))
+            final_color = numpy_interpolation(y_values, color1, color2)
+            for i, y in enumerate(final_color):
+                self.buffer[i].setRGB(*y)
         else:
-            return self.black
+            for i, y in enumerate(final_color):
+                self.buffer[i].setRGB(0, 0, 0)
 
     def halfWaves(self, color):
-        def getColor(i: int):
-            prop = 0.5 * math.cos((2 * math.pi / 50) * (self.time + i)) + 0.5
-            if self.last - prop <= 0:
-                t = prop
+        i_values = np.arange(self.led_number)
+        prop = 0.5 * np.cos((2 * math.pi / 50) * (self.time + i_values)) + 0.5
+        t_values = np.zeros_like(prop)
+        for i in i_values:
+            if self.last - prop[i] <= 0:
+                t_values[i] = prop[i]
             else:
-                t = abs(prop - 1)
-            self.last = prop
-            return interpoler(t, color, self.black)
-
-        self.setAll(getColor)
+                t_values[i] = abs(prop[i] - 1)
+            self.last = prop[i]
+        y_values = numpy_interpolation(t_values, color, self.black)
+        for i, y in enumerate(y_values):
+            self.buffer[i].setRGB(*y)
 
     def flash(self, color, speed):
         i_values = np.arange(self.led_number)
         if self.time % speed == 0:
             if self.time % (speed * 2) == 0:
                 for i in i_values:
-                    self.buffer[i].setRGB(color)
+                    self.buffer[i].setRGB(*color)
             else:
                 for i in i_values:
-                    self.buffer[i].setRGB(color)
+                    self.buffer[i].setRGB(0, 0, 0)
 
     def explode(self, color):
         if self.time % 3 == 0:
-            y_values = np.random.randn(1, self.led_number)
+            y_values = np.random.rand(self.led_number)
+            color_values = numpy_interpolation(y_values / self.explosiveness, color,
+                                               np.array([color[0], color[1] + 100, color[2] + 100]))
             for i, y in enumerate(y_values):
                 if y <= self.explosiveness:
-                    self.buffer[i].setRGB(interpoler(y / self.explosiveness, color, np.array([color[0], 0, 255])))
+                    self.buffer[i].setRGB(*color_values[i])
                 else:
-                    self.buffer[i].setRGB(0,0,0)
-                self.explosiveness -= 0.02
+                    self.buffer[i].setRGB(0, 0, 0)
+            self.explosiveness -= 0.02
 
     def getAllianceColor(self):
         alliance = wpilib.DriverStation.getAlliance()
@@ -216,7 +226,7 @@ class LEDController(SafeSubsystem):
                     self.teleop()
                 elif wpilib.DriverStation.getMatchTime() > 25:
                     self.flash(self.getAllianceColor(), 10)
-                elif wpilib.DriverStation.getMatchTime() > 1:
+                elif wpilib.DriverStation.getMatchTime() > 5:
                     self.halfWaves(self.getModeColor())
                 else:
                     self.explosiveness = 1
