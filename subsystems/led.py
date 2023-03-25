@@ -32,7 +32,6 @@ class ModeLED(Enum):
 
 
 class LEDController(SafeSubsystem):
-    brightness = autoproperty(0.2)
     # HSV: [Hue(color 0 to 180), Saturation( amount of gray 0 to 255), Value(brightness 0 to 255)
     red_rgb = np.array([255, 0, 0])
     blue_rgb = np.array([0, 0, 255])
@@ -72,7 +71,6 @@ class LEDController(SafeSubsystem):
         a = np.arange(len(self.buffer))
         for i in np.nditer(a):
             self.setRGB(i, color_func(i))
-        self.buffer
 
     def pulse(self):
         # Convert percentage to good value
