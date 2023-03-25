@@ -1,25 +1,35 @@
 import commands2
-from wpimath.geometry import Pose2d
 
 from subsystems.drivetrain import Drivetrain
 from subsystems.claw import Claw
 from subsystems.arm import Arm
-from commands.followtrajectory import FollowTrajectory
 
 from commands.autonomous.autodrop import AutoDrop
 from commands.movearm import MoveArm
-from commands.closeclaw import CloseClaw
-from commands.openclaw import OpenClaw
 from commands.drivetodock import DriveToDock
 from commands.traversedock import TraverseDock
 from utils.safecommand import SafeMixin
 
 
 class AutoTraverseDock(SafeMixin, commands2.SequentialCommandGroup):
-    def __init__(self, drivetrain: Drivetrain, claw: Claw, arm: Arm, drop_object: bool):
-        commands = [TraverseDock(drivetrain), DriveToDock(drivetrain)]
-        if drop_object:
+    def __init__(self, drivetrain: Drivetrain, claw: Claw, arm: Arm, drop: bool):
+        commands = [
+            commands2.ParallelCommandGroup(
+                commands2.SequentialCommandGroup(
+                    MoveArm.toLevel2(arm),
+                    commands2.WaitCommand(1),
+                    MoveArm.toBase(arm)
+                ),
+                commands2.SequentialCommandGroup(
+                    TraverseDock(drivetrain),
+                    DriveToDock(drivetrain)
+                )
+            )
+        ]
+
+        if drop:
             commands.insert(0, AutoDrop(claw, arm))
+
         super().__init__(
-            commands
+            *commands
         )

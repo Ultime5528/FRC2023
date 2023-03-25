@@ -26,15 +26,16 @@ class ModeLED(Enum):
 
 
 class LEDController(SafeSubsystem):
+    brightness = autoproperty(0.2)
     # HSV: [Hue(color 0 to 180), Saturation( amount of gray 0 to 255), Value(brightness 0 to 255)
     red_hsv = np.array([0, 255, 255])
     red_rgb = np.array([255, 0, 0])
     blue_hsv = np.array([120, 255, 255])
     blue_rgb = np.array([0, 0, 255])
     sky_blue_hsv = np.array([120, 60, 255])
-    purple_hsv = np.array([150, 255, 150])
+    purple_hsv = np.array([150, 255, 120])
     violet_hsv = np.array([150, 255, 240])
-    yellow_hsv = np.array([30, 255, 255])
+    yellow_hsv = np.array([29, 255, 255])
     orange_hsv = np.array([10, 255, 255])
     black = np.array([0, 0, 0])
     white = np.array([0, 0, 255])
@@ -57,10 +58,19 @@ class LEDController(SafeSubsystem):
         self.mode = ModeLED.NONE
 
     def setHSV(self, i: int, color: Color):
-        self.buffer[i].setHSV(*color)
+        h, s, v = color
+        # v = self.dim(v)
+        self.buffer[i].setHSV(h, s, v)
 
     def setRGB(self, i: int, color: Color):
-        self.buffer[i].setRGB(*color)
+        r, g, b = color
+        # r = self.dim(r)
+        # g = self.dim(g)
+        # b = self.dim(b)
+        self.buffer[i].setRGB(r, g, b)
+
+    def dim(self, x):
+        return round(x * max(min(1, self.brightness), 0))
 
     def setAll(self, color_func: Callable[[int], Color]):
         for i in range(len(self.buffer)):
@@ -71,8 +81,9 @@ class LEDController(SafeSubsystem):
             self.setRGB(i, color_func(i))
 
     def pulse(self, color):
-        t = abs(math.cos(self.time * 2 * math.pi / 300) ** 3)
-        self.setAllRGB(lambda i: interpoler(1 - t, color, self.black))
+        t = abs(math.cos(self.time * 2 * math.pi / 150) ** 3)
+        color = interpoler(1 - t, color, self.black)
+        self.setAllRGB(lambda i: color)
 
     def selectTeam(self):
         pixel_value = round(255 * math.cos((self.time / (18 * math.pi))))
@@ -160,38 +171,48 @@ class LEDController(SafeSubsystem):
 
         return self.setAll(getColor)
 
+    def e_stopped(self):
+        interval = 10
+        flash_time = 20
+        state = round(self.time / flash_time) % 2
+
+        def getColor(i: int):
+            is_color = state - round(i / interval) % 2
+            if is_color:
+                return self.red_rgb
+            else:
+                return self.black
+
+        self.setAllRGB(getColor)
 
     def setMode(self, mode: ModeLED):
         self.mode = mode
 
     def periodic(self) -> None:
         self.time += 1
-        if self.explosiveness > 0.0:
+        if wpilib.DriverStation.isEStopped():
+            self.e_stopped()
+        elif self.explosiveness > 0.0:
             self.explode(self.getAllianceColor())
         else:
             if wpilib.DriverStation.isAutonomousEnabled():  # auto
                 self.gradient()
             elif wpilib.DriverStation.isTeleopEnabled():  # teleop
-                if wpilib.DriverStation.getMatchTime() <= 1:
-                    # if self.explosiveness <= 0.0:
+                if wpilib.DriverStation.getMatchTime() == -1.0 or wpilib.DriverStation.getMatchTime() > 30:
+                    self.teleop()
+                elif wpilib.DriverStation.getMatchTime() > 25:
+                    self.flash(self.getAllianceColor(), 10)
+                elif wpilib.DriverStation.getMatchTime() > 1:
+                    self.halfWaves(self.getModeColor())
+                else:
                     self.explosiveness = 1
                     self.explode(self.getAllianceColor())
-                elif wpilib.DriverStation.getMatchTime() <= 25:
-                    self.halfWaves(self.getModeColor())
-                elif wpilib.DriverStation.getMatchTime() <= 30:
-                    self.flash(self.getAllianceColor(), 10)
-                elif wpilib.DriverStation.getMatchTime() <= 135:
-                    self.teleop()
-                else:
-                    self.pulse(self.getAllianceColor())
             else:  # game hasn't started
-                if wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kInvalid:
-                    self.selectTeam()
-                elif wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed:
+                if wpilib.DriverStation.isDSAttached() and wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed:
                     self.pulse(self.red_rgb)
-                elif wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
+                elif wpilib.DriverStation.isDSAttached() and wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kBlue:
                     self.pulse(self.blue_rgb)
                 else:
-                    self.halfWaves(self.purple_hsv)
+                    self.selectTeam()
 
         self.led_strip.setData(self.buffer)

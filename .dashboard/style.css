@@ -95,3 +95,17 @@ body /deep/ #slider {
 frc-boolean-box {
     border: 4px solid var(--lumo-primary-color);
 }
+
+.flex-parent-element {
+  display: flex;
+  width: 50%;
+}
+
+.flex-child-element {
+  flex: 1;
+  margin: 10px;
+}
+
+.flex-child-element:first-child {
+  margin-right: 20px;
+}

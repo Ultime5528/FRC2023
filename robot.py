@@ -9,6 +9,7 @@ from commands2.button import JoystickButton
 from wpimath.geometry import Pose2d
 
 from commands.autonomous.autodock import AutoDock
+from commands.autonomous.autodroponly import AutoDropOnly
 from commands.autonomous.autoline import AutoLine
 from commands.traversedock import TraverseDock
 from commands.autonomous.autotraverse import AutoTraverse
@@ -45,8 +46,9 @@ class Robot(commands2.TimedCommandRobot):
 
         self.autoCommand: Optional[commands2.CommandBase] = None
 
-        self.stick = wpilib.Joystick(0)
-        self.panel = wpilib.Joystick(1)
+        self.stick = commands2.button.CommandJoystick(0)
+        self.panel1 = commands2.button.CommandJoystick(1)
+        self.panel2 = commands2.button.CommandJoystick(2)
 
         self.drivetrain = Drivetrain()
         self.arm = Arm()
@@ -56,7 +58,7 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
         self.arm.setDefaultCommand(StopArm(self.arm))
 
-        Trigger(self.arm.hasObject).onTrue(TakeObject(self.claw, self.arm))
+        Trigger(lambda: self.arm.hasObject() and not self.claw.is_closed).onTrue(TakeObject(self.claw, self.arm))
 
         self.setupButtons()
         self.setupDashboard()
@@ -73,28 +75,32 @@ class Robot(commands2.TimedCommandRobot):
 
     def setupButtons(self):
         # Pilot
-        JoystickButton(self.stick, 1).whenPressed(SlowDrive(self.drivetrain, self.stick))
-        JoystickButton(self.stick, 2).whenPressed(OpenClaw(self.claw))
-        JoystickButton(self.stick, 3).whenPressed(CloseClaw(self.claw))
+        self.stick.button(1).onTrue(SlowDrive(self.drivetrain, self.stick))
+        self.stick.button(4).onTrue(OpenClaw(self.claw))
+        self.stick.button(3).onTrue(CloseClaw(self.claw))
+        self.stick.button(6).onTrue(ResetArm(self.arm))
+        self.stick.button(12).onTrue(Drive(self.drivetrain, self.stick))
+        self.stick.button(10).onTrue(FollowTrajectory.toLoading(self.drivetrain))
 
         # Copilot
-        JoystickButton(self.panel, 1).whenPressed(GoGrid(self.drivetrain, "1"))
-        JoystickButton(self.panel, 2).whenPressed(GoGrid(self.drivetrain, "2"))
-        JoystickButton(self.panel, 3).whenPressed(GoGrid(self.drivetrain, "3"))
-        JoystickButton(self.panel, 4).whenPressed(GoGrid(self.drivetrain, "4"))
-        JoystickButton(self.panel, 5).whenPressed(GoGrid(self.drivetrain, "5"))
-        JoystickButton(self.panel, 6).whenPressed(GoGrid(self.drivetrain, "6"))
-        JoystickButton(self.panel, 7).whenPressed(GoGrid(self.drivetrain, "7"))
-        JoystickButton(self.panel, 8).whenPressed(GoGrid(self.drivetrain, "8"))
-        JoystickButton(self.panel, 9).whenPressed(GoGrid(self.drivetrain, "9"))
-        JoystickButton(self.panel, 10).whenPressed(MoveArm.toLevel1(self.arm))
-        JoystickButton(self.panel, 11).whenPressed(MoveArm.toLevel2(self.arm))
-        JoystickButton(self.panel, 12).whenPressed(MoveArm.toLevel3(self.arm))
-        JoystickButton(self.panel, 13).whenPressed(MoveArm.toFloor(self.arm))
-        JoystickButton(self.panel, 14).whenPressed(MoveArm.toBase(self.arm))
-        JoystickButton(self.panel, 15).toggleWhenPressed(SignalCone(self.led_controller))
-        JoystickButton(self.panel, 16).toggleWhenPressed(SignalCube(self.led_controller))
-        # JoystickButton(self.panel, 17).whenPressed(Drop(self.claw)
+        self.panel1.button(8).onTrue(GoGrid(self.drivetrain, "1"))
+        self.panel1.button(7).onTrue(GoGrid(self.drivetrain, "2"))
+        self.panel1.button(6).onTrue(GoGrid(self.drivetrain, "3"))
+        self.panel1.button(5).onTrue(GoGrid(self.drivetrain, "4"))
+        self.panel1.button(4).onTrue(GoGrid(self.drivetrain, "5"))
+        self.panel1.button(3).onTrue(GoGrid(self.drivetrain, "6"))
+        self.panel1.button(2).onTrue(GoGrid(self.drivetrain, "7"))
+        self.panel1.button(1).onTrue(GoGrid(self.drivetrain, "8"))
+        self.panel1.button(9).onTrue(GoGrid(self.drivetrain, "9"))
+
+        self.panel2.button(2).onTrue(MoveArm.toLevel1(self.arm))
+        self.panel2.button(1).onTrue(MoveArm.toLevel2(self.arm))
+        self.panel2.button(7).onTrue(MoveArm.toLevel3(self.arm))
+        self.panel2.button(4).onTrue(MoveArm.toFloor(self.arm))
+        self.panel2.button(3).onTrue(MoveArm.toBase(self.arm))
+        self.panel2.button(6).toggleOnTrue(SignalCube(self.led_controller))
+        self.panel2.button(5).toggleOnTrue(SignalCone(self.led_controller))
+        self.panel2.button(8).onTrue(Drop(self.claw, self.arm))
 
     def setupDashboard(self):
         putCommandOnDashboard("Drivetrain", SlowDrive(self.drivetrain, self.stick))
@@ -131,7 +137,7 @@ class Robot(commands2.TimedCommandRobot):
         putCommandOnDashboard("Led", SignalCone(self.led_controller))
         putCommandOnDashboard("Led", SignalCube(self.led_controller))
 
-        self.autoCommand: commands2.CommandBase = None
+        self.autoCommand = None
         self.autoChooser = wpilib.SendableChooser()
         self.autoChooser.setDefaultOption("Nothing", None)
         self.autoChooser.addOption("AutoLine drop", AutoLine(self.drivetrain, self.claw, self.arm, True))
@@ -142,11 +148,9 @@ class Robot(commands2.TimedCommandRobot):
         self.autoChooser.addOption("AutoTraverse no drop", AutoTraverse(self.drivetrain, self.claw, self.arm, False))
         self.autoChooser.addOption("AutoDock drop", AutoDock(self.drivetrain, self.claw, self.arm, True))
         self.autoChooser.addOption("AutoDock no drop", AutoDock(self.drivetrain, self.claw, self.arm, False))
+        self.autoChooser.addOption("AutoDropOnly", AutoDropOnly(self.claw, self.arm))
 
         wpilib.SmartDashboard.putData("ModeAutonome", self.autoChooser)
-
-        # putCommandOnDashboard("Led", ledpourcube)
-        # putCommandOnDashboard("Led", lespourtriangle)
 
 
 def putCommandOnDashboard(sub_table: str, cmd: commands2.CommandBase, name: str = None) -> commands2.CommandBase:

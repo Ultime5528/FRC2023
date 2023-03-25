@@ -20,20 +20,21 @@
         <img src="Ultime-5528-Monochrome-Rouge.svg" width="100px" height="100px"/>
     </div>
     <hr/>
-
-    <div style="display: flex; flex-wrap: wrap;justify-content: center;">
-        <div style="width: min(100%, 640px); margin-right: 3%;">
-            <h2 class="secondary-text">Photonvision</h2>
-            <div id="photonvision" style="width: 100%"></div>
+    <div class="flex-parent-element">
+        <div style="display: flex; flex-wrap: wrap;justify-content: center;">
+            <div style="width: min(100%, 640px); margin-right: 3%;">
+                <h2 class="secondary-text">Photonvision</h2>
+                <div id="photonvision" style="width: 100%"></div>
+            </div>
         </div>
-    </div>
-    <!-- SIDE BAR -->
-    <div style="display: flex;">
-        <div style="margin-right:5%;">
-            <h2 class="secondary-text">Mode autonome</h2>
-            <frc-combo-box name="Mode Auto" default="Rien" options='["Nothing","AutoLine drop", "AutoLine no drop", "AutoTraverseDock drop", "AutoTraverseDock no drop", "AutoTraverse drop", "AutoTraverse no drop", "AutoDock drop", "AutoDock no drop"]' source-key="/SmartDashboard/ModeAutonome"></frc-combo-box>
+        <!-- SIDE BAR -->
+        <div style="display: flex;">
+            <div style="margin-right:5%;">
+                <h2 class="secondary-text">Mode autonome</h2>
+                <frc-combo-box name="Mode Auto" default="Rien" options='["Nothing","AutoLine drop", "AutoLine no drop", "AutoTraverseDock drop", "AutoTraverseDock no drop", "AutoTraverse drop", "AutoTraverse no drop", "AutoDock drop", "AutoDock no drop"]' source-key="/SmartDashboard/ModeAutonome"></frc-combo-box>
+            </div>
+            <!-- MAIN PAGE -->
         </div>
-        <!-- MAIN PAGE -->
     </div>
     <script>
             function onRobotConnection(connected) {

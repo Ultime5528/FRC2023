@@ -36,16 +36,14 @@ while not DriverStation:
         time.sleep(1)
 
 DriverStation.moveTo(-8, -8)
-time.sleep(0.75)
+time.sleep(3)
 DriverStation.maximize()
 
 # Dashboard
 
-dashboard_path = str(Path("C:/Users/First/Desktop/FRC2023/.dashboard"))
-if RobotBase.isReal():
-    subprocess.Popen("pynetworktables2js.exe --team 5528", shell=True, cwd=dashboard_path)
-else:
-    subprocess.Popen("pynetworktables2js.exe --robot 127.0.0.1", shell=True, cwd=dashboard_path)
+dashboard_path = str(Path(os.getcwd() + r"\.dashboard"))
+subprocess.Popen("pynetworktables2js.exe --team 5528", shell=True, cwd=dashboard_path)
+# subprocess.Popen("pynetworktables2js.exe --robot 127.0.0.1", shell=True, cwd=dashboard_path)
 
 dashboard_url = "http://localhost:8888"
 
@@ -70,7 +68,7 @@ chrome_name = None
 
 while chrome_name is None:
     try:
-        chrome_name = [name for name in pygetwindow.getAllTitles() if "KRAKEN" in name][0]
+        chrome_name = [name for name in pygetwindow.getAllTitles() if "Fancy Web Dashboard" in name][0]
     except IndexError:
         print("Chrome window not found")
         time.sleep(1)
@@ -86,7 +84,7 @@ while Browser is None:
         time.sleep(1)
 
 print("Resizing Chrome")
-time.sleep(1)
+time.sleep(3)
 Browser.moveTo(-8, DriverStation.bottom - 8)
 Browser.resizeTo(DriverStation.size.width, ctypes.windll.user32.GetSystemMetrics(1) - DriverStation.size.height + 16)
 
