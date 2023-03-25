@@ -6,6 +6,7 @@ import commands2
 import wpilib
 from commands2 import Trigger
 from commands2.button import JoystickButton
+from wpilib.event import BooleanEvent, EventLoop
 from wpimath.geometry import Pose2d
 
 from commands.autonomous.autodock import AutoDock
@@ -60,7 +61,17 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
         self.arm.setDefaultCommand(StopArm(self.arm))
 
-        Trigger(lambda: self.arm.hasObject() and not self.claw.is_closed).onTrue(TakeObject(self.claw, self.arm))
+        self.loop = EventLoop()
+        rising_event = BooleanEvent(
+            self.loop,
+            self.arm.hasObject
+        ).rising()
+
+        (
+            Trigger(rising_event.getAsBoolean)
+            .and_(Trigger(lambda: not self.claw.is_closed))
+            .onTrue(TakeObject(self.claw, self.arm))
+        )
 
         self.setupButtons()
         self.setupDashboard()
@@ -76,6 +87,10 @@ class Robot(commands2.TimedCommandRobot):
     def teleopInit(self) -> None:
         if self.autoCommand:
             self.autoCommand.cancel()
+
+    def robotPeriodic(self) -> None:
+        super().robotPeriodic()
+        self.loop.poll()
 
     def setupButtons(self):
         # Pilot
