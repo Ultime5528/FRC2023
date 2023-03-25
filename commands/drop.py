@@ -23,5 +23,5 @@ class Drop(SafeMixin, SequentialCommandGroup):
                 lambda: abs(arm.getExtensionPosition() - properties.level3_extension) <= self.level3_arm_threshold
             ),
             OpenClaw(claw),
-            MoveArm.toBase(arm)
+            MoveArm.toBin(arm)
         )

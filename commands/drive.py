@@ -1,3 +1,4 @@
+import commands2.button
 import wpilib
 from wpimath.filter import LinearFilter
 
@@ -23,8 +24,12 @@ class Drive(SafeCommand):
         self.turn_filter = LinearFilter.movingAverage(int(self.smoothing_window))
 
     def execute(self):
-        forward = self.interpolate(self.stick.getY()) * -1
-        turn = self.interpolate(self.stick.getX()) * -1
+        if isinstance(self.stick, commands2.button.CommandXboxController):
+            forward = self.interpolate(self.stick.getLeftY()) * -1
+            turn = self.interpolate(self.stick.getLeftX()) * -1
+        elif isinstance(self.stick, commands2.button.CommandJoystick):
+            forward = self.interpolate(self.stick.getY()) * -1
+            turn = self.interpolate(self.stick.getX()) * -1
 
         self.drivetrain.arcadeDrive(self.forward_filter.calculate(forward), self.turn_filter.calculate(turn))
 
