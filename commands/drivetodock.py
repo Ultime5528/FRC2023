@@ -10,6 +10,7 @@ from utils.property import autoproperty
 from utils.safecommand import SafeCommand, SafeMixin
 from enum import Enum
 
+
 class State(Enum):
     Start = "start"
     Jumping = "jumping"
@@ -18,10 +19,10 @@ class State(Enum):
 
 class DriveToDock(SafeMixin, commands2.SequentialCommandGroup):
     def __init__(self, drivetrain: Drivetrain, backwards: bool = False):
-        if backwards:
-            drive_cmd = FollowTrajectory.driveStraight(drivetrain, 0.2, 0.1)
-        else:
-            drive_cmd = FollowTrajectory(drivetrain, Pose2d(-0.2, 0, math.radians(180)), -0.1, "relative", "backward")
+        # if backwards:
+        #     drive_cmd = FollowTrajectory.driveStraight(drivetrain, 0.2, 0.1)
+        # else:
+        #     drive_cmd = FollowTrajectory(drivetrain, Pose2d(-0.2, 0, math.radians(180)), -0.1, "relative", "backward")
 
         super().__init__(
             _DriveToDock(drivetrain, backwards)
@@ -45,14 +46,14 @@ class _DriveToDock(SafeCommand):
         self.addRequirements(drivetrain)
         self.state = State.Start
         self.timer = wpilib.Timer()
-        self.max_pitch = 0
+        self.time = 0
+        self.pitch = 0
         self.backwards = backwards
 
     def initialize(self) -> None:
         self.state = State.Start
         self.timer.stop()
         self.timer.reset()
-        self.max_pitch = 0
         self.time = 0
         self.pitch = 0
 
@@ -86,7 +87,6 @@ class _DriveToDock(SafeCommand):
             speed = math.copysign(speed, self.pitch)
             if abs(d) > self.derivative_threshold or abs(self.pitch) < self.balancing_threshold:
                 speed = 0.0
-
         if self.backwards:
             speed *= -1
 

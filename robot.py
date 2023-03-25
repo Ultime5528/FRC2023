@@ -6,6 +6,7 @@ import commands2
 import wpilib
 from commands2 import Trigger
 from commands2.button import JoystickButton
+from wpilib.event import BooleanEvent, EventLoop
 from wpimath.geometry import Pose2d
 
 from commands.autonomous.autodock import AutoDock
@@ -61,20 +62,36 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.xboxremote))  # À commenter si on veut le joystick.
         self.arm.setDefaultCommand(StopArm(self.arm))
 
-        Trigger(lambda: self.arm.hasObject() and not self.claw.is_closed).onTrue(TakeObject(self.claw, self.arm))
+        self.loop = EventLoop()
+        rising_event = BooleanEvent(
+            self.loop,
+            self.arm.hasObject
+        ).rising()
+
+        (
+            Trigger(rising_event.getAsBoolean)
+            .and_(Trigger(lambda: not self.claw.is_closed))
+            .onTrue(TakeObject(self.claw, self.arm))
+        )
 
         self.setupButtons()
         self.setupDashboard()
 
     def autonomousInit(self) -> None:
         self.autoCommand: commands2.CommandBase = self.autoChooser.getSelected()
-
+        for name, command in self.autos.items():
+            if command is self.autoCommand:
+                wpilib.reportWarning("Starting auto: " + name)
         if self.autoCommand:
             self.autoCommand.schedule()
 
     def teleopInit(self) -> None:
         if self.autoCommand:
             self.autoCommand.cancel()
+
+    def robotPeriodic(self) -> None:
+        super().robotPeriodic()
+        self.loop.poll()
 
     def setupButtons(self):
         # Pilot
@@ -148,7 +165,7 @@ class Robot(commands2.TimedCommandRobot):
 
         self.autoCommand = None
         self.autoChooser = wpilib.SendableChooser()
-        self.autoChooser.setDefaultOption("Nothing", None)
+        self.autoChooser.addOption("Nothing", None)
         self.autoChooser.addOption("AutoLine drop", AutoLine(self.drivetrain, self.claw, self.arm, True))
         self.autoChooser.addOption("AutoLine no drop", AutoLine(self.drivetrain, self.claw, self.arm, False))
         self.autoChooser.addOption("AutoTraverseDock drop", AutoTraverseDock(self.drivetrain, self.claw, self.arm, True))
@@ -157,7 +174,7 @@ class Robot(commands2.TimedCommandRobot):
         self.autoChooser.addOption("AutoTraverse no drop", AutoTraverse(self.drivetrain, self.claw, self.arm, False))
         self.autoChooser.addOption("AutoDock drop", AutoDock(self.drivetrain, self.claw, self.arm, True))
         self.autoChooser.addOption("AutoDock no drop", AutoDock(self.drivetrain, self.claw, self.arm, False))
-        self.autoChooser.addOption("AutoDropOnly", AutoDropOnly(self.claw, self.arm))
+        self.autoChooser.setDefaultOption("AutoDropOnly", AutoDropOnly(self.claw, self.arm))
 
         wpilib.SmartDashboard.putData("ModeAutonome", self.autoChooser)
 

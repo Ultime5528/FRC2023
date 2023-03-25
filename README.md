@@ -39,8 +39,9 @@
 * Add the environment to the interpreter on PyCharm
 * Run the following command on the PyCharm terminal to add the requirements
 ```commandline
-  pip install robotpy[commands2,navx,rev,sim,apriltag,photonvision]
+  pip install robotpy[commands2,navx,rev,sim,apriltag,photonvision] numpy
 ```
+
 * To update robotpy :
 ```commandline
   pip install --upgrade robotpy[commands2,navx,rev,sim,apriltag,photonvision]
