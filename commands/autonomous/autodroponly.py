@@ -1,7 +1,6 @@
 import commands2
 
 from commands.drop import Drop
-from commands.openclaw import OpenClaw
 from commands.resetarm import ResetArm
 from subsystems.claw import Claw
 from subsystems.arm import Arm
@@ -16,6 +15,6 @@ class AutoDropOnly(SafeMixin, commands2.SequentialCommandGroup):
         super().__init__(
             ResetArm(arm),
             CloseClaw(claw).withTimeout(0.5),
-            MoveArm.toLevel3(arm),  # Level 3
+            MoveArm.toLevel3(arm),
             Drop(claw, arm)
         )
