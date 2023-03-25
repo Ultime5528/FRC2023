@@ -41,8 +41,6 @@ from subsystems.led import LEDController
 
 class Robot(commands2.TimedCommandRobot):
     def robotInit(self):
-        wpilib.DataLogManager.start()
-        wpilib.DriverStation.startDataLog(wpilib.DataLogManager.getLog())
         wpilib.LiveWindow.enableAllTelemetry()
         wpilib.LiveWindow.setEnabled(True)
         wpilib.DriverStation.silenceJoystickConnectionWarning(True)
@@ -176,7 +174,7 @@ class Robot(commands2.TimedCommandRobot):
         self.autoChooser.addOption("AutoTraverse no drop", AutoTraverse(self.drivetrain, self.claw, self.arm, False))
         self.autoChooser.addOption("AutoDock drop", AutoDock(self.drivetrain, self.claw, self.arm, True))
         self.autoChooser.addOption("AutoDock no drop", AutoDock(self.drivetrain, self.claw, self.arm, False))
-        self.autoChooser.setDefault("AutoDropOnly", AutoDropOnly(self.claw, self.arm))
+        self.autoChooser.setDefaultOption("AutoDropOnly", AutoDropOnly(self.claw, self.arm))
 
         wpilib.SmartDashboard.putData("ModeAutonome", self.autoChooser)
 
