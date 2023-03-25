@@ -98,8 +98,8 @@ class Robot(commands2.TimedCommandRobot):
         self.panel2.button(7).onTrue(MoveArm.toLevel3(self.arm))
         self.panel2.button(4).onTrue(MoveArm.toFloor(self.arm))
         self.panel2.button(3).onTrue(MoveArm.toBase(self.arm))
-        # self.panel2.button(6).toggleOnTrue(SignalCube(self.led_controller))
-        # self.panel2.button(5).toggleOnTrue(SignalCone(self.led_controller))
+        self.panel2.button(6).toggleOnTrue(SignalCube(self.led_controller))
+        self.panel2.button(5).toggleOnTrue(SignalCone(self.led_controller))
         self.panel2.button(8).onTrue(Drop(self.claw, self.arm))
 
     def setupDashboard(self):

@@ -322,7 +322,7 @@
   {
     "name": "/Properties/DriveToDock/climbing_speed",
     "type": "double",
-    "value": 0.17,
+    "value": 0.3,
     "properties": {
       "persistent": true
     }
