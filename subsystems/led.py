@@ -2,8 +2,6 @@ import random
 from enum import Enum
 import math
 from typing import Callable, Union, Tuple, List
-import commands2
-import numpy
 import wpilib
 import ports
 import numpy as np
@@ -32,7 +30,6 @@ class ModeLED(Enum):
 
 
 class LEDController(SafeSubsystem):
-    brightness = autoproperty(0.2)
     # HSV: [Hue(color 0 to 180), Saturation( amount of gray 0 to 255), Value(brightness 0 to 255)
     red_rgb = np.array([255, 0, 0])
     blue_rgb = np.array([0, 0, 255])
@@ -44,8 +41,9 @@ class LEDController(SafeSubsystem):
     black = np.array([0, 0, 0])
     white = np.array([255, 255, 255])
     beige_rgb = np.array([225, 198, 153])
+
     led_number = 203
-    # Brightness is a percentage
+
     speed = autoproperty(0.75)
     white_length = autoproperty(6.0)
     color_period = autoproperty(20.0)
@@ -241,7 +239,7 @@ class LEDController(SafeSubsystem):
                     self.teleop()
                 elif wpilib.DriverStation.getMatchTime() > 25:
                     self.flash(self.getAllianceColor(), 10)
-                elif wpilib.DriverStation.getMatchTime() > 5:
+                elif wpilib.DriverStation.getMatchTime() > 1:
                     self.halfWaves(self.getModeColor())
                 else:
                     self.explosiveness = 1

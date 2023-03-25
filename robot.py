@@ -58,7 +58,7 @@ class Robot(commands2.TimedCommandRobot):
         self.led_controller = LEDController()
 
         # Équipe de 'conduite': Le symbole # sert a commenter le reste d'une ligne
-        #self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))  # À commenter si on veut la manette.
+        # self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))  # À commenter si on veut la manette.
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.xboxremote))  # À commenter si on veut le joystick.
         self.arm.setDefaultCommand(StopArm(self.arm))
 
@@ -79,9 +79,6 @@ class Robot(commands2.TimedCommandRobot):
 
     def autonomousInit(self) -> None:
         self.autoCommand: commands2.CommandBase = self.autoChooser.getSelected()
-        for name, command in self.autos.items():
-            if command is self.autoCommand:
-                wpilib.reportWarning("Starting auto: " + name)
         if self.autoCommand:
             self.autoCommand.schedule()
 
@@ -175,7 +172,6 @@ class Robot(commands2.TimedCommandRobot):
         self.autoChooser.addOption("AutoDock drop", AutoDock(self.drivetrain, self.claw, self.arm, True))
         self.autoChooser.addOption("AutoDock no drop", AutoDock(self.drivetrain, self.claw, self.arm, False))
         self.autoChooser.setDefaultOption("AutoDropOnly", AutoDropOnly(self.claw, self.arm))
-
         wpilib.SmartDashboard.putData("ModeAutonome", self.autoChooser)
 
 
