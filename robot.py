@@ -53,7 +53,7 @@ class Robot(commands2.TimedCommandRobot):
         self.drivetrain = Drivetrain()
         self.arm = Arm()
         self.claw = Claw()
-        # self.led_controller = LEDController()
+        self.led_controller = LEDController()
 
         self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
         self.arm.setDefaultCommand(StopArm(self.arm))
@@ -134,8 +134,8 @@ class Robot(commands2.TimedCommandRobot):
         putCommandOnDashboard("ArmManual", ManualExtend.down(self.arm))
         putCommandOnDashboard("Groups", Drop(self.claw, self.arm))
         putCommandOnDashboard("Groups", TakeObject(self.claw, self.arm))
-        # putCommandOnDashboard("Led", SignalCone(self.led_controller))
-        # putCommandOnDashboard("Led", SignalCube(self.led_controller))
+        putCommandOnDashboard("Led", SignalCone(self.led_controller))
+        putCommandOnDashboard("Led", SignalCube(self.led_controller))
 
         self.autoCommand = None
         self.autoChooser = wpilib.SendableChooser()
