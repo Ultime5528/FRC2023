@@ -32,6 +32,7 @@ class ModeLED(Enum):
 
 
 class LEDController(SafeSubsystem):
+    brightness = autoproperty(0.2)
     # HSV: [Hue(color 0 to 180), Saturation( amount of gray 0 to 255), Value(brightness 0 to 255)
     red_rgb = np.array([255, 0, 0])
     blue_rgb = np.array([0, 0, 255])
@@ -66,6 +67,9 @@ class LEDController(SafeSubsystem):
         brightness = max(min(100, self.brightness), 0) / 100
         color = (color * brightness).astype(int)
         self.buffer[i].setRGB(*color)
+
+    def dim(self, x):
+        return round(x * max(min(1, self.brightness), 0))
 
     def setAll(self, color_func: Callable[[int], Color]):
         a = np.arange(len(self.buffer))
