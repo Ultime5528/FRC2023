@@ -49,13 +49,16 @@ class Robot(commands2.TimedCommandRobot):
         self.stick = commands2.button.CommandJoystick(0)
         self.panel1 = commands2.button.CommandJoystick(1)
         self.panel2 = commands2.button.CommandJoystick(2)
+        self.xboxremote = commands2.button.CommandXboxController(3)
 
         self.drivetrain = Drivetrain()
         self.arm = Arm()
         self.claw = Claw()
         self.led_controller = LEDController()
 
-        self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))
+        # Équipe de 'conduite': Le symbole # sert a commenter le reste d'une ligne
+        #self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.stick))  # À commenter si on veut la manette.
+        self.drivetrain.setDefaultCommand(Drive(self.drivetrain, self.xboxremote))  # À commenter si on veut le joystick.
         self.arm.setDefaultCommand(StopArm(self.arm))
 
         Trigger(lambda: self.arm.hasObject() and not self.claw.is_closed).onTrue(TakeObject(self.claw, self.arm))
@@ -81,6 +84,12 @@ class Robot(commands2.TimedCommandRobot):
         self.stick.button(6).onTrue(ResetArm(self.arm))
         self.stick.button(12).onTrue(Drive(self.drivetrain, self.stick))
         self.stick.button(10).onTrue(FollowTrajectory.toLoading(self.drivetrain))
+
+        self.xboxremote.button(1).onTrue(OpenClaw(self.claw))
+        self.xboxremote.button(2).onTrue(CloseClaw(self.claw))
+        self.xboxremote.button(7).onTrue(ResetArm(self.arm))
+        self.xboxremote.button(3).onTrue(Drive(self.drivetrain, self.xboxremote))
+        self.xboxremote.button(4).onTrue(FollowTrajectory.toLoading(self.drivetrain))
 
         # Copilot
         self.panel1.button(8).onTrue(GoGrid(self.drivetrain, "1"))
