@@ -57,16 +57,16 @@ class Arm(SafeSubsystem):
         self._extension_offset = 0.0
         self._elevator_offset = 0.0
 
-        self.loop = EventLoop()
-        self._min_elevator_event = BooleanEvent(
-            self.loop, self.isSwitchElevatorMinOn
-        )
-        self._min_elevator_event.ifHigh(self.resetElevator)
-
-        self._min_extension_event = BooleanEvent(
-            self.loop, self.isSwitchExtensionMinOn
-        )
-        self._min_extension_event.ifHigh(self.resetExtension)
+        # self.loop = EventLoop()
+        # self._min_elevator_event = BooleanEvent(
+        #     self.loop, self.isSwitchElevatorMinOn
+        # )
+        # self._min_elevator_event.ifHigh(self.resetElevator)
+        #
+        # self._min_extension_event = BooleanEvent(
+        #     self.loop, self.isSwitchExtensionMinOn
+        # )
+        # self._min_extension_event.ifHigh(self.resetExtension)
 
         # self._max_extension_event = BooleanEvent(
         #     self.loop, self.isSwitchExtensionMaxOn
@@ -96,8 +96,8 @@ class Arm(SafeSubsystem):
         self.mech_elevator.setAngle((135 - -10) * (self.encoder_elevator.getPosition()) / self.elevator_max_position)
         self.mech_elevator.setLength(self.encoder_extension.getPosition())
 
-    def periodic(self):
-        self.loop.poll()
+    # def periodic(self):
+    #     self.loop.poll()
 
     def resetExtension(self):
         self._extension_offset = self.encoder_extension.getPosition()

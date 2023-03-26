@@ -92,7 +92,7 @@ class Robot(commands2.TimedCommandRobot):
 
     def setupButtons(self):
         # Pilot
-        self.stick.button(1).onTrue(SlowDrive(self.drivetrain, self.stick))
+        # self.stick.button(1).onTrue(SlowDrive(self.drivetrain, self.stick))
         self.stick.button(4).onTrue(OpenClaw(self.claw))
         self.stick.button(3).onTrue(CloseClaw(self.claw))
         self.stick.button(6).onTrue(ResetArm(self.arm))
