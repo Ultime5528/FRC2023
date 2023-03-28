@@ -21,7 +21,7 @@ from utils.property import autoproperty, defaultSetter
 from utils.safesubsystem import SafeSubsystem
 from utils.sparkmaxsim import SparkMaxSim
 from utils.sparkmaxutils import configureFollower, configureLeader
-
+from utils.vision import Vision
 
 select_gyro: Literal["navx", "adis16448", "adis16470", "adxrs", "empty"] = "adis16470"
 april_tag_field = loadAprilTagLayoutField(AprilTagField.k2023ChargedUp)
@@ -33,6 +33,7 @@ class Drivetrain(SafeSubsystem):
 
     def __init__(self) -> None:
         super().__init__()
+        self.vision = Vision()
 
         # Motors
         self._motor_left = rev.CANSparkMax(ports.drivetrain_motor_front_left, rev.CANSparkMax.MotorType.kBrushless)
@@ -154,12 +155,14 @@ class Drivetrain(SafeSubsystem):
         self.latest = self.cam.getLatestResult()
         if self.use_vision and self.latest.hasTargets():
             img_capture_time = self.latest.getTimestamp()
-            cam_to_target = self.latest.getBestTarget().getBestCameraToTarget()
+            best = self.latest.getBestTarget()
+            cam_to_target = best.getBestCameraToTarget()
             target_to_cam = cam_to_target.inverse()
             target_on_field = april_tag_field.getTagPose(self.latest.getBestTarget().getFiducialId())
             if target_on_field is not None:
                 camera_on_field = target_on_field.transformBy(target_to_cam)
                 robot_on_field = camera_on_field.transformBy(cam_to_robot).toPose2d()
+                robot_on_field = self.vision.update(robot_on_field, best.getPoseAmbiguity())
                 self._estimator.addVisionMeasurement(robot_on_field, img_capture_time)
 
         self._field.setRobotPose(self._estimator.getEstimatedPosition())
