@@ -2,6 +2,7 @@ import math
 
 import commands2
 import wpilib
+from wpimath.filter import LinearFilter
 from wpimath.geometry import Pose2d
 
 from commands.followtrajectory import FollowTrajectory
@@ -31,13 +32,14 @@ class DriveToDock(SafeMixin, commands2.SequentialCommandGroup):
 
 
 class _DriveToDock(SafeCommand):
-    start_speed = autoproperty(0.35, subtable=DriveToDock.__name__)
+    start_speed = autoproperty(0.45, subtable=DriveToDock.__name__)
     climbing_factor = autoproperty(0.1, subtable=DriveToDock.__name__)
-    climbing_speed = autoproperty(0.17, subtable=DriveToDock.__name__)
+    climbing_speed_backward = autoproperty(0.17, subtable=DriveToDock.__name__)
+    climbing_speed_forward = autoproperty(0.22, subtable=DriveToDock.__name__)
     jumping_angle = autoproperty(15.0, subtable=DriveToDock.__name__)
     balancing_threshold = autoproperty(5.0, subtable=DriveToDock.__name__)
-    jumping_time = autoproperty(1.6, subtable=DriveToDock.__name__)
-    jumping_speed = autoproperty(0.15, subtable=DriveToDock.__name__)
+    jumping_time = autoproperty(1.0, subtable=DriveToDock.__name__)
+    jumping_speed = autoproperty(0.3, subtable=DriveToDock.__name__)
     derivative_threshold = autoproperty(8.5, subtable=DriveToDock.__name__)
 
     def __init__(self, drivetrain: Drivetrain, backwards: bool = False):
@@ -56,17 +58,21 @@ class _DriveToDock(SafeCommand):
         self.timer.reset()
         self.time = 0
         self.pitch = 0
+        self.filter = LinearFilter.movingAverage(5)
+        self.filter2 = LinearFilter.highPass(1.0, 0.02)
 
     def execute(self) -> None:
+        speed = 0
+
         last_pitch = self.pitch
         last_time = self.time
-        self.pitch = self.drivetrain.getPitch()
-        self.time = wpilib.getTime()
-        d = (self.pitch - last_pitch) / (self.time - last_time)
 
+        self.pitch = self.drivetrain.getPitch()
         if self.backwards:
             self.pitch *= -1
-        speed = 0
+
+        self.time = wpilib.Timer.getFPGATimestamp()
+        d = (self.pitch - last_pitch) / (self.time - last_time)
 
         if self.state == State.Start:
             speed = self.start_speed
@@ -83,14 +89,19 @@ class _DriveToDock(SafeCommand):
 
         if self.state == State.Climbing:
             speed = self.climbing_factor * self.pitch
-            speed = min(abs(speed), self.climbing_speed)
+            speed = min(abs(speed), self.climbing_speed_backward if self.backwards else self.climbing_speed_forward)
             speed = math.copysign(speed, self.pitch)
-            if abs(d) > self.derivative_threshold or abs(self.pitch) < self.balancing_threshold:
+            if d < -self.derivative_threshold or abs(self.pitch) < self.balancing_threshold:
                 speed = 0.0
+
         if self.backwards:
             speed *= -1
 
-        wpilib.SmartDashboard.putString("Climbing State", self.state.value)
+        wpilib.SmartDashboard.putString("Auto-Climbing State", self.state.value)
+        wpilib.SmartDashboard.putNumber("Auto-Derivative", d)
+        wpilib.SmartDashboard.putNumber("Auto-Filter d", self.filter.calculate(d))
+        wpilib.SmartDashboard.putNumber("Auto-Filter d2", self.filter2.calculate(d))
+        wpilib.SmartDashboard.putNumber("Auto-Pitch ", self.pitch)
         self.drivetrain.arcadeDrive(speed, 0)
 
     def end(self, interrupted: bool) -> None:

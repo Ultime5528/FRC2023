@@ -193,7 +193,7 @@ class _ClassProperties:
     transition_extension = autoproperty(60.0, subtable=MoveArm.__name__)
 
     elevator_min_speed = autoproperty(0.2, subtable=MoveArmDirect.__name__)
-    elevator_max_speed = autoproperty(0.8, subtable=MoveArmDirect.__name__)
+    elevator_max_speed = autoproperty(1.0, subtable=MoveArmDirect.__name__)
     elevator_acceleration = autoproperty(0.03, subtable=MoveArmDirect.__name__)
 
     # Extension Properties #
@@ -207,7 +207,7 @@ class _ClassProperties:
     transition_elevation = autoproperty(0.0, subtable=MoveArm.__name__)
 
     extension_min_speed = autoproperty(0.1, subtable=MoveArmDirect.__name__)
-    extension_max_speed = autoproperty(0.95, subtable=MoveArmDirect.__name__)
+    extension_max_speed = autoproperty(1.0, subtable=MoveArmDirect.__name__)
     extension_acceleration = autoproperty(0.035, subtable=MoveArmDirect.__name__)
 
 

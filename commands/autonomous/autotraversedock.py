@@ -16,12 +16,13 @@ class AutoTraverseDock(SafeMixin, commands2.SequentialCommandGroup):
         commands = [
             commands2.ParallelCommandGroup(
                 commands2.SequentialCommandGroup(
-                    MoveArm.toLevel2(arm),
-                    commands2.WaitCommand(1),
+                    # MoveArm.toLevel2(arm),
+                    # commands2.WaitCommand(1),
                     MoveArm.toBase(arm)
                 ),
                 commands2.SequentialCommandGroup(
                     TraverseDock(drivetrain),
+                    commands2.WaitCommand(0.75),
                     DriveToDock(drivetrain)
                 )
             )

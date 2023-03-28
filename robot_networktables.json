@@ -138,7 +138,7 @@
   {
     "name": "/Properties/MoveArmDirect/elevator_max_speed",
     "type": "double",
-    "value": 0.8,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }
@@ -226,7 +226,7 @@
   {
     "name": "/Properties/MoveArmDirect/extension_max_speed",
     "type": "double",
-    "value": 0.95,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }
@@ -306,7 +306,7 @@
   {
     "name": "/Properties/DriveToDock/start_speed",
     "type": "double",
-    "value": 0.35,
+    "value": 0.45,
     "properties": {
       "persistent": true
     }
@@ -320,9 +320,17 @@
     }
   },
   {
-    "name": "/Properties/DriveToDock/climbing_speed",
+    "name": "/Properties/DriveToDock/climbing_speed_backward",
     "type": "double",
     "value": 0.17,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/DriveToDock/climbing_speed_forward",
+    "type": "double",
+    "value": 0.22,
     "properties": {
       "persistent": true
     }
@@ -346,7 +354,7 @@
   {
     "name": "/Properties/DriveToDock/jumping_time",
     "type": "double",
-    "value": 1.6,
+    "value": 1.0,
     "properties": {
       "persistent": true
     }
@@ -354,7 +362,7 @@
   {
     "name": "/Properties/DriveToDock/jumping_speed",
     "type": "double",
-    "value": 0.15,
+    "value": 0.3,
     "properties": {
       "persistent": true
     }
@@ -434,7 +442,7 @@
   {
     "name": "/Properties/TraverseDock/end_threshold",
     "type": "double",
-    "value": 0.5,
+    "value": 2.5,
     "properties": {
       "persistent": true
     }
@@ -635,6 +643,14 @@
     "name": "/Properties/LEDController/brightness",
     "type": "int",
     "value": 100,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/DriveToDock/climbing_speed",
+    "type": "double",
+    "value": 0.15,
     "properties": {
       "persistent": true
     }
