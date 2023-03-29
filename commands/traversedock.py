@@ -20,7 +20,7 @@ class TraverseDock(SafeCommand):
     up_speed = autoproperty(0.25)
     down_speed = autoproperty(0.25)
     up_threshold = autoproperty(10.0)
-    end_threshold = autoproperty(0.5)
+    end_threshold = autoproperty(2.5)
 
     def __init__(self, drivetrain: Drivetrain):
         super().__init__()

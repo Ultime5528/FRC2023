@@ -128,7 +128,7 @@ class FollowTrajectory(SafeCommand):
 
 
 class _ClassProperties:
-    to_loading_speed = autoproperty(0.1, subtable=FollowTrajectory.__name__)
+    to_loading_speed = autoproperty(0.2, subtable=FollowTrajectory.__name__)
 
 
 properties = _ClassProperties()
