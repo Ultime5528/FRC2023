@@ -106,9 +106,13 @@ class Arm(SafeSubsystem):
         self._elevator_offset = self.encoder_elevator.getPosition()
 
     def getElevatorPosition(self):
+        if self.isElevatorMin():
+            return 0.0
         return self.encoder_elevator.getPosition() - self._elevator_offset
 
     def getExtensionPosition(self):
+        if self.isExtensionMin():
+            return 0.0
         return self.encoder_extension.getPosition() - self._extension_offset
 
     def isSwitchExtensionMinOn(self):
