@@ -32,7 +32,7 @@ class Vision:
     yaw_std_deviation_max = autoproperty(10.0)
 
     def __init__(self):
-        self.buffer = [Data() for _ in range(self.buffer_size)]
+        self.buffer = [Data() for _ in range(int(self.buffer_size))]
         self.index = 0
 
     def update(self, best: Pose2d, ambiguity: float) -> Pose2d | None:

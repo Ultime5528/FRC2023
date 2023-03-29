@@ -4,7 +4,7 @@ import rev
 import wpilib
 import wpilib.drive
 import wpiutil
-from photonvision import PhotonCamera, SimVisionSystem, SimVisionTarget
+from photonvision import PhotonCamera, SimVisionSystem, SimVisionTarget, RobotPoseEstimator, PoseStrategy
 from robotpy_apriltag import AprilTagField, loadAprilTagLayoutField
 from wpilib import DriverStation
 from wpilib import RobotBase, RobotController
@@ -73,9 +73,9 @@ class Drivetrain(SafeSubsystem):
         }[select_gyro]()
 
         # Odometry
-        self._kinematics = DifferentialDriveKinematics(trackWidth=0.56)
+        self._kinematics = DifferentialDriveKinematics(trackWidth=0.48)
         self._estimator = DifferentialDrivePoseEstimator(self._kinematics, self._gyro.getRotation2d(), 0, 0,
-                                                         initialPose=Pose2d(0, 0, 0))
+                                                         Pose2d(0, 0, 0), (0.02, 0.02, 0.01), (0.01, 0.01, 0.01))
 
         self._field = wpilib.Field2d()
         wpilib.SmartDashboard.putData("Field", self._field)
@@ -106,8 +106,8 @@ class Drivetrain(SafeSubsystem):
                 self.sim_vision.addSimVisionTarget(SimVisionTarget(april_tag_field.getTagPose(i), 8, 8, i))
             self.cam = self.sim_vision.cam
 
+        self.cam_estimator = RobotPoseEstimator(april_tag_field, PoseStrategy.CLOSEST_TO_CAMERA_HEIGHT, [(self.cam, cam_to_robot.inverse())])
         self.use_vision = True
-
 
     def arcadeDrive(self, forward: float, rotation: float) -> None:
         self._drive.arcadeDrive(forward, rotation, False)
@@ -154,16 +154,23 @@ class Drivetrain(SafeSubsystem):
 
         self.latest = self.cam.getLatestResult()
         if self.use_vision and self.latest.hasTargets():
-            img_capture_time = self.latest.getTimestamp()
-            best = self.latest.getBestTarget()
-            cam_to_target = best.getBestCameraToTarget()
-            target_to_cam = cam_to_target.inverse()
-            target_on_field = april_tag_field.getTagPose(self.latest.getBestTarget().getFiducialId())
-            if target_on_field is not None:
-                camera_on_field = target_on_field.transformBy(target_to_cam)
-                robot_on_field = camera_on_field.transformBy(cam_to_robot).toPose2d()
-                robot_on_field = self.vision.update(robot_on_field, best.getPoseAmbiguity())
-                self._estimator.addVisionMeasurement(robot_on_field, img_capture_time)
+            # img_capture_time = self.latest.getTimestamp()
+            # best = self.latest.getBestTarget()
+            # cam_to_target = best.getBestCameraToTarget()
+            # best.getAlternateCameraToTarget()
+            pose, lag = self.cam_estimator.update()
+            pose = self.vision.update(pose.toPose2d(), self.latest.getBestTarget().getPoseAmbiguity())
+            if pose:
+                self._estimator.addVisionMeasurement(pose, lag)
+            # best.
+            # target_to_cam = cam_to_target.inverse()
+            # target_on_field = april_tag_field.getTagPose(self.latest.getBestTarget().getFiducialId())
+            # if target_on_field is not None:
+            #     camera_on_field = target_on_field.transformBy(target_to_cam)
+            #     robot_on_field = camera_on_field.transformBy(cam_to_robot).toPose2d()
+            #     robot_on_field = self.vision.update(robot_on_field, best.getPoseAmbiguity())
+            #     if robot_on_field:
+            #         self._estimator.addVisionMeasurement(robot_on_field, img_capture_time)
 
         self._field.setRobotPose(self._estimator.getEstimatedPosition())
 
