@@ -344,7 +344,15 @@
     }
   },
   {
-    "name": "/Properties/DriveToDock/start_speed",
+    "name": "/Properties/DriveToDock/start_speed_backward",
+    "type": "double",
+    "value": 0.45,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/DriveToDock/start_speed_forward",
     "type": "double",
     "value": 0.45,
     "properties": {
@@ -362,7 +370,7 @@
   {
     "name": "/Properties/DriveToDock/climbing_speed_backward",
     "type": "double",
-    "value": 0.15,
+    "value": 0.17,
     "properties": {
       "persistent": true
     }
@@ -370,7 +378,7 @@
   {
     "name": "/Properties/DriveToDock/climbing_speed_forward",
     "type": "double",
-    "value": 0.22,
+    "value": 0.2,
     "properties": {
       "persistent": true
     }
@@ -384,9 +392,17 @@
     }
   },
   {
-    "name": "/Properties/DriveToDock/balancing_threshold",
+    "name": "/Properties/DriveToDock/balancing_threshold_backward",
     "type": "double",
     "value": 5.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/DriveToDock/balancing_threshold_forward",
+    "type": "int",
+    "value": 7.0,
     "properties": {
       "persistent": true
     }
@@ -688,6 +704,22 @@
     }
   },
   {
+    "name": "/Properties/DriveToDock/start_speed",
+    "type": "double",
+    "value": 0.45,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/DriveToDock/balancing_threshold",
+    "type": "double",
+    "value": 5.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
     "name": "/Properties/DriveToDock/climbing_speed",
     "type": "double",
     "value": 0.15,
@@ -730,7 +762,7 @@
   {
     "name": "/Properties/DriveToDock/balancing_speed",
     "type": "double",
-    "value": 0.1,
+    "value": 0.06,
     "properties": {
       "persistent": true
     }
@@ -754,7 +786,7 @@
   {
     "name": "/Properties/DriveToDock/ontop_threshold",
     "type": "double",
-    "value": 2.5,
+    "value": 5.0,
     "properties": {
       "persistent": true
     }
