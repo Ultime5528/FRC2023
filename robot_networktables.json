@@ -360,9 +360,17 @@
     }
   },
   {
-    "name": "/Properties/DriveToDock/climbing_speed",
+    "name": "/Properties/DriveToDock/climbing_speed_backward",
     "type": "double",
     "value": 0.15,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Properties/DriveToDock/climbing_speed_forward",
+    "type": "double",
+    "value": 0.22,
     "properties": {
       "persistent": true
     }
@@ -680,17 +688,9 @@
     }
   },
   {
-    "name": "/Properties/DriveToDock/climbing_speed_backward",
+    "name": "/Properties/DriveToDock/climbing_speed",
     "type": "double",
-    "value": 0.17,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Properties/DriveToDock/climbing_speed_forward",
-    "type": "double",
-    "value": 0.22,
+    "value": 0.15,
     "properties": {
       "persistent": true
     }
