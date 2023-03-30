@@ -34,7 +34,7 @@ class LEDController(SafeSubsystem):
     red_rgb = np.array([255, 0, 0])
     blue_rgb = np.array([0, 0, 255])
     sky_blue_rgb = np.array([0, 205, 255])
-    purple_rgb = np.array([108, 0, 250])
+    purple_rgb = np.array([150, 0, 200])
     violet_rgb = np.array([205, 0, 255])
     yellow_rgb = np.array([255, 255, 0])
     orange_rgb = np.array([255, 100, 0])

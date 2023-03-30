@@ -32,12 +32,14 @@ class DriveToDock(SafeMixin, commands2.SequentialCommandGroup):
 
 
 class _DriveToDock(SafeCommand):
-    start_speed = autoproperty(0.45, subtable=DriveToDock.__name__)
+    start_speed_backward = autoproperty(0.45, subtable=DriveToDock.__name__)
+    start_speed_forward = autoproperty(0.5, subtable=DriveToDock.__name__)
     climbing_factor = autoproperty(0.1, subtable=DriveToDock.__name__)
     climbing_speed_backward = autoproperty(0.17, subtable=DriveToDock.__name__)
     climbing_speed_forward = autoproperty(0.22, subtable=DriveToDock.__name__)
     jumping_angle = autoproperty(15.0, subtable=DriveToDock.__name__)
-    balancing_threshold = autoproperty(5.0, subtable=DriveToDock.__name__)
+    balancing_threshold_backward = autoproperty(5.0, subtable=DriveToDock.__name__)
+    balancing_threshold_forward = autoproperty(8, subtable=DriveToDock.__name__)
     jumping_time = autoproperty(1.0, subtable=DriveToDock.__name__)
     jumping_speed = autoproperty(0.3, subtable=DriveToDock.__name__)
     derivative_threshold = autoproperty(8.5, subtable=DriveToDock.__name__)
@@ -75,7 +77,7 @@ class _DriveToDock(SafeCommand):
         d = (self.pitch - last_pitch) / (self.time - last_time)
 
         if self.state == State.Start:
-            speed = self.start_speed
+            speed = self.start_speed_backward if self.backwards else self.start_speed_forward
             if self.pitch > self.jumping_angle:
                 self.state = State.Jumping
 
@@ -91,7 +93,7 @@ class _DriveToDock(SafeCommand):
             speed = self.climbing_factor * self.pitch
             speed = min(abs(speed), self.climbing_speed_backward if self.backwards else self.climbing_speed_forward)
             speed = math.copysign(speed, self.pitch)
-            if d < -self.derivative_threshold or abs(self.pitch) < self.balancing_threshold:
+            if d < -self.derivative_threshold or abs(self.pitch) < (self.balancing_threshold_backward if self.backwards else self.balancing_threshold_forward):
                 speed = 0.0
 
         if self.backwards:
